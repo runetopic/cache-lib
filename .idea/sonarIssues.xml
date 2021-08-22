@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="issues">
+    <option name="index">
+      <map>
+        <entry key="$PROJECT_DIR$/build.gradle">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite/game/src/main/kotlin/com/xlite/game/module/GameModule.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite/plugin/src/main/kotlin/com/xlite/plugin/content/login/login.plugin.kts">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite/plugin/src/main/kotlin/com/xlite/plugin/content/login/test/plugin.kts">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite/plugin/src/main/kotlin/com/xlite/plugin/sync/player/sync.plugin.kts">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite/protocol/src/main/kotlin/com/xlite/protocol/mapper/PlayerSyncMapper.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite/protocol/src/main/kotlin/com/xlite/protocol/message/PlayerSyncMessage.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite/protocol/src/main/resources/packets/server/PlayerSync.toml">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite2-client/client/src/main/java/Class384_Sub2.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../xlite2-client/client/src/main/java/Class80.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
