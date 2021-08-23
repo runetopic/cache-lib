@@ -1,4 +1,4 @@
-package com.xlite.cache.file
+package com.xlite.cache.fs.file
 
 import java.io.Closeable
 

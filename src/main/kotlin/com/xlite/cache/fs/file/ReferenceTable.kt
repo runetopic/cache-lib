@@ -1,16 +1,17 @@
-package com.xlite.cache.file.impl
+package com.xlite.cache.fs.file
 
+import com.xlite.cache.fs.file.impl.IndexFile
 import java.util.*
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-class ReferenceTable(
-    private val indexFile: IndexFile,
-    private val id: Int,
-    private val sector: Int,
-    private val length: Int
+data class ReferenceTable(
+    val indexFile: IndexFile,
+    val id: Int,
+    val sector: Int,
+    val length: Int
 ) {
     override fun hashCode(): Int {
         var hash = 7

@@ -1,6 +1,6 @@
-package com.xlite.cache.file.impl
+package com.xlite.cache.fs.file.impl
 
-import com.xlite.cache.file.IIndexFile
+import com.xlite.cache.fs.file.IIndexFile
 import java.io.File
 import java.io.RandomAccessFile
 
