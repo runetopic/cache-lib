@@ -1,7 +1,6 @@
-package com.xlite.cache.loader
+package com.xlite.cache.fs
 
 import com.github.michaelbull.logging.InlineLogger
-import com.xlite.cache.fs.file.impl.IndexFile
 import com.xlite.cache.service.ICacheService
 
 /**
@@ -10,7 +9,7 @@ import com.xlite.cache.service.ICacheService
  */
 class CacheLoader(private val cacheService: ICacheService): ICacheLoader {
     override fun load() {
-        logger.debug { "Found a total of ${cacheService.getMainIndex().length()} indices." }
+        logger.debug { "Loaded ${cacheService.getMainIndex().length()} indices." }
     }
 
     override fun close() {

@@ -6,6 +6,6 @@ import java.io.Closeable
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-interface IDataFile:  Closeable {
-    fun read(id: Int, containerId: Int, sector: Int, length: Int): ByteArray
+interface IDataFile: Closeable {
+    fun read(id: Int, referenceTable: ReferenceTable): ByteArray
 }

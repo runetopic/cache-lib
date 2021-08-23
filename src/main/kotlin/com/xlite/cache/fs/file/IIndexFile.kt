@@ -7,5 +7,6 @@ import java.io.Closeable
  * @email <xlitersps@gmail.com>
  */
 interface IIndexFile: Closeable {
+    fun read(id: Int): ReferenceTable
     fun length(): Int
 }

@@ -22,26 +22,34 @@ data class ReferenceTable(
         return hash
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (obj == null) {
-            return false
+    override fun equals(other: Any?): Boolean {
+        when (other) {
+            null -> {
+                return false
+            }
+            else -> when {
+                javaClass != other.javaClass -> {
+                    return false
+                }
+                else -> {
+                    val referenceTable: ReferenceTable = other as ReferenceTable
+                    return when {
+                        indexFile != referenceTable.indexFile -> {
+                            false
+                        }
+                        id != referenceTable.id -> {
+                            false
+                        }
+                        sector != referenceTable.sector -> {
+                            false
+                        }
+                        this.length != referenceTable.length -> {
+                            false
+                        }
+                        else -> true
+                    }
+                }
+            }
         }
-        if (javaClass != obj.javaClass) {
-            return false
-        }
-        val other: ReferenceTable = obj as ReferenceTable
-        if (indexFile != other.indexFile) {
-            return false
-        }
-        if (id != other.id) {
-            return false
-        }
-        if (sector != other.sector) {
-            return false
-        }
-        if (this.length != other.length) {
-            return false
-        }
-        return true
     }
 }
