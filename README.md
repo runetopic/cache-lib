@@ -11,7 +11,8 @@ Work in progress.
 
 ## Usage
 ```
-val serviceRS2 by inject<ICacheService>()
+val directory = "data/cache/"
+val serviceRS2 = CacheServiceRS2()
 val loader = CacheLoader(serviceRS2)
 val indexData = loader.readIndex(5)
 ```
