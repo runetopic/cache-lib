@@ -7,5 +7,5 @@ import com.xlite.cache.config.CacheConfiguration
  * @email <xlitersps@gmail.com>
  */
 fun main() {
-    Cache().load(CacheConfiguration.properties.getProperty("cache.location"))
+    Cache(CacheConfiguration.properties.getProperty("cache.location")).load()
 }
