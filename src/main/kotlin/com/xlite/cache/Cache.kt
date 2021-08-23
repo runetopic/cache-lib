@@ -11,8 +11,6 @@ import java.io.FileNotFoundException
  * @email <xlitersps@gmail.com>
  */
 class Cache(private val directory: String) {
-    private val cachedIndices = arrayListOf<IndexFile>()
-    private val logger = InlineLogger()
     private val dat2File = getDat2File()
     private val mainIndex = getMainIndex()
 
@@ -46,5 +44,8 @@ class Cache(private val directory: String) {
         private const val MAIN_FILE_IDX = "${PREFIX}.idx"
         private const val MAIN_FILE_DAT = "${PREFIX}.dat2"
         private const val MAIN_FILE_255 = "${PREFIX}.idx255"
+
+        private val logger = InlineLogger()
+        private val cachedIndices = arrayListOf<IndexFile>()
     }
 }
