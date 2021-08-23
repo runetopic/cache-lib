@@ -1,4 +1,4 @@
-package com.xlite.cache.fs
+package com.xlite.cache.fs.loader
 
 import com.github.michaelbull.logging.InlineLogger
 import com.xlite.cache.service.ICacheService
