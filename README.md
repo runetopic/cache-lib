@@ -7,7 +7,6 @@ Work in progress.
 
 # Features
 - Service based implementation for different cache formats.
-- Externalized definitions for easy loading and mapping cache data to useable objects.
 
 ## Usage
 ```
