@@ -6,4 +6,5 @@ package com.xlite.cache.fs.loader
  */
 interface ICacheLoader: AutoCloseable {
     fun load()
+    fun readIndex(id: Int): ByteArray
 }

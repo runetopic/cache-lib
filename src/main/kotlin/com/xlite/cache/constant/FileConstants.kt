@@ -11,4 +11,5 @@ object FileConstants {
     const val MAIN_FILE_255 = "${PREFIX}.idx255"
 
     const val SECTOR_SIZE = 520
+    const val MAIN_INDEX_ID = 255
 }

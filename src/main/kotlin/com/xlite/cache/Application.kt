@@ -20,5 +20,7 @@ val applicationModule = module {
 fun main() {
     startKoin { modules(applicationModule) }
     val serviceRS2 by inject<ICacheService>()
-    CacheLoader(serviceRS2).load()
+    val loader = CacheLoader(serviceRS2)
+    val indexData = loader.readIndex(7)
+    println { indexData }
 }

@@ -10,7 +10,7 @@ import java.io.RandomAccessFile
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-open class IndexFile(open val file: File): IIndexFile {
+open class IndexFile(val id: Int, open val file: File): IIndexFile {
     private val indexFile: RandomAccessFile = RandomAccessFile(file, "rw")
     private val buffer: ByteArray = ByteArray(ENTRY_LIMIT)
 
@@ -19,11 +19,11 @@ open class IndexFile(open val file: File): IIndexFile {
 
         validateHeader()
 
-        val length = (buffer[0].toInt() and 0xFF) shl 16 or
-                (buffer[1].toInt() and 0xFF shl 8) or
+        val length = (buffer[0].toInt() and 0xFF) shl 16 xor
+                (buffer[1].toInt() and 0xFF shl 8) xor
                 (buffer[2].toInt() and 0xFF)
-        val sector = (buffer[3].toInt() and 0xFF) shl 16 or
-                (buffer[4].toInt() and 0xFF shl 8) or
+        val sector = (buffer[3].toInt() and 0xFF) shl 16 xor
+                (buffer[4].toInt() and 0xFF shl 8) xor
                 (buffer[5].toInt() and 0xFF)
 
         validateSectorLength(length, sector)
@@ -44,6 +44,7 @@ open class IndexFile(open val file: File): IIndexFile {
     }
 
     override fun length(): Int = file.length().toInt() / ENTRY_LIMIT
+    override fun indexId(): Int = id
     override fun close() = indexFile.close()
 
     private companion object {

@@ -9,4 +9,5 @@ import java.io.Closeable
 interface IIndexFile: Closeable {
     fun read(id: Int): ReferenceTable
     fun length(): Int
+    fun indexId(): Int
 }

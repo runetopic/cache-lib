@@ -17,6 +17,7 @@ import java.nio.ByteBuffer
 class DataFile(file: File): IDataFile  {
     private val datFile: RandomAccessFile = RandomAccessFile(file, "rw")
 
+    @Synchronized
     override fun read(id: Int, referenceTable: ReferenceTable): ByteArray {
         val sector = referenceTable.sector
         val length = referenceTable.length
@@ -24,8 +25,8 @@ class DataFile(file: File): IDataFile  {
 
         validateSector(sector, length)
 
-        val buffer = ByteArray(SECTOR_SIZE)
-        val byteBuffer = ByteBuffer.allocate(length)
+        val readBuffer = ByteArray(SECTOR_SIZE)
+        val buffer = ByteBuffer.allocate(length)
 
         var part = 0
         var readBytes = 0
@@ -39,10 +40,10 @@ class DataFile(file: File): IDataFile  {
             datFile.seek((SECTOR_SIZE * sector).toLong())
 
             var blockLength = length - readBytes
-            val headerLength: Byte
-            val index: Int
-            val currentPart: Int
-            val currentContainerId: Int
+            var headerLength: Byte
+            var index: Int
+            var currentPart: Int
+            var currentContainerId: Int
 
             if (containerId > 0xFFFF) {
                 headerLength = 10
@@ -51,15 +52,17 @@ class DataFile(file: File): IDataFile  {
                     blockLength = SECTOR_SIZE - length
                 }
 
-                validateHeader(buffer, headerLength, blockLength, id, containerId)
+                validateHeader(readBuffer, headerLength, blockLength, id, containerId)
 
-                currentContainerId = (buffer[0].toInt() and 0xFF shl 24
-                        or (buffer[1].toInt() and 0xFF shl 16)
-                        or (buffer[2].toInt() and 0xFF shl 8)
-                        or (buffer[3].toInt() and 0xFF))
-                currentPart = ((buffer[4].toInt() and 0xFF) shl 8) + (buffer[5].toInt() and 0xFF)
-                nextSector = ((buffer[6].toInt() and 0xFF) shl 16)
-                index = buffer[9].toInt() and 0xFF
+                currentContainerId = (readBuffer[0].toInt() and 0xFF shl 24
+                        or (readBuffer[1].toInt() and 0xFF shl 16)
+                        or (readBuffer[2].toInt() and 0xFF shl 8)
+                        or (readBuffer[3].toInt() and 0xFF))
+                currentPart = ((readBuffer[4].toInt() and 0xFF) shl 8) + (readBuffer[5].toInt() and 0xFF)
+                nextSector = (readBuffer[6].toInt() and 0xFF shl 16
+                        or (readBuffer[7].toInt() and 0xFF shl 8)
+                        or (readBuffer[8].toInt() and 0xFF))
+                index = readBuffer[9].toInt() and 0xFF
             } else {
                 headerLength = 8
 
@@ -67,27 +70,26 @@ class DataFile(file: File): IDataFile  {
                     blockLength = SECTOR_SIZE - headerLength
                 }
 
-                validateHeader(buffer, headerLength, blockLength, id, containerId)
+                validateHeader(readBuffer, headerLength, blockLength, id, containerId)
 
-                currentContainerId = (buffer[0].toInt() and 0xFF shl 8 or (buffer[1].toInt() and 0xFF))
-                currentPart = (buffer[2].toInt() and 0xFF shl 8 or (buffer[3].toInt() and 0xFF))
-                nextSector = (buffer[4].toInt() and 0xFF shl 16
-                        or (buffer[5].toInt() and 0xFF shl 8)
-                        or (buffer[6].toInt() and 0xFF))
-                index = buffer[7].toInt() and 0xFF
+                currentContainerId = ((readBuffer[0].toInt() and 0xFF) shl 8 or (readBuffer[1].toInt() and 0xFF))
+                currentPart = (readBuffer[2].toInt() and 0xFF shl 8 or (readBuffer[3].toInt() and 0xFF))
+                nextSector = ((readBuffer[4].toInt() and 0xFF) shl 16
+                        or (readBuffer[5].toInt() and 0xFF shl 8)
+                        or (readBuffer[6].toInt() and 0xFF))
+                index = readBuffer[7].toInt() and 0xFF
             }
 
             validateData(containerId, currentContainerId, currentPart, part, id, index)
             validateNextSector(nextSector)
 
-            byteBuffer.put(buffer, headerLength.toInt(), blockLength)
+            buffer.put(readBuffer, headerLength.toInt(), blockLength)
             readBytes += blockLength
-
             ++part
         }
 
-        byteBuffer.flip()
-        return byteBuffer.array()
+        buffer.flip()
+        return buffer.array()
     }
 
     private fun validateData(
