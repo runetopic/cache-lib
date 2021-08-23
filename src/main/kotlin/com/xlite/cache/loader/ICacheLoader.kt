@@ -1,4 +1,4 @@
-package com.xlite.cache.loader.impl
+package com.xlite.cache.loader
 
 /**
  * @author Tyler Telis
