@@ -10,7 +10,7 @@ import java.io.RandomAccessFile
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-open class IndexFile(val id: Int, open val file: File): IIndexFile {
+open class IndexFile(private val id: Int, open val file: File): IIndexFile {
     private val indexFile: RandomAccessFile = RandomAccessFile(file, "rw")
     private val buffer: ByteArray = ByteArray(ENTRY_LIMIT)
 

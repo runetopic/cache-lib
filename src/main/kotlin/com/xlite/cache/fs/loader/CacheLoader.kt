@@ -17,7 +17,6 @@ class CacheLoader(private val cacheService: ICacheService): ICacheLoader {
         logger.debug { "Loaded ${cacheService.getMainIndex().length()} indices." }
     }
 
-    @Synchronized
     override fun readIndex(id: Int): ByteArray {
         val table = mainIndex.read(id)
         return data.read(mainIndex.indexId(), table)
