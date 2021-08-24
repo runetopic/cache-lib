@@ -1,4 +1,4 @@
-package com.xlite.cache.fs.file
+package com.xlite.cache.fs
 
 import com.xlite.cache.fs.file.impl.IndexFile
 import java.util.*

@@ -4,8 +4,12 @@ import com.github.michaelbull.logging.InlineLogger
 import com.xlite.cache.constant.FileConstants.SECTOR_SIZE
 import com.xlite.cache.exception.DataFileException
 import com.xlite.cache.exception.EndOfFileException
+import com.xlite.cache.extension.readInt
+import com.xlite.cache.extension.readMedium
+import com.xlite.cache.extension.readUnsignedByte
+import com.xlite.cache.extension.readUnsignedShort
 import com.xlite.cache.fs.file.IDataFile
-import com.xlite.cache.fs.file.ReferenceTable
+import com.xlite.cache.fs.ReferenceTable
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
@@ -17,15 +21,15 @@ import java.nio.ByteBuffer
 class DataFile(file: File): IDataFile  {
     private val datFile: RandomAccessFile = RandomAccessFile(file, "rw")
 
-    override fun read(id: Int, referenceTable: ReferenceTable): ByteArray {
+    override fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray {
         var sector = referenceTable.sector
         val length = referenceTable.length
         val archiveId = referenceTable.archiveId
 
         validateSector(sector, length)
 
-        val readBuffer = ByteArray(SECTOR_SIZE)
         val buffer = ByteBuffer.allocate(length)
+        val readBuffer = ByteBuffer.wrap(ByteArray(SECTOR_SIZE))
 
         var part = 0
         var readBytes = 0
@@ -39,50 +43,37 @@ class DataFile(file: File): IDataFile  {
             datFile.seek((SECTOR_SIZE * sector).toLong())
 
             var blockLength = length - readBytes
-            var headerSize: Byte
+            var headerLength: Byte
             var currentIndex: Int
             var currentPart: Int
             var currentContainerId: Int
 
             if (archiveId > 0xFFFF) {
-                headerSize = 10
+                headerLength = 10
+                blockLength = adjustBlockLength(blockLength, headerLength)
 
-                if (blockLength > SECTOR_SIZE - headerSize) {
-                    blockLength = SECTOR_SIZE - headerSize
-                }
+                validateHeader(readBuffer.array(), headerLength, blockLength, id, archiveId)
 
-                validateHeader(readBuffer, headerSize, blockLength, id, archiveId)
-
-                currentContainerId = (readBuffer[0].toInt() and 0xFF shl 24
-                        or (readBuffer[1].toInt() and 0xFF shl 16)
-                        or (readBuffer[2].toInt() and 0xFF shl 8)
-                        or (readBuffer[3].toInt() and 0xFF))
-                currentPart = ((readBuffer[4].toInt() and 0xFF) shl 8) + (readBuffer[5].toInt() and 0xFF)
-                nextSector = (readBuffer[6].toInt() and 0xFF shl 16
-                        or (readBuffer[7].toInt() and 0xFF shl 8)
-                        or (readBuffer[8].toInt() and 0xFF))
-                currentIndex = readBuffer[9].toInt() and 0xFF
+                currentContainerId = readBuffer.readInt(0)
+                currentPart = readBuffer.readUnsignedShort(4)
+                nextSector = readBuffer.readMedium(6)
+                currentIndex = readBuffer.readUnsignedByte(9)
             } else {
-                headerSize = 8
+                headerLength = 8
+                blockLength = adjustBlockLength(blockLength, headerLength)
 
-                if (blockLength > SECTOR_SIZE - headerSize) {
-                    blockLength = SECTOR_SIZE - headerSize
-                }
+                validateHeader(readBuffer.array(), headerLength, blockLength, id, archiveId)
 
-                validateHeader(readBuffer, headerSize, blockLength, id, archiveId)
-
-                currentContainerId = ((readBuffer[0].toInt() and 0xFF shl 8) or (readBuffer[1].toInt() and 0xFF))
-                currentPart = ((readBuffer[2].toInt() and 0xFF shl 8) or (readBuffer[3].toInt() and 0xFF))
-                nextSector = ((readBuffer[4].toInt() and 0xFF) shl 16
-                        or (readBuffer[5].toInt() and 0xFF shl 8)
-                        or (readBuffer[6].toInt() and 0xFF))
-                currentIndex = readBuffer[7].toInt() and 0xFF
+                currentContainerId = readBuffer.readUnsignedShort(0)
+                currentPart = readBuffer.readUnsignedShort(2)
+                nextSector = readBuffer.readMedium(4)
+                currentIndex = readBuffer.readUnsignedByte(7)
             }
 
             validateData(archiveId, currentContainerId, currentPart, part, id, currentIndex)
             validateNextSector(nextSector)
 
-            buffer.put(readBuffer, headerSize.toInt(), blockLength)
+            buffer.put(readBuffer.array(), headerLength.toInt(), blockLength)
             readBytes += blockLength
             sector = nextSector
             ++part
@@ -90,6 +81,14 @@ class DataFile(file: File): IDataFile  {
 
         buffer.flip()
         return buffer.array()
+    }
+
+    private fun adjustBlockLength(blockLength: Int, headerLength: Byte): Int {
+        return if (blockLength <= SECTOR_SIZE - headerLength) {
+            blockLength
+        } else {
+            SECTOR_SIZE - headerLength
+        }
     }
 
     private fun validateData(
@@ -101,7 +100,7 @@ class DataFile(file: File): IDataFile  {
         currentIndex: Int,
     ) {
         if (archiveId != currentArchiveId || currentPart != part || index != currentIndex) {
-           throw DataFileException("DataFile miss-match Id={${currentIndex}} != {${index}}, ArchiveId={${currentArchiveId}} != {${archiveId}}, CurrentPart={${currentPart}} != {${part}}")
+           throw DataFileException("DataFile mismatch Id={${currentIndex}} != {${index}}, ArchiveId={${currentArchiveId}} != {${archiveId}}, CurrentPart={${currentPart}} != {${part}}")
         }
     }
 
@@ -119,7 +118,7 @@ class DataFile(file: File): IDataFile  {
         containerId: Int,
     ) {
         if (datFile.read(buffer, 0, headerLength + blockLength) != headerLength + blockLength) {
-            throw DataFileException("Header length miss-match for Id=[$id] Container=[$containerId]")
+            throw DataFileException("Header length mismatch for Id=[$id] Container=[$containerId]")
         }
     }
 

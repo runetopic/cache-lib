@@ -1,5 +1,6 @@
 package com.xlite.cache.fs.file
 
+import com.xlite.cache.fs.ReferenceTable
 import java.io.Closeable
 
 /**
@@ -7,7 +8,7 @@ import java.io.Closeable
  * @email <xlitersps@gmail.com>
  */
 interface IIndexFile: Closeable {
-    fun read(id: Int): ReferenceTable
+    fun loadReferenceTable(id: Int): ReferenceTable
     fun length(): Int
-    fun indexId(): Int
+    fun id(): Int
 }

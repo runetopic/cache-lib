@@ -12,4 +12,10 @@ object FileConstants {
 
     const val SECTOR_SIZE = 520
     const val MAIN_INDEX_ID = 255
+
+    val BZIP_HEADER = byteArrayOf(
+        'B'.toByte(),
+        'Z'.toByte(),
+        'h'.toByte(),
+        '1' .toByte())
 }

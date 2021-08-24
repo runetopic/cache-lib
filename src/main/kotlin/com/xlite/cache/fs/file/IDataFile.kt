@@ -1,5 +1,6 @@
 package com.xlite.cache.fs.file
 
+import com.xlite.cache.fs.ReferenceTable
 import java.io.Closeable
 
 /**
@@ -7,5 +8,5 @@ import java.io.Closeable
  * @email <xlitersps@gmail.com>
  */
 interface IDataFile: Closeable {
-    fun read(id: Int, referenceTable: ReferenceTable): ByteArray
+    fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray
 }
