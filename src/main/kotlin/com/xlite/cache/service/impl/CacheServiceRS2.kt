@@ -11,6 +11,7 @@ import com.xlite.cache.extension.readUnsignedShort
 import com.xlite.cache.fs.Archive
 import com.xlite.cache.fs.Index
 import com.xlite.cache.fs.compression.Compression
+import com.xlite.cache.fs.file.CacheFile
 import com.xlite.cache.fs.file.impl.DataFile
 import com.xlite.cache.fs.file.impl.IndexFile
 import com.xlite.cache.service.ICacheService
@@ -70,10 +71,11 @@ class CacheServiceRS2(private val directory: String): ICacheService {
 
         val validArchivesCount = if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort()
 
-        val index = Index(protocol, revision, isNamed, validArchivesCount, ArrayList())
+        val index = Index(protocol, revision, isNamed, validArchivesCount)
 
-        (0 until validArchivesCount).forEach { _ ->
-            val archive = Archive(if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort())
+        (0 until validArchivesCount).forEach { lastArchiveId ->
+            val archiveId = if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort()
+            val archive = Archive(lastArchiveId + archiveId)
             index.archives.add(archive)
         }
 
@@ -94,7 +96,32 @@ class CacheServiceRS2(private val directory: String): ICacheService {
             archive.revision = buffer.int
         }
 
-        index.archives.forEach { logger.debug { it.nameHash } }
+        val fileCounts = IntArray(validArchivesCount)
+
+        (0 until validArchivesCount).forEach { archiveId ->
+            val fileCount: Int = if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort()
+            fileCounts[archiveId] = fileCount
+        }
+
+        (0 until validArchivesCount).forEach { archiveId ->
+            val archive = index.archives[archiveId]
+            val fileCount = fileCounts[archiveId]
+
+            (0 until fileCount).forEach { lastFileId ->
+                val fileId: Int = if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort()
+                val cacheFile = CacheFile(lastFileId + fileId)
+                archive.files.add(cacheFile)
+            }
+        }
+
+        if (isNamed) {
+            (0 until validArchivesCount).forEach { archiveId ->
+                (0 until fileCounts[archiveId]).forEach { fileId ->
+                    index.archives[archiveId].files[fileId].nameHash = buffer.int
+                }
+            }
+        }
+
         return index
     }
 

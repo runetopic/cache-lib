@@ -1,11 +1,8 @@
 package com.xlite.cache.fs.compression
 
-import com.github.michaelbull.logging.InlineLogger
 import com.xlite.cache.exception.CompressionException
 import com.xlite.cache.extension.decipherXTEA
 import com.xlite.cache.extension.remainingBytes
-import com.xlite.cache.extension.readInt
-import com.xlite.cache.extension.readUnsignedByte
 import com.xlite.cache.fs.Container
 import com.xlite.cache.fs.compression.CompressionType.*
 import java.nio.ByteBuffer
@@ -16,8 +13,6 @@ import java.util.zip.CRC32
  * @email <xlitersps@gmail.com>
  */
 object Compression {
-
-    private val logger = InlineLogger()
 
     fun decompress(data: ByteArray, keys: Array<Int>): Container {
         val buffer = ByteBuffer.wrap(data)
@@ -35,7 +30,6 @@ object Compression {
         return when (val type = compressionType(compression)) {
             BadCompression -> throw CompressionException("Compression type not found with a compression opcode of $compression.")
             is NoCompression -> {
-                logger.debug { "No Compression Type" }
                 val encrypted = ByteArray(length)
                 buffer.get(encrypted, 0, length)
                 crc32.update(encrypted, 0, length)
@@ -46,8 +40,6 @@ object Compression {
                 Container(decrypted, compression, revision, crc32.value.toInt())
             }
             GZipCompression, BZipCompression-> {
-                logger.debug { "Gzip Compression $compression Length $length"}
-
                 val encryptedData = ByteArray(length + 4)
                 buffer.get(encryptedData)
                 crc32.update(encryptedData, 0, encryptedData.size)
@@ -64,7 +56,7 @@ object Compression {
                 val decompressedData = type.codec.decompress(byteBuffer.remainingBytes(), length, keys)
 
                 if (decompressedData.size != decompressedLength) {
-                    throw CompressionException("Gzip size mismatch.")
+                    throw CompressionException("Compression size mismatch.")
                 }
 
                 Container(decompressedData, compression, revision, crc32.value.toInt())

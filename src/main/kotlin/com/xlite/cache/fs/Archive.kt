@@ -11,11 +11,9 @@ open class Archive(
     var nameHash: Int = 0,
     var crc: Int = 0,
     var revision: Int = 0,
-    var keys: IntArray? = null
+    var keys: IntArray? = null,
+    var files: MutableList<CacheFile> = mutableListOf()
  ): Comparable<Archive> {
-
-    var files: List<CacheFile> = ArrayList<CacheFile>()
-
     override fun compareTo(other: Archive): Int {
         return id.compareTo(other.id)
     }
