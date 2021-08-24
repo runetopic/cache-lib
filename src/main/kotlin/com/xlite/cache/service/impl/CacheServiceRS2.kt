@@ -1,6 +1,5 @@
 package com.xlite.cache.service.impl
 
-import com.github.michaelbull.logging.InlineLogger
 import com.xlite.cache.constant.FileConstants
 import com.xlite.cache.constant.FileConstants.MAIN_FILE_255
 import com.xlite.cache.constant.FileConstants.MAIN_INDEX_ID
@@ -26,8 +25,6 @@ import java.nio.ByteBuffer
 class CacheServiceRS2(private val directory: String): ICacheService {
     private val data = getData()
     private val mainIndex = getMainIndex()
-
-    private val logger = InlineLogger()
 
     override fun getMainIndex(): IndexFile {
         val file = File("${directory}${MAIN_FILE_255}")
