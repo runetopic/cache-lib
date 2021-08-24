@@ -24,13 +24,14 @@ fun main() {
     val serviceRS2 by inject<ICacheService>()
     val logger = InlineLogger()
     val loader = CacheLoader(serviceRS2)
-    val index = loader.readIndex(3)
+    val index = loader.readIndex(5)
     logger.debug { "Valid Archive Count ${index.validArchiveCount}" }
     logger.debug { "Protocol ${index.protocol}" }
     logger.debug { "Revision ${index.revision}" }
 
     index.archives.forEach {
-        logger.debug { it.files }
+        logger.debug { "ArchiveId: ${it.id} ${it.files}" }
     }
+
     logger.debug { "Is Named ${index.isNamed}" }
 }

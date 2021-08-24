@@ -9,5 +9,5 @@ data class Index(
     val revision: Int,
     val isNamed: Boolean,
     val validArchiveCount: Int,
-    val archives: MutableList<Archive> = mutableListOf()
+    val archives: ArrayList<Archive> = arrayListOf()
 )
