@@ -4,12 +4,8 @@ import com.github.michaelbull.logging.InlineLogger
 import com.xlite.cache.constant.FileConstants.SECTOR_SIZE
 import com.xlite.cache.exception.DataFileException
 import com.xlite.cache.exception.EndOfFileException
-import com.xlite.cache.extension.readInt
-import com.xlite.cache.extension.readMedium
-import com.xlite.cache.extension.readUnsignedByte
-import com.xlite.cache.extension.readUnsignedShort
-import com.xlite.cache.fs.file.IDataFile
 import com.xlite.cache.fs.ReferenceTable
+import com.xlite.cache.fs.file.IDataFile
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer

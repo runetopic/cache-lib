@@ -1,11 +1,6 @@
 package com.xlite.cache.fs.compression.impl
 
 import com.xlite.cache.fs.compression.IFileCodec
-import org.apache.commons.compress.utils.IOUtils
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 
 /**
  * @author Tyler Telis

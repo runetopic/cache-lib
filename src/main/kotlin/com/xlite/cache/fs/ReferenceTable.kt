@@ -4,7 +4,7 @@ import com.xlite.cache.exception.ProtocolException
 import com.xlite.cache.extension.readUnsignedByte
 import com.xlite.cache.extension.readUnsignedShort
 import com.xlite.cache.fs.compression.Compression
-import com.xlite.cache.fs.file.FileEntry
+import com.xlite.cache.fs.file.impl.FileEntry
 import com.xlite.cache.fs.file.impl.IndexFile
 import java.nio.ByteBuffer
 import java.util.*
@@ -59,7 +59,7 @@ data class ReferenceTable(
         }
     }
 
-    fun loadIndex(id: Int, indexData: ByteArray): Index {
+    fun loadIndex(indexId: Int, indexData: ByteArray): Index {
         val container = Compression.decompress(indexData, emptyArray())
         val buffer = ByteBuffer.wrap(container.data)
         val protocol = buffer.readUnsignedByte()
@@ -98,65 +98,24 @@ data class ReferenceTable(
         val whirlpools = readWhirlpool(isUsingWhirlPool, validArchivesCount, buffer, validArchiveIds)
         val revisions = readRevisions(biggestArchiveId, validArchivesCount, validArchiveIds, buffer)
         val validFileIds = readFileIds(biggestArchiveId, validArchivesCount, validArchiveIds, buffer)
-        val files = readFiles(biggestArchiveId, validFileIds, validArchivesCount, validArchiveIds, buffer, anIntArray2107)
-
-        mapFileNameHashes(biggestArchiveId,
-            validFileIds,
-            isNamed,
-            validArchivesCount,
-            validArchiveIds,
-            anIntArray2107,
-            files,
-            buffer)
+        val files = readFiles(biggestArchiveId, validFileIds, validArchivesCount, validArchiveIds, buffer, anIntArray2107, isNamed)
 
         val archives = mutableListOf<Archive>()
 
-        for (realArchiveId in 0 until validArchivesCount) {
+        (0 until validArchivesCount).forEach {
             archives.add(Archive(
-                realArchiveId,
-                id,
-                if (isNamed) nameHashes[validArchiveIds[realArchiveId]] else -1,
-                crcs[validArchiveIds[realArchiveId]],
-                if (isUsingWhirlPool) whirlpools[validArchiveIds[realArchiveId]] else byteArrayOf(),
-                revisions[validArchiveIds[realArchiveId]],
-                intArrayOf(),
-                files[realArchiveId]
+                id = it,
+                indexId = indexId,
+                nameHash = if (isNamed) nameHashes[validArchiveIds[it]] else -1,
+                crc = crcs[validArchiveIds[it]],
+                whirlpool = if (isUsingWhirlPool) whirlpools[validArchiveIds[it]] else byteArrayOf(),
+                revision = revisions[validArchiveIds[it]],
+                keys = intArrayOf(),
+                files = files[it]
             ))
         }
 
-        return Index(id, protocol, revision, isNamed, archives)
-    }
-
-
-    private fun mapFileNameHashes(
-        biggestArchiveId: Int,
-        validFileIds: IntArray,
-        isNamed: Boolean,
-        validArchivesCount: Int,
-        validArchiveIds: IntArray,
-        anIntArray2107: IntArray,
-        fileEntries: Array<Array<FileEntry>>,
-        buffer: ByteBuffer,
-    ) {
-        val fileNameHashes = Array(biggestArchiveId + 1) { row -> Array(validFileIds[row]) { -1 } }
-
-        if (!isNamed) return
-
-        for (index in 0 until validArchivesCount) {
-            val archiveId = validArchiveIds[index]
-            for (i_22_ in 0 until anIntArray2107[archiveId]) {
-                fileNameHashes[archiveId][i_22_] = -1
-            }
-            for (count in 0 until validFileIds[archiveId]) {
-                val fileId: Int = if (fileEntries.isEmpty()) {
-                    fileEntries[validArchiveIds[index]][count].id
-                } else {
-                    count
-                }
-                fileNameHashes[index][fileId] = buffer.int
-                fileEntries[archiveId][fileId].nameHash = fileNameHashes[index][fileId]
-            }
-        }
+        return Index(indexFile, indexId, protocol, revision, isNamed, archives)
     }
 
     private fun readFiles(
@@ -166,25 +125,45 @@ data class ReferenceTable(
         validArchiveIds: IntArray,
         buffer: ByteBuffer,
         anIntArray2107: IntArray,
+        isNamed: Boolean
     ): Array<Array<FileEntry>> {
         val files = Array(biggestArchiveId + 1) { row -> Array(validFileIds[row]) { FileEntry() } }
-        var lastArchiveId1: Int
-        for (index in 0 until validArchivesCount) {
-            val archiveId = validArchiveIds[index]
+        (0 until validArchivesCount).forEach {
+            val archiveId = validArchiveIds[it]
             val validFileCount = validFileIds[archiveId]
-            lastArchiveId1 = 0
             files[archiveId] = Array(validFileCount) { FileEntry() }
+
+            var entryId = 0
             var currFileId = -1
             var fileId = 0
 
             while (validFileCount > fileId) {
-                val lastFileId: Int = buffer.readUnsignedShort().let { lastArchiveId1 += it; lastArchiveId1 }
-                    .also { files[archiveId][fileId] = FileEntry(lastArchiveId1) }
+                val lastFileId = buffer.readUnsignedShort()
+                    .let { id -> entryId += id; entryId }
+                    .also { files[archiveId][fileId] = FileEntry(entryId) }
                 if (currFileId < lastFileId) currFileId = lastFileId
                 fileId++
             }
             anIntArray2107[archiveId] = currFileId + 1
             if (validFileCount == currFileId + 1) files[archiveId] = arrayOf(FileEntry())
+        }
+
+        if (isNamed) {
+            (0 until validArchivesCount).forEach { count ->
+                val archiveId = validArchiveIds[count]
+                (0 until anIntArray2107[archiveId]).forEach {
+                    files[archiveId][it].nameHash = -1
+                }
+                (0 until validFileIds[archiveId]).forEach {
+                    val fileId: Int = if (files.isEmpty()) {
+                        files[archiveId][it].id
+                    } else {
+                        it
+                    }
+                    //is this right? files[archiveId][fileId]
+                    files[archiveId][fileId].nameHash = buffer.int
+                }
+            }
         }
         return files
     }
@@ -196,8 +175,8 @@ data class ReferenceTable(
         buffer: ByteBuffer,
     ): IntArray {
         val validFileIds = IntArray(biggestArchiveId + 1)
-        for (index in 0 until validArchivesCount) {
-            validFileIds[validArchiveIds[index]] = buffer.readUnsignedShort()
+        (0 until validArchivesCount).forEach {
+            validFileIds[validArchiveIds[it]] = buffer.readUnsignedShort()
         }
         return validFileIds
     }
@@ -209,8 +188,8 @@ data class ReferenceTable(
         buffer: ByteBuffer,
     ): IntArray {
         val revisions = IntArray(biggestArchiveId + 1)
-        for (index in 0 until validArchivesCount) {
-            revisions[validArchiveIds[index]] = buffer.int
+        (0 until validArchivesCount).forEach {
+            revisions[validArchiveIds[it]] = buffer.int
         }
         return revisions
     }
@@ -223,10 +202,10 @@ data class ReferenceTable(
     ): Array<ByteArray> {
         val whirlpools = arrayOf(byteArrayOf())
         if (usesWhirlpool) {
-            for (index in 0 until validArchivesCount) {
-                val b = ByteArray(64)
-                buffer.get(b, 0, 64)
-                whirlpools[validArchiveIds[index]] = b
+            (0 until validArchivesCount).forEach {
+                val whirlpool = ByteArray(64)
+                buffer.get(whirlpool, 0, 64)
+                whirlpools[validArchiveIds[it]] = whirlpool
             }
         }
         return whirlpools
@@ -239,8 +218,8 @@ data class ReferenceTable(
         buffer: ByteBuffer,
     ): IntArray {
         val crcs = IntArray(biggestArchiveId + 1)
-        for (index in 0 until validArchivesCount) {
-            crcs[validArchiveIds[index]] = buffer.int
+        (0 until validArchivesCount).forEach {
+            crcs[validArchiveIds[it]] = buffer.int
         }
         return crcs
     }
@@ -256,10 +235,9 @@ data class ReferenceTable(
 
         if (isNamed.not()) return nameHashes
 
-        for (index in 0 until validArchivesCount) {
-            nameHashes[validArchiveIds[index]] = buffer.int
+        (0 until validArchivesCount).forEach {
+            nameHashes[validArchiveIds[it]] = buffer.int
         }
-
         return nameHashes
     }
 }

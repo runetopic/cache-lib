@@ -4,19 +4,13 @@ import com.xlite.cache.constant.FileConstants.MAIN_FILE_255
 import com.xlite.cache.constant.FileConstants.MAIN_FILE_DAT
 import com.xlite.cache.constant.FileConstants.MAIN_FILE_IDX
 import com.xlite.cache.constant.FileConstants.MAIN_INDEX_ID
-import com.xlite.cache.exception.ProtocolException
-import com.xlite.cache.extension.readUnsignedByte
-import com.xlite.cache.extension.readUnsignedShort
 import com.xlite.cache.fs.Archive
 import com.xlite.cache.fs.Index
-import com.xlite.cache.fs.compression.Compression
-import com.xlite.cache.fs.file.FileEntry
 import com.xlite.cache.fs.file.impl.DataFile
 import com.xlite.cache.fs.file.impl.IndexFile
 import com.xlite.cache.service.ICacheService
 import java.io.File
 import java.io.FileNotFoundException
-import java.nio.ByteBuffer
 
 /**
  * @author Tyler Telis
