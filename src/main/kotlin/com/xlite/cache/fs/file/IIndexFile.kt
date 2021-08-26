@@ -9,6 +9,6 @@ import java.io.Closeable
  */
 interface IIndexFile: Closeable {
     fun loadReferenceTable(id: Int): ReferenceTable
-    fun length(): Int
+    fun validIndexCount(): Int
     fun id(): Int
 }

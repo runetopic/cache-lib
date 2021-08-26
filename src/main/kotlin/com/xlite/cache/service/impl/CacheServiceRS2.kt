@@ -2,9 +2,10 @@ package com.xlite.cache.service.impl
 
 import com.xlite.cache.constant.FileConstants
 import com.xlite.cache.constant.FileConstants.MAIN_FILE_255
+import com.xlite.cache.constant.FileConstants.MAIN_FILE_DAT
+import com.xlite.cache.constant.FileConstants.MAIN_FILE_IDX
 import com.xlite.cache.constant.FileConstants.MAIN_INDEX_ID
 import com.xlite.cache.exception.ProtocolException
-import com.xlite.cache.extension.readBigSmart
 import com.xlite.cache.extension.readUnsignedByte
 import com.xlite.cache.extension.readUnsignedShort
 import com.xlite.cache.fs.Archive
@@ -17,12 +18,13 @@ import com.xlite.cache.service.ICacheService
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
+import java.util.*
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-class CacheServiceRS2(private val directory: String): ICacheService {
+class CacheServiceRS2(private val directory: String) : ICacheService {
     private val data = getData()
     private val mainIndex = getMainIndex()
 
@@ -34,8 +36,25 @@ class CacheServiceRS2(private val directory: String): ICacheService {
 
     override fun getData(): DataFile {
         val file = File("${directory}${FileConstants.MAIN_FILE_DAT}")
-        if (file.exists().not()) throw FileNotFoundException("Missing ${FileConstants.MAIN_FILE_DAT} in directory $directory")
+        if (file.exists().not()) throw FileNotFoundException("Missing $MAIN_FILE_DAT in directory $directory")
         return DataFile(file)
+    }
+
+    override fun getIndexFiles(): List<IndexFile> {
+        val indexFiles = arrayListOf<IndexFile>()
+        val validIndexCount = mainIndex.validIndexCount()
+        for (index in 0 until validIndexCount) {
+            val file = File("${directory}${MAIN_FILE_IDX}${index}")
+
+            if (!file.exists()) {
+                throw FileNotFoundException("Missing ${MAIN_FILE_IDX}${index} in directory $directory")
+            }
+
+            val indexFile = IndexFile(index, file)
+            indexFiles.add(indexFile)
+        }
+
+        return indexFiles
     }
 
     override fun readReferenceTable(id: Int): ByteArray {
@@ -60,66 +79,196 @@ class CacheServiceRS2(private val directory: String): ICacheService {
         }
 
         val hash = buffer.readUnsignedByte()
-        val isNamed = (1 and hash) != 0
-
+        val isNamed = (0x1 and hash) != 0
+        val usesWhirlpool = (0x2 and hash) != 0
         if (hash and 1.inv() != 0 || hash and 3.inv() != 0) {
             throw ProtocolException("Unknown flag in hash read.")
         }
 
-        val validArchivesCount = if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort()
+        val validArchivesCount = buffer.readUnsignedShort()
 
-        val index = Index(protocol, revision, isNamed, validArchivesCount)
+        var lastArchiveId = 0
+        var biggestArchiveId = -1
 
-        (0 until validArchivesCount).forEach { lastArchiveId ->
-            val archiveId = if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort()
-            val archive = Archive(lastArchiveId + archiveId)
-            index.archives.add(archive)
+        val validArchiveIds = IntArray(validArchivesCount)
+
+        for (index in 0 until validArchivesCount) {
+            validArchiveIds[index] = buffer.readUnsignedShort().let { lastArchiveId += it; lastArchiveId }
+            if (validArchiveIds[index] > biggestArchiveId) biggestArchiveId = validArchiveIds[index]
         }
 
-        if (isNamed) {
-            (0 until validArchivesCount).forEach { archiveId ->
-                val archive = index.archives[archiveId]
-                archive.nameHash = buffer.int
+        val anIntArray2107 = IntArray(biggestArchiveId + 1)
+        val nameHashes = readNameHashes(biggestArchiveId, validArchivesCount, isNamed, validArchiveIds, buffer)
+        val crcs = readCRCS(biggestArchiveId, validArchivesCount, validArchiveIds, buffer)
+        val whirlpools = readWhirlpool(usesWhirlpool, validArchivesCount, buffer, validArchiveIds)
+        val revisions = readRevisions(biggestArchiveId, validArchivesCount, validArchiveIds, buffer)
+        val validFileIds = readFileIds(biggestArchiveId, validArchivesCount, validArchiveIds, buffer)
+        val files = readFiles(biggestArchiveId, validFileIds, validArchivesCount, validArchiveIds, buffer, anIntArray2107)
+
+        mapFileNameHashes(biggestArchiveId,
+            validFileIds,
+            isNamed,
+            validArchivesCount,
+            validArchiveIds,
+            anIntArray2107,
+            files,
+            buffer)
+
+        val archives = mutableListOf<Archive>()
+
+        for (realArchiveId in 0 until validArchivesCount) {
+            val nameHash = if (isNamed) nameHashes[validArchiveIds[realArchiveId]] else -1
+            val crc = crcs[validArchiveIds[realArchiveId]]
+            val whirlpool = if (usesWhirlpool) whirlpools[validArchiveIds[realArchiveId]] else byteArrayOf()
+            val archiveRevision = revisions[validArchiveIds[realArchiveId]]
+            val keys = intArrayOf()
+            val archiveFiles: Array<CacheFile> = files[realArchiveId]
+            archives.add(Archive(realArchiveId, id, nameHash, crc, whirlpool, archiveRevision, keys, archiveFiles, validFileIds[realArchiveId]))
+        }
+
+        return Index(id, protocol, revision, isNamed, archives.toList())
+    }
+
+    private fun mapFileNameHashes(
+        biggestArchiveId: Int,
+        validFileIds: IntArray,
+        isNamed: Boolean,
+        validArchivesCount: Int,
+        validArchiveIds: IntArray,
+        anIntArray2107: IntArray,
+        files: Array<Array<CacheFile>>,
+        buffer: ByteBuffer,
+    ) {
+        val fileNameHashes = Array(biggestArchiveId + 1) { row -> Array(validFileIds[row]) { -1 } }
+
+        if (!isNamed) return
+
+        for (index in 0 until validArchivesCount) {
+            val archiveId = validArchiveIds[index]
+            for (i_22_ in 0 until anIntArray2107[archiveId]) {
+                fileNameHashes[archiveId][i_22_] = -1
             }
-        }
-
-        (0 until validArchivesCount).forEach { archiveId ->
-            val archive = index.archives[archiveId]
-            archive.crc = buffer.int
-        }
-
-        (0 until validArchivesCount).forEach { archiveId ->
-            val archive = index.archives[archiveId]
-            archive.revision = buffer.int
-        }
-
-        val fileCounts = IntArray(validArchivesCount)
-
-        (0 until validArchivesCount).forEach { archiveId ->
-            val fileCount: Int = if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort()
-            fileCounts[archiveId] = fileCount
-        }
-
-        (0 until validArchivesCount).forEach { archiveId ->
-            val archive = index.archives[archiveId]
-            val fileCount = fileCounts[archiveId]
-
-            (0 until fileCount).forEach { lastFileId ->
-                val fileId: Int = if (protocol >= 7) buffer.readBigSmart() else buffer.readUnsignedShort()
-                val cacheFile = CacheFile(lastFileId + fileId)
-                archive.files.add(cacheFile)
-            }
-        }
-
-        if (isNamed) {
-            (0 until validArchivesCount).forEach { archiveId ->
-                (0 until fileCounts[archiveId]).forEach { fileId ->
-                    index.archives[archiveId].files[fileId].nameHash = buffer.int
+            for (count in 0 until validFileIds[archiveId]) {
+                val fileId: Int = if (files.isEmpty()) {
+                    files[validArchiveIds[index]][count].id
+                } else {
+                    count
                 }
+                fileNameHashes[index][fileId] = buffer.int
+                files[archiveId][fileId].nameHash = fileNameHashes[index][fileId]
             }
         }
+    }
 
-        return index
+    private fun readFiles(
+        biggestArchiveId: Int,
+        validFileIds: IntArray,
+        validArchivesCount: Int,
+        validArchiveIds: IntArray,
+        buffer: ByteBuffer,
+        anIntArray2107: IntArray,
+    ): Array<Array<CacheFile>> {
+        val files = Array(biggestArchiveId + 1) { row -> Array(validFileIds[row]) { CacheFile() } }
+        var lastArchiveId1: Int
+        for (index in 0 until validArchivesCount) {
+            val archiveId = validArchiveIds[index]
+            val _file = validFileIds[archiveId]
+            lastArchiveId1 = 0
+            files[archiveId] = Array(_file) { CacheFile() }
+            var currFileId = -1
+            var fileId = 0
+
+            while (_file > fileId) {
+                val lastFileId: Int = buffer.readUnsignedShort().let { lastArchiveId1 += it; lastArchiveId1 }
+                    .also { files[archiveId][fileId] = CacheFile(lastArchiveId1) }
+                if (currFileId < lastFileId) currFileId = lastFileId
+                fileId++
+            }
+            anIntArray2107[archiveId] = currFileId + 1
+            if (_file == currFileId + 1) files[archiveId] = arrayOf(CacheFile())
+        }
+        return files
+    }
+
+    private fun readFileIds(
+        biggestArchiveId: Int,
+        validArchivesCount: Int,
+        validArchiveIds: IntArray,
+        buffer: ByteBuffer,
+    ): IntArray {
+        val validFileIds = IntArray(biggestArchiveId + 1)
+        for (index in 0 until validArchivesCount) {
+            validFileIds[validArchiveIds[index]] = buffer.readUnsignedShort()
+        }
+        return validFileIds
+    }
+
+    private fun readRevisions(
+        biggestArchiveId: Int,
+        validArchivesCount: Int,
+        validArchiveIds: IntArray,
+        buffer: ByteBuffer,
+    ): IntArray {
+        val revisions = IntArray(biggestArchiveId + 1)
+        for (index in 0 until validArchivesCount) {
+            revisions[validArchiveIds[index]] = buffer.int
+        }
+        return revisions
+    }
+
+    private fun readWhirlpool(
+        usesWhirlpool: Boolean,
+        validArchivesCount: Int,
+        buffer: ByteBuffer,
+        validArchiveIds: IntArray,
+    ): Array<ByteArray> {
+        val whirlpools = arrayOf(byteArrayOf())
+        if (usesWhirlpool) {
+            for (index in 0 until validArchivesCount) {
+                val b = ByteArray(64)
+                buffer.get(b, 0, 64)
+                whirlpools[validArchiveIds[index]] = b
+            }
+        }
+        return whirlpools
+    }
+
+    private fun readCRCS(
+        biggestArchiveId: Int,
+        validArchivesCount: Int,
+        validArchiveIds: IntArray,
+        buffer: ByteBuffer,
+    ): IntArray {
+        val crcs = IntArray(biggestArchiveId + 1)
+        for (index in 0 until validArchivesCount) {
+            crcs[validArchiveIds[index]] = buffer.int
+        }
+        return crcs
+    }
+
+    private fun readNameHashes(
+        biggestArchiveId: Int,
+        validArchivesCount: Int,
+        isNamed: Boolean,
+        validArchiveIds: IntArray,
+        buffer: ByteBuffer,
+    ): IntArray {
+        val nameHashes = IntArray(biggestArchiveId + 1) { -1 }
+
+        if (isNamed.not()) return nameHashes
+
+        for (index in 0 until validArchivesCount) {
+            nameHashes[validArchiveIds[index]] = buffer.int
+        }
+
+        return nameHashes
+    }
+
+    override fun readArchive(archive: Archive): ByteArray {
+        val index = readIndex(archive.indexId)
+        val indexFile = getIndexFiles()[index.id]
+        val referenceTable = indexFile.loadReferenceTable(archive.id)
+        return data.readReferenceTable(index.id, referenceTable)
     }
 
     override fun close() {

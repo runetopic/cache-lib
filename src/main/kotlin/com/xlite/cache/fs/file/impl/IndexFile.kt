@@ -41,7 +41,7 @@ class IndexFile(private val id: Int, private val file: File): IIndexFile {
         }
     }
 
-    override fun length(): Int = file.length().toInt() / ENTRY_LIMIT
+    override fun validIndexCount(): Int = file.length().toInt() / ENTRY_LIMIT
     override fun id(): Int = id
     override fun close() = indexFile.close()
 

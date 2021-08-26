@@ -5,9 +5,9 @@ package com.xlite.cache.fs
  * @email <xlitersps@gmail.com>
  */
 data class Index(
+    val id: Int,
     val protocol: Int,
     val revision: Int,
     val isNamed: Boolean,
-    val validArchiveCount: Int,
-    val archives: ArrayList<Archive> = arrayListOf()
+    val archives: List<Archive>
 )

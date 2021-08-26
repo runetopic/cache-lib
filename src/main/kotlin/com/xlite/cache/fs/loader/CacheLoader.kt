@@ -10,11 +10,10 @@ import com.xlite.cache.service.ICacheService
  */
 class CacheLoader(private val cacheService: ICacheService): ICacheLoader {
     override fun load() {
-        logger.debug { "Loaded ${cacheService.getMainIndex().length()} indices." }
+        logger.debug { "Loaded ${cacheService.getMainIndex().validIndexCount()} indices." }
     }
 
     override fun readReferenceTable(id: Int): ByteArray = cacheService.readReferenceTable(id)
-
     override fun readIndex(id: Int): Index = cacheService.readIndex(id)
 
     override fun close() {

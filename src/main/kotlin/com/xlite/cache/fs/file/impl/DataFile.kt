@@ -54,20 +54,29 @@ class DataFile(file: File): IDataFile  {
 
                 validateHeader(readBuffer.array(), headerLength, blockLength, id, archiveId)
 
-                currentContainerId = readBuffer.readInt(0)
-                currentPart = readBuffer.readUnsignedShort(4)
-                nextSector = readBuffer.readMedium(6)
-                currentIndex = readBuffer.readUnsignedByte(9)
+                currentContainerId = (readBuffer[0].toInt() and 0xFF shl 24
+                        or (readBuffer[1].toInt() and 0xFF shl 16)
+                        or (readBuffer[2].toInt() and 0xFF shl 8)
+                        or (readBuffer[3].toInt() and 0xFF))
+                currentPart = ((readBuffer[4].toInt() and 0xFF) shl 8) + (readBuffer[5].toInt() and 0xFF)
+                nextSector = (readBuffer[6].toInt() and 0xFF shl 16
+                        or (readBuffer[7].toInt() and 0xFF shl 8)
+                        or (readBuffer[8].toInt() and 0xFF))
+                currentIndex = (readBuffer[9].toInt() and 0xFF)
+
             } else {
                 headerLength = 8
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
                 validateHeader(readBuffer.array(), headerLength, blockLength, id, archiveId)
 
-                currentContainerId = readBuffer.readUnsignedShort(0)
-                currentPart = readBuffer.readUnsignedShort(2)
-                nextSector = readBuffer.readMedium(4)
-                currentIndex = readBuffer.readUnsignedByte(7)
+                currentContainerId = (readBuffer[0].toInt() and 0xFF shl 8
+                        or (readBuffer[1].toInt() and 0xFF))
+                currentPart = ((readBuffer[2].toInt() and 0xFF) shl 8) + (readBuffer[3].toInt() and 0xFF)
+                nextSector = (readBuffer[4].toInt() and 0xFF shl 16
+                        or (readBuffer[5].toInt() and 0xFF shl 8)
+                        or (readBuffer[6].toInt() and 0xFF))
+                currentIndex = (readBuffer[7].toInt() and 0xFF)
             }
 
             validateData(archiveId, currentContainerId, currentPart, part, id, currentIndex)

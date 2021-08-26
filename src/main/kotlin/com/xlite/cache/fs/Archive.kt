@@ -8,12 +8,16 @@ import com.xlite.cache.fs.file.CacheFile
  */
 open class Archive(
     val id: Int,
-    var nameHash: Int = 0,
-    var crc: Int = 0,
-    var revision: Int = 0,
-    var keys: IntArray? = null,
-    var files: ArrayList<CacheFile> = arrayListOf()
- ): Comparable<Archive> {
+    val indexId: Int,
+    val nameHash: Int,
+    val crc: Int,
+    val whirlpool: ByteArray,
+    val revision: Int,
+    val keys: IntArray,
+    val files: Array<CacheFile>,
+    val validFileIds: Int
+): Comparable<Archive> {
+
     override fun compareTo(other: Archive): Int {
         return id.compareTo(other.id)
     }
