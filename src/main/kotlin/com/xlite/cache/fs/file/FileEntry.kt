@@ -9,7 +9,7 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-data class CacheFile(
+data class FileEntry(
     val id: Int = 0, var nameHash: Int = 0,
 ) {
 
@@ -18,7 +18,7 @@ data class CacheFile(
     fun decode(id: Int, data: ByteArray, archive: Archive): ByteArray {
         val container = Compression.decompress(data, emptyArray())
 
-        val filesCount = archive.validFileIds
+        val filesCount = archive.files.size
         if (filesCount == 1) {
             return data
         }

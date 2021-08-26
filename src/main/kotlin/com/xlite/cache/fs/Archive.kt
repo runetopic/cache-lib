@@ -1,6 +1,6 @@
 package com.xlite.cache.fs
 
-import com.xlite.cache.fs.file.CacheFile
+import com.xlite.cache.fs.file.FileEntry
 
 /**
  * @author Tyler Telis
@@ -14,8 +14,7 @@ open class Archive(
     val whirlpool: ByteArray,
     val revision: Int,
     val keys: IntArray,
-    val files: Array<CacheFile>,
-    val validFileIds: Int
+    val files: Array<FileEntry>,
 ): Comparable<Archive> {
 
     override fun compareTo(other: Archive): Int {
