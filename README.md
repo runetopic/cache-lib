@@ -10,10 +10,23 @@ Work in progress.
 
 ## Usage
 ```
-val directory = "./data/cache/"
-val serviceRS2 = CacheServiceRS2()
-val loader = CacheLoader(serviceRS2)
-val indexData = loader.readIndex(5)
+val service = CacheServiceRS2(CacheConfiguration.properties.getProperty("cache.location"))
+val loader = CacheLoader(service)
+
+val index = loader.readIndex(2)
+val archive = index.archives[26]
+
+val files = archive.files
+
+val structTypeLoader = StructTypeLoader()
+
+val structTypes = mutableListOf<StructType>()
+
+files.indices.forEach {
+    val entry = files[it]
+    val data = entry.decode(it, service.readArchive(archive), archive)
+    structTypes.add(structTypeLoader.decode(entry.id, data))
+}
 ```
 
 ## Contributing
