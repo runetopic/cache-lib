@@ -9,5 +9,5 @@ import com.xlite.cache.fs.Index
 interface ICacheLoader: AutoCloseable {
     fun load()
     fun readReferenceTable(id: Int): ByteArray
-    fun readIndex(id: Int): Index
+    fun getIndex(id: Int): Index
 }

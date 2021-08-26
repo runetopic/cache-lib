@@ -14,7 +14,7 @@ class CacheLoader(private val cacheService: ICacheService): ICacheLoader {
     }
 
     override fun readReferenceTable(id: Int): ByteArray = cacheService.readReferenceTable(id)
-    override fun readIndex(id: Int): Index = cacheService.readIndex(id)
+    override fun getIndex(id: Int): Index = cacheService.getIndex(id)
 
     override fun close() {
         cacheService.close()

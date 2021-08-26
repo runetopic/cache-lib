@@ -15,6 +15,6 @@ interface ICacheService: AutoCloseable {
     fun getData(): IDataFile
     fun getIndexFiles(): List<IndexFile>
     fun readReferenceTable(id: Int): ByteArray
-    fun readIndex(id: Int): Index
+    fun getIndex(id: Int): Index
     fun readArchive(archive: Archive): ByteArray
 }
