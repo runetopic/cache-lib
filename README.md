@@ -3,7 +3,8 @@
 [![Discord](https://img.shields.io/discord/212385463418355713?color=%237289DA&logo=Discord&logoColor=%237289DA)](https://discord.gg/3scgBkrfMG)
 [![License](https://img.shields.io/github/license/xlite2/xlite)](#)
 
-Work in progress.
+This library is still a work in progress, and is currently built around RS2 Caches. It is however Modular is it's nature, and we will support all revisions in the future.
+It currently only supports reading from the cache, have only tested this with StructTypes so far
 
 # Features
 - Modular based implementation for different cache formats.
