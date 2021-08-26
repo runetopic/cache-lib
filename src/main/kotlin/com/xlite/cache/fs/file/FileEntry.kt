@@ -13,8 +13,6 @@ data class FileEntry(
     val id: Int = 0, var nameHash: Int = 0,
 ) {
 
-    private val logger = InlineLogger()
-
     fun decode(id: Int, data: ByteArray, archive: Archive): ByteArray {
         val container = Compression.decompress(data, emptyArray())
 
