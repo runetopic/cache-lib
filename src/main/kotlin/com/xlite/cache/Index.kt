@@ -1,4 +1,4 @@
-package com.xlite.cache.fs
+package com.xlite.cache
 
 import com.xlite.cache.fs.file.impl.IndexFile
 

@@ -16,4 +16,5 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:1.7.32")
     implementation("com.google.guava:guava-collections:r03")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.+")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
 }

@@ -4,8 +4,8 @@ import com.github.michaelbull.logging.InlineLogger
 import com.xlite.cache.constant.FileConstants.SECTOR_SIZE
 import com.xlite.cache.exception.DataFileException
 import com.xlite.cache.exception.EndOfFileException
-import com.xlite.cache.fs.ReferenceTable
-import com.xlite.cache.fs.file.IDataFile
+import com.xlite.cache.ReferenceTable
+import com.xlite.cache.fs.file.IDatFile
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
@@ -14,13 +14,13 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-class DataFile(file: File): IDataFile  {
+class DatFile(file: File): IDatFile  {
     private val datFile: RandomAccessFile = RandomAccessFile(file, "rw")
 
     override fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray {
         var sector = referenceTable.sector
         val length = referenceTable.length
-        val archiveId = referenceTable.archiveId
+        val archiveId = referenceTable.id
 
         validateSector(sector, length)
 

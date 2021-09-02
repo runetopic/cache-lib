@@ -1,7 +1,7 @@
 package com.xlite.cache.fs.file.impl
 
-import com.xlite.cache.fs.Archive
-import com.xlite.cache.fs.compression.Compression
+import com.xlite.cache.Archive
+import com.xlite.cache.compression.Compression
 import com.xlite.cache.fs.file.IFileEntry
 import java.lang.System.arraycopy
 import java.nio.ByteBuffer

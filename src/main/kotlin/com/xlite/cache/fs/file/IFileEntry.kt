@@ -1,6 +1,6 @@
 package com.xlite.cache.fs.file
 
-import com.xlite.cache.fs.Archive
+import com.xlite.cache.Archive
 
 /**
  * @author Jordan Abraham

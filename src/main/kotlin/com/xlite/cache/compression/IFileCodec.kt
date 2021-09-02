@@ -1,4 +1,4 @@
-package com.xlite.cache.fs.compression
+package com.xlite.cache.compression
 
 /**
  * @author Tyler Telis

@@ -1,7 +1,7 @@
-package com.xlite.cache.fs.compression.impl
+package com.xlite.cache.compression.impl
 
 import com.xlite.cache.constant.FileConstants.BZIP_HEADER
-import com.xlite.cache.fs.compression.IFileCodec
+import com.xlite.cache.compression.IFileCodec
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.utils.IOUtils

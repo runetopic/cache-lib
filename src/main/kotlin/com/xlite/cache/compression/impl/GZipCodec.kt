@@ -1,6 +1,6 @@
-package com.xlite.cache.fs.compression.impl
+package com.xlite.cache.compression.impl
 
-import com.xlite.cache.fs.compression.IFileCodec
+import com.xlite.cache.compression.IFileCodec
 import org.apache.commons.compress.utils.IOUtils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

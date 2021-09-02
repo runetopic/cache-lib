@@ -1,10 +1,10 @@
-package com.xlite.cache.fs.compression
+package com.xlite.cache.compression
 
 import com.xlite.cache.exception.CompressionException
 import com.xlite.cache.extension.decipherXTEA
 import com.xlite.cache.extension.remainingBytes
-import com.xlite.cache.fs.Container
-import com.xlite.cache.fs.compression.CompressionType.*
+import com.xlite.cache.Container
+import com.xlite.cache.compression.CompressionType.*
 import java.nio.ByteBuffer
 import java.util.zip.CRC32
 

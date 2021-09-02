@@ -1,9 +1,9 @@
-package com.xlite.cache.fs
+package com.xlite.cache
 
 import com.xlite.cache.exception.ProtocolException
 import com.xlite.cache.extension.readUnsignedByte
 import com.xlite.cache.extension.readUnsignedShort
-import com.xlite.cache.fs.compression.Compression
+import com.xlite.cache.compression.Compression
 import com.xlite.cache.fs.file.impl.FileEntry
 import com.xlite.cache.fs.file.impl.IndexFile
 import java.nio.ByteBuffer
@@ -15,14 +15,14 @@ import java.util.*
  */
 data class ReferenceTable(
     val indexFile: IndexFile,
-    val archiveId: Int,
+    val id: Int,
     val sector: Int,
     val length: Int
 ) {
     override fun hashCode(): Int {
         var hash = 7
         hash = 19 * hash + Objects.hashCode(this.indexFile)
-        hash = 19 * hash + this.archiveId
+        hash = 19 * hash + this.id
         hash = 19 * hash + this.sector
         hash = 19 * hash + this.length
         return hash
@@ -43,7 +43,7 @@ data class ReferenceTable(
                         indexFile != referenceTable.indexFile -> {
                             false
                         }
-                        archiveId != referenceTable.archiveId -> {
+                        id != referenceTable.id -> {
                             false
                         }
                         sector != referenceTable.sector -> {

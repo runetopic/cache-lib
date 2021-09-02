@@ -2,7 +2,7 @@ package com.xlite.cache.fs.file.impl
 
 import com.xlite.cache.exception.IndexFileException
 import com.xlite.cache.extension.readMedium
-import com.xlite.cache.fs.ReferenceTable
+import com.xlite.cache.ReferenceTable
 import com.xlite.cache.fs.file.IIndexFile
 import java.io.File
 import java.io.RandomAccessFile

@@ -1,8 +1,8 @@
-package com.xlite.cache.fs.compression
+package com.xlite.cache.compression
 
-import com.xlite.cache.fs.compression.impl.BZip2Codec
-import com.xlite.cache.fs.compression.impl.GZipCodec
-import com.xlite.cache.fs.compression.impl.UhandledFileCodec
+import com.xlite.cache.compression.impl.BZip2Codec
+import com.xlite.cache.compression.impl.GZipCodec
+import com.xlite.cache.compression.impl.UhandledFileCodec
 
 /**
  * @author Tyler Telis
