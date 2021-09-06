@@ -1,13 +1,14 @@
-package com.xlite.cache.fs.store.impl
+package com.xlite.cache.store.impl
 
 import com.github.michaelbull.logging.InlineLogger
-import com.xlite.cache.constant.FileConstants
-import com.xlite.cache.fs.file.IDatFile
-import com.xlite.cache.fs.file.IIndexFile
-import com.xlite.cache.fs.file.impl.DatFile
-import com.xlite.cache.fs.file.impl.IndexFile
-import com.xlite.cache.fs.store.IStorage
-import com.xlite.cache.fs.store.Store
+import com.xlite.cache.Index
+import com.xlite.cache.file.FileConstants
+import com.xlite.cache.store.IStorage
+import com.xlite.cache.store.Store
+import com.xlite.cache.file.IDatFile
+import com.xlite.cache.file.IIndexFile
+import com.xlite.cache.file.impl.DatFile
+import com.xlite.cache.file.impl.IndexFile
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -15,7 +16,7 @@ import java.io.FileNotFoundException
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-class DiskStorage(private val directory: File) : IStorage {
+class DiskStorage(private val directory: File): IStorage {
     private var masterIndexFile: IIndexFile
     private var datFile: IDatFile
     private var indexFiles: ArrayList<IndexFile> = arrayListOf()
@@ -38,30 +39,32 @@ class DiskStorage(private val directory: File) : IStorage {
         this.datFile = DatFile(datFile)
     }
 
-    override fun create(store: Store) {
+    override fun init(store: Store) {
         (0 until masterIndexFile.validIndexCount()).forEach {
-            store.addIndex(it)
-            cacheIndexFile(it)
+            indexFiles.add(getIndexFile(it))
+            loadIndex(it)
         }
         logger.debug { "Loaded ${indexFiles.size} indices." }
     }
 
-    private fun cacheIndexFile(id: Int): IndexFile {
+    override fun loadIndex(id: Int): Index {
+        val table = masterIndexFile.loadReferenceTable(id)
+        val indexData = datFile.readReferenceTable(masterIndexFile.id(), table)
+        return table.loadIndex(id, indexData)
+    }
+
+    private fun getIndexFile(id: Int): IndexFile {
         val cachedIndexFile = indexFiles.find { it.id() == id }
 
-        if (cachedIndexFile == null) {
-            val file = File("$directory/${FileConstants.MAIN_FILE_IDX}${id}")
+        if (cachedIndexFile != null) return cachedIndexFile
 
-            if (file.exists().not()) {
-                throw FileNotFoundException("Missing ${FileConstants.MAIN_FILE_IDX} in directory $directory")
-            }
+        val file = File("$directory/${FileConstants.MAIN_FILE_IDX}${id}")
 
-            val indexFile = IndexFile(id, file)
-            indexFiles.add(indexFile)
-            return indexFile
+        if (file.exists().not()) {
+            throw FileNotFoundException("Missing ${FileConstants.MAIN_FILE_IDX} in directory $directory")
         }
 
-        return cachedIndexFile
+        return IndexFile(id, file)
     }
 
     override fun close() {

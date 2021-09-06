@@ -1,5 +1,6 @@
-package com.xlite.cache.fs.store
+package com.xlite.cache.store
 
+import com.xlite.cache.Index
 import java.io.Closeable
 import java.io.Flushable
 
@@ -8,5 +9,6 @@ import java.io.Flushable
  * @email <xlitersps@gmail.com>
  */
 interface IStorage: Closeable, Flushable {
-    fun create(store: Store)
+    fun init(store: Store)
+    fun loadIndex(id: Int): Index
 }

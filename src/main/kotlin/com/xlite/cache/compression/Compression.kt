@@ -20,7 +20,7 @@ object Compression {
         val compression = buffer.get().toInt() and 0xFF
         val length = buffer.int
 
-        if (length < 0 || length > 1_000_000) {
+        if (length < 0 || length > 2000000) {
             throw CompressionException("Compression issue. Length=[$length]")
         }
 
@@ -35,7 +35,7 @@ object Compression {
                 crc32.update(encrypted, 0, length)
                 val decrypted = encrypted.decipherXTEA(keys)
 
-                val revision = buffer.short.toInt() and 0xFFFF
+                val revision = -1 /*buffer.short.toInt() and 0xFFFF*/
 
                 Container(decrypted, compression, revision, crc32.value.toInt())
             }

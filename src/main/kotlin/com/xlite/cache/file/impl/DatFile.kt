@@ -1,11 +1,11 @@
-package com.xlite.cache.fs.file.impl
+package com.xlite.cache.file.impl
 
 import com.github.michaelbull.logging.InlineLogger
-import com.xlite.cache.constant.FileConstants.SECTOR_SIZE
+import com.xlite.cache.file.FileConstants.SECTOR_SIZE
 import com.xlite.cache.exception.DataFileException
 import com.xlite.cache.exception.EndOfFileException
 import com.xlite.cache.ReferenceTable
-import com.xlite.cache.fs.file.IDatFile
+import com.xlite.cache.file.IDatFile
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer

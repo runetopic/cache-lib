@@ -1,8 +1,8 @@
-package com.xlite.cache.fs.file.impl
+package com.xlite.cache.file.impl
 
 import com.xlite.cache.Archive
 import com.xlite.cache.compression.Compression
-import com.xlite.cache.fs.file.IFileEntry
+import com.xlite.cache.file.IFileEntry
 import java.lang.System.arraycopy
 import java.nio.ByteBuffer
 
@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
  * @email <xlitersps@gmail.com>
  */
 data class FileEntry(
-    val id: Int = 0,
+    val id: Int = -1,
     var nameHash: Int = -1,
 ) : IFileEntry {
 

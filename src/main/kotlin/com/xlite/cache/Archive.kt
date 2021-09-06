@@ -1,6 +1,6 @@
 package com.xlite.cache
 
-import com.xlite.cache.fs.file.impl.FileEntry
+import com.xlite.cache.file.impl.FileEntry
 
 /**
  * @author Tyler Telis

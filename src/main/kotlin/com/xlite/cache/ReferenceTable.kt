@@ -1,11 +1,11 @@
 package com.xlite.cache
 
+import com.xlite.cache.compression.Compression
 import com.xlite.cache.exception.ProtocolException
 import com.xlite.cache.extension.readUnsignedByte
 import com.xlite.cache.extension.readUnsignedShort
-import com.xlite.cache.compression.Compression
-import com.xlite.cache.fs.file.impl.FileEntry
-import com.xlite.cache.fs.file.impl.IndexFile
+import com.xlite.cache.file.impl.FileEntry
+import com.xlite.cache.file.impl.IndexFile
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -17,7 +17,7 @@ data class ReferenceTable(
     val indexFile: IndexFile,
     val id: Int,
     val sector: Int,
-    val length: Int
+    val length: Int,
 ) {
     override fun hashCode(): Int {
         var hash = 7
@@ -65,7 +65,7 @@ data class ReferenceTable(
         val protocol = buffer.readUnsignedByte()
         var revision = 0
 
-        if (protocol < 5 || protocol > 7) {
+        if (protocol < 5 || protocol > 6) {
             throw ProtocolException("Unhandled protocol $protocol when reading index $this")
         }
 
@@ -76,9 +76,6 @@ data class ReferenceTable(
         val hash = buffer.readUnsignedByte()
         val isNamed = (0x1 and hash) != 0
         val isUsingWhirlPool = (0x2 and hash) != 0
-        if (hash and 0x1.inv() != 0 || hash and 0x3.inv() != 0) {
-            throw ProtocolException("Unknown flag in hash read.")
-        }
 
         val validArchivesCount = buffer.readUnsignedShort()
 
@@ -125,14 +122,13 @@ data class ReferenceTable(
         validArchiveIds: IntArray,
         buffer: ByteBuffer,
         anIntArray2107: IntArray,
-        isNamed: Boolean
+        isNamed: Boolean,
     ): Array<Array<FileEntry>> {
-        val files = Array(biggestArchiveId + 1) { row -> Array(validFileIds[row]) { FileEntry() } }
+        val files = Array(biggestArchiveId + 1) { row -> Array(validFileIds[row]) { FileEntry(-1)  } }
+
         (0 until validArchivesCount).forEach {
             val archiveId = validArchiveIds[it]
             val validFileCount = validFileIds[archiveId]
-            files[archiveId] = Array(validFileCount) { FileEntry() }
-
             var entryId = 0
             var currFileId = -1
             var fileId = 0
@@ -145,23 +141,15 @@ data class ReferenceTable(
                 fileId++
             }
             anIntArray2107[archiveId] = currFileId + 1
-            if (validFileCount == currFileId + 1) files[archiveId] = arrayOf(FileEntry())
+            if (validFileCount == currFileId + 1) files[archiveId] = Array(validFileCount) { FileEntry(-1)  }
         }
 
         if (isNamed) {
             (0 until validArchivesCount).forEach { count ->
                 val archiveId = validArchiveIds[count]
-                (0 until anIntArray2107[archiveId]).forEach {
-                    files[archiveId][it].nameHash = -1
-                }
-                (0 until validFileIds[archiveId]).forEach {
-                    val fileId: Int = if (files.isEmpty()) {
-                        files[archiveId][it].id
-                    } else {
-                        it
-                    }
-                    //is this right? files[archiveId][fileId]
-                    files[archiveId][fileId].nameHash = buffer.int
+                val fileCount = validFileIds[archiveId]
+                (0 until fileCount).forEach {
+                    files[archiveId][it].nameHash = buffer.int
                 }
             }
         }
@@ -200,7 +188,7 @@ data class ReferenceTable(
         buffer: ByteBuffer,
         validArchiveIds: IntArray,
     ): Array<ByteArray> {
-        val whirlpools = arrayOf(byteArrayOf())
+        val whirlpools = Array(64) { byteArrayOf() }
         if (usesWhirlpool) {
             (0 until validArchivesCount).forEach {
                 val whirlpool = ByteArray(64)
