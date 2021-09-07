@@ -17,26 +17,6 @@ It currently only supports reading from the cache, have only tested this with St
 - Find archive by name
 - Flat file system to unpacking and packing of the cache in the raw file formats
 
-## Usage
-```
-val service = CacheServiceRS2(CacheConfiguration.properties.getProperty("cache.location"))
-val loader = CacheLoader(service)
-
-val index = loader.readIndex(2)
-val archive = index.archives[26]
-
-val files = archive.files
-
-val structTypeLoader = StructTypeLoader()
-
-val structTypes = mutableListOf<StructType>()
-
-files.indices.forEach {
-    val entry = files[it]
-    val data = entry.decode(it, service.readArchive(archive), archive)
-    structTypes.add(structTypeLoader.decode(entry.id, data))
-}
-```
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
