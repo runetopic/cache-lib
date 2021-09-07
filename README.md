@@ -19,7 +19,7 @@ It currently only supports reading from the cache, have only tested this with St
 
 ## Usage
 
-`
+```
 store.group(5).use {
     val data = store.getFileData(it.getFile("m${50}_${50}"))
     logger.debug { data.contentToString() }
@@ -35,7 +35,7 @@ store.group(2).use { group ->
         structs.add(loader.decode(it.id, store.getFileData(it.id, files)))
     }
 }
-`
+```
 
 
 ## Contributing
