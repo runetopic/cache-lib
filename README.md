@@ -17,6 +17,25 @@ It currently only supports reading from the cache, have only tested this with St
 - Find archive by name
 - Flat file system to unpacking and packing of the cache in the raw file formats
 
+## Usage
+
+'''    store.group(5).use {
+        val data = store.getFileData(it.getFile("m${50}_${50}"))
+        logger.debug { data.contentToString() }
+    }
+
+    val loader = StructTypeLoader()
+    val structs = mutableListOf<StructType>()
+
+    store.group(2).use { group ->
+        val files = group.getFiles()[26]
+
+        files.entries.forEach {
+            structs.add(loader.decode(it.id, store.getFileData(it.id, files)))
+        }
+    }
+'''
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
