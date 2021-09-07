@@ -1,10 +1,6 @@
 package com.xlite.cache.file.impl
 
-import com.xlite.cache.Archive
-import com.xlite.cache.compression.Compression
 import com.xlite.cache.file.IFileEntry
-import java.lang.System.arraycopy
-import java.nio.ByteBuffer
 
 /**
  * @author Tyler Telis
@@ -13,49 +9,32 @@ import java.nio.ByteBuffer
 data class FileEntry(
     val id: Int = -1,
     var nameHash: Int = -1,
+    var data: ByteArray? = null
 ) : IFileEntry {
-
-    override fun decode(id: Int, data: ByteArray, archive: Archive): ByteArray {
-        val decompressed = Compression.decompress(data, emptyArray())
-
-        val count = archive.files.size
-        if (count == 1) {
-            return data
-        }
-
-        var size = decompressed.data.size
-        val chunks: Int = decompressed.data[--size].toInt() and 0xFF
-        size -= chunks * (count * 4)
-        val buffer = ByteBuffer.wrap(decompressed.data)
-        buffer.position(size)
-        val entriesSizes = IntArray(count)
-        (0 until chunks).forEach { _ ->
-            var read = 0
-            (0 until count).forEach {
-                read += buffer.int
-                entriesSizes[it] += read
-            }
-        }
-        val entries = Array(count) { byteArrayOf() }
-        (0 until count).forEach {
-            entries[it] = ByteArray(entriesSizes[it])
-            entriesSizes[it] = 0
-        }
-        buffer.position(size)
-        var offset = 0
-        (0 until chunks).forEach { _ ->
-            var read = 0
-            (0 until count).forEach {
-                read += buffer.int
-                arraycopy(decompressed.data, offset, entries[it], entriesSizes[it], read)
-                offset += read
-                entriesSizes[it] += read
-            }
-        }
-        return entries[id]
-    }
-
     override fun encode(): ByteArray {
         TODO("Not yet implemented")
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as FileEntry
+
+        if (id != other.id) return false
+        if (nameHash != other.nameHash) return false
+        if (data != null) {
+            if (other.data == null) return false
+            if (!data.contentEquals(other.data)) return false
+        } else if (other.data != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + nameHash
+        result = 31 * result + (data?.contentHashCode() ?: 0)
+        return result
     }
 }

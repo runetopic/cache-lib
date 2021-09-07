@@ -1,6 +1,7 @@
 package com.xlite.cache.store.impl
 
 import com.github.michaelbull.logging.InlineLogger
+import com.xlite.cache.Archive
 import com.xlite.cache.Index
 import com.xlite.cache.file.FileConstants
 import com.xlite.cache.store.IStorage
@@ -11,6 +12,7 @@ import com.xlite.cache.file.impl.DatFile
 import com.xlite.cache.file.impl.IndexFile
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @author Tyler Telis
@@ -42,7 +44,7 @@ class DiskStorage(private val directory: File): IStorage {
     override fun init(store: Store) {
         (0 until masterIndexFile.validIndexCount()).forEach {
             indexFiles.add(getIndexFile(it))
-            loadIndex(it)
+            store.addIndex(loadIndex(it))
         }
         logger.debug { "Loaded ${indexFiles.size} indices." }
     }
@@ -51,6 +53,16 @@ class DiskStorage(private val directory: File): IStorage {
         val table = masterIndexFile.loadReferenceTable(id)
         val indexData = datFile.readReferenceTable(masterIndexFile.id(), table)
         return table.loadIndex(id, indexData)
+    }
+
+    override fun readArchive(archive: Archive): ByteArray {
+        val indexFile = getIndexFile(archive.indexId)
+        val referenceTable = indexFile.loadReferenceTable(archive.id)
+        return datFile.readReferenceTable(archive.indexId, referenceTable)
+    }
+
+    override fun readFile(id: Int, archive: Archive, data: ByteArray): ByteArray {
+        return archive.decodeFileEntry(id, data)
     }
 
     private fun getIndexFile(id: Int): IndexFile {

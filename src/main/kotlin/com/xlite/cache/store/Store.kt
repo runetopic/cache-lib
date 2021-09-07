@@ -1,5 +1,6 @@
 package com.xlite.cache.store
 
+import com.xlite.cache.Archive
 import com.xlite.cache.Index
 import com.xlite.cache.store.impl.DiskStorage
 import java.io.Closeable
@@ -27,6 +28,10 @@ class Store: Closeable {
         indices.forEach { i -> require(index.id != i.id) { "Index with Id={${index.id}} already exists." } }
         this.indices.add(index)
     }
+
+    fun getIndex(id: Int): Index = this.indices[id]
+    fun readArchive(archive: Archive) = storage.readArchive(archive)
+    fun getFile(id: Int, archive: Archive, data: ByteArray) = storage.readFile(id, archive, data)
 
     override fun close() {
         storage.close()

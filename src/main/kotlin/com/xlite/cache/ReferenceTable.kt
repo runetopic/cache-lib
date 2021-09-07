@@ -112,7 +112,7 @@ data class ReferenceTable(
             ))
         }
 
-        return Index(indexFile, indexId, protocol, revision, isNamed, archives)
+        return Index(indexId, protocol, revision, isNamed, archives)
     }
 
     private fun readFiles(
