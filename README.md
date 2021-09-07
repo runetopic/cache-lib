@@ -25,16 +25,16 @@ store.group(5).use {
         logger.debug { data.contentToString() }
     }
 
-    val loader = StructTypeLoader()
-    val structs = mutableListOf<StructType>()
+val loader = StructTypeLoader()
+val structs = mutableListOf<StructType>()
 
-    store.group(2).use { group ->
+store.group(2).use { group ->
         val files = group.getFiles()[26]
 
         files.entries.forEach {
             structs.add(loader.decode(it.id, store.getFileData(it.id, files)))
         }
-    }
+        }
 ````
 
 
