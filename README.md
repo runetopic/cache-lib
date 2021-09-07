@@ -24,9 +24,7 @@ store.group(5).use {
     val data = store.getFileData(it.getFile("m${50}_${50}"))
     logger.debug { data.contentToString() }
 }
-`
 
-`
 val loader = StructTypeLoader()
 val structs = mutableListOf<StructType>()
 
