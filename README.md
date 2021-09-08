@@ -8,7 +8,6 @@ It currently only supports reading from the cache as of now.
 
 # Features
 - Cache Reading
-- 
 
 # TODO
 - Rework how files are being loaded into the archives (Super inefficient atm)
