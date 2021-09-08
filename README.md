@@ -3,37 +3,33 @@
 [![Discord](https://img.shields.io/discord/212385463418355713?color=%237289DA&logo=Discord&logoColor=%237289DA)](https://discord.gg/3scgBkrfMG)
 [![License](https://img.shields.io/github/license/xlite2/xlite)](#)
 
-This library is still a work in progress, and is currently built around RS2 Caches. It is however Modular is it's nature, and we will support all revisions in the future.
-It currently only supports reading from the cache, have only tested this with StructTypes so far
+This library is still a work in progress, and is currently built around RS2 Caches 647 to be specific. 
+It currently only supports reading from the cache as of now.
 
 # Features
-- Modular based implementation for different cache formats.
-- Currently only supports reading from the cache
+- Cache Reading
 
-## TODO
+# TODO
 - Cache Writing
 - Flat file system to unpacking and packing of the cache in the raw file formats
 
-## Usage
+# Usage
+
+### Getting file by name
+```store.file(store.group(5), "m${50}_${50}")```
+
+### Getting file entry by id
 ```
-val service = CacheServiceRS2(CacheConfiguration.properties.getProperty("cache.location"))
-val loader = CacheLoader(service)
+store.group(2).use { group ->
+   val js5File = group.files[26]
 
-val index = loader.readIndex(2)
-val archive = index.archives[26]
-
-val files = archive.files
-
-val structTypeLoader = StructTypeLoader()
-
-val structTypes = mutableListOf<StructType>()
-
-files.indices.forEach {
-    val entry = files[it]
-    val data = entry.decode(it, service.readArchive(archive), archive)
-    structTypes.add(structTypeLoader.decode(entry.id, data))
+    js5File.entries.forEach { fileEntry ->
+        val entry = store.entry(group, 26, fileEntry.id)
+        add(read(ByteBuffer.wrap(entry.data), StructEntryType(fileEntry.id)))
+    }
 }
 ```
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
