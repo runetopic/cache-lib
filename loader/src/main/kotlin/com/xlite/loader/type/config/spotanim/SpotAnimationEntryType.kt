@@ -11,15 +11,15 @@ data class SpotAnimationEntryType(
     var textureToReplace: ShortArray? = null,
     var textureToFind: ShortArray? = null,
     var resizeY: Int = 128,
-    var animationId: Int  = -1,
+    var animationId: Int = -1,
     var recolorToFind: ShortArray? = null,
     var recolorToReplace: ShortArray? = null,
-    var resizeX: Int  = 128,
-    var modelId: Int  = 0,
-    var ambient: Int  = 0,
-    var contrast: Int  = 0,
-    var anInt2667: Int  = -1,
-    var aByte2664: Int  = 0,
+    var resizeX: Int = 128,
+    var modelId: Int = 0,
+    var ambient: Int = 0,
+    var contrast: Int = 0,
+    var anInt2667: Int = -1,
+    var aByte2664: Int = 0,
     var aBoolean2678: Boolean = false
 ) : IEntryType {
 

@@ -109,7 +109,7 @@ internal data class ReferenceTable(
         buffer: ByteBuffer,
         isNamed: Boolean,
     ): Array<Array<Js5FileEntry>> {
-        val entries = Array(biggestFileId + 1) { row -> Array(validEntryIds[row]) { Js5FileEntry()  } }
+        val entries = Array(biggestFileId + 1) { row -> Array(validEntryIds[row]) { Js5FileEntry() } }
 
         (0 until count).forEach {
             val fileId = validFileIds[it]
