@@ -1,6 +1,6 @@
 package com.xlite.cache
 
-import com.xlite.cache.exception.ArchiveNotFoundException
+import com.xlite.cache.exception.FileNotFoundException
 import com.xlite.cache.extension.nameHash
 
 /**
@@ -8,27 +8,27 @@ import com.xlite.cache.extension.nameHash
  * @email <xlitersps@gmail.com>
  */
 data class Js5Group(
-    val id: Int,
+    internal val id: Int,
     val crc: Int,
     val whirlpool: ByteArray,
-    val compression: Int,
-    val protocol: Int,
-    val revision: Int,
-    val isNamed: Boolean,
-    val files: List<Js5File>
+    internal val compression: Int,
+    internal val protocol: Int,
+    internal val revision: Int,
+    internal val isNamed: Boolean,
+    internal val files: List<Js5File>
 ) {
     internal fun getFile(fileId: Int): Js5File = files[fileId]
     internal fun getFile(name: String): Js5File {
-        return files.find { it.nameHash == name.nameHash() } ?: throw ArchiveNotFoundException("Could not find archive with name $name and name hash ${name.nameHash()}")
+        return files.find { it.nameHash == name.nameHash() } ?: throw FileNotFoundException("Could not find archive with name $name and name hash ${name.nameHash()}")
     }
 
     fun use(block: (Js5Group) -> Unit) {
         block.invoke(this)
     }
 
-    fun capacity(): Int {
-        return files.last().entries.size + (files.last().id * 256)
-    }
+    fun entries(fileId: Int) = files[fileId].entries
+
+    fun expandedCapacity(): Int = files.last().entries.size + (files.last().fileId shl 8)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

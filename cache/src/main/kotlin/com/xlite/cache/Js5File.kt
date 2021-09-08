@@ -1,7 +1,7 @@
 package com.xlite.cache
 
 import com.xlite.cache.compression.Compression
-import com.xlite.cache.exception.ArchiveDataException
+import com.xlite.cache.exception.FileDataException
 import com.xlite.cache.store.fs.IDatFile
 import com.xlite.cache.store.fs.IIdxFile
 import java.nio.ByteBuffer
@@ -11,40 +11,39 @@ import java.nio.ByteBuffer
  * @email <xlitersps@gmail.com>
  */
 open class Js5File(
-    val id: Int,
-    val indexId: Int,
-    val nameHash: Int,
-    val crc: Int,
-    val whirlpool: ByteArray,
-    val revision: Int,
-    val keys: IntArray,
-    val entries: Array<Js5FileEntry>,
-    var isLoaded: Boolean = false,
+    internal val groupId: Int,
+    internal val fileId: Int,
+    internal val nameHash: Int,
+    internal val crc: Int,
+    internal val whirlpool: ByteArray,
+    internal val revision: Int,
+    internal val keys: IntArray,
+    internal val entries: Array<Js5FileEntry>,
+    private var isLoaded: Boolean = false,
     var data: ByteArray? = null
 ): Comparable<Js5File> {
 
     override fun compareTo(other: Js5File): Int {
-        return id.compareTo(other.id)
+        return fileId.compareTo(other.fileId)
     }
 
     internal fun load(datFile: IDatFile, idxFile: IIdxFile): ByteArray {
-        if (this.isLoaded) {
-            return this.data!!
+        if (isLoaded) {
+            return data!!
         }
 
-        val referenceTable = idxFile.loadReferenceTable(id)
-        this.data = datFile.readReferenceTable(indexId, referenceTable)
+        data = datFile.readReferenceTable(groupId, idxFile.loadReferenceTable(fileId))
 
-        if (this.data != null) {
-            this.isLoaded = true
-            return this.data ?: throw ArchiveDataException("Archive data could not be loaded.")
+        if (data != null) {
+            isLoaded = true
+            return data ?: throw FileDataException("Archive data could not be loaded.")
         }
 
         return byteArrayOf()
     }
 
     internal fun loadFileEntriesData(fileId: Int, js5File: Js5File): ByteArray {
-        val fileEntry = entries.find { it.id == fileId } ?: return byteArrayOf()
+        val fileEntry = entries.find { it.entryId == fileId } ?: return byteArrayOf()
 
         val decompressed = Compression.decompress(js5File.data!!, emptyArray())
 
@@ -86,7 +85,7 @@ open class Js5File(
             }
 
             this.entries.indices.forEach { this.entries[it].data = entries[it] }
-            fileEntry.data ?: throw ArchiveDataException("Could not load file entries from archive.")
+            fileEntry.data ?: throw FileDataException("Could not load file entries from archive.")
         }
     }
 }

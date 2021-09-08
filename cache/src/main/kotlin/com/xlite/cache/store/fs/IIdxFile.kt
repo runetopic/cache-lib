@@ -8,7 +8,7 @@ import java.io.Closeable
  * @email <xlitersps@gmail.com>
  */
 internal interface IIdxFile: Closeable {
-    fun loadReferenceTable(id: Int): ReferenceTable
+    fun loadReferenceTable(fileId: Int): ReferenceTable
     fun validIndexCount(): Int
     fun id(): Int
 }

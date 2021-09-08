@@ -3,6 +3,7 @@ package com.xlite.loader.type.config.struct
 import com.xlite.cache.extension.readMedium
 import com.xlite.cache.extension.readString
 import com.xlite.cache.extension.readUnsignedByte
+import com.xlite.cache.extension.toBoolean
 import com.xlite.cache.store.Store
 import com.xlite.loader.IEntryBuilder
 import java.lang.Exception
@@ -19,32 +20,21 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
     override fun build(store: Store) {
         structTypes = buildSet {
             store.group(2).use { group ->
-               val js5File = group.files[26]
-
-                js5File.entries.forEach { fileEntry ->
-                    val entry = store.entry(group, 26, fileEntry.id)
-                    add(read(ByteBuffer.wrap(entry.data), StructEntryType(fileEntry.id)))
+                group.entries(26).forEach {
+                    add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), StructEntryType(it.entryId)))
                 }
             }
         }
     }
 
-    override fun read(buf: ByteBuffer, type: StructEntryType): StructEntryType {
-        do when (val opcode: Int = buf.readUnsignedByte()) {
+    override fun read(buffer: ByteBuffer, type: StructEntryType): StructEntryType {
+        do when (val opcode = buffer.readUnsignedByte()) {
             0 -> break
             249 -> {
-                val length: Int = buf.get().toInt() and 0xff
-
-                for (i in 0 until length) {
-                    val isString = buf.get().toInt() and 0xff == 1
-                    val key: Long = buf.readMedium().toLong()
-                    var value: Any
-                    value = if (isString) {
-                        buf.readString()
-                    } else {
-                        buf.int
-                    }
-                    type.params[key] = value
+                val size = buffer.readUnsignedByte()
+                (0 until size).forEach { _ ->
+                    val string = buffer.readUnsignedByte().toBoolean()
+                    type.params[buffer.readMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
             else -> throw Exception("Read unused opcode with id: ${opcode}.")

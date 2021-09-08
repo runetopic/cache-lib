@@ -1,9 +1,9 @@
 package com.xlite.cache.store.storage
 
 import com.xlite.cache.Js5File
+import com.xlite.cache.Js5FileEntry
 import com.xlite.cache.Js5Group
 import com.xlite.cache.store.Store
-import com.xlite.cache.Js5FileEntry
 import java.io.Closeable
 import java.io.Flushable
 
@@ -11,7 +11,7 @@ import java.io.Flushable
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-interface IStorage: Closeable, Flushable {
+internal interface IStorage: Closeable, Flushable {
     fun init(store: Store)
     fun loadGroup(id: Int): Js5Group
     fun loadFile(group: Js5Group, fileName: String): Js5File

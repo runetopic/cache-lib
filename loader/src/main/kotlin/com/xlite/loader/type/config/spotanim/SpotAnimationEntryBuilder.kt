@@ -18,25 +18,23 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
     override fun build(store: Store) {
         spotAnimations = buildSet {
             store.group(21).use { group ->
-                (0 until group.capacity()).forEach {
-                    store.entry(group, it ushr 8, it and 0xFF)?.let { entry ->
-                        add(read(ByteBuffer.wrap(entry.data), SpotAnimationEntryType(it)))
-                    }
+                (0 until group.expandedCapacity()).forEach {
+                    add(read(ByteBuffer.wrap(store.entry(group, it ushr 8, it and 0xFF).data), SpotAnimationEntryType(it)))
                 }
             }
         }
     }
 
-    override fun read(buf: ByteBuffer, type: SpotAnimationEntryType): SpotAnimationEntryType {
-        do when (val opcode: Int = buf.readUnsignedByte()) {
+    override fun read(buffer: ByteBuffer, type: SpotAnimationEntryType): SpotAnimationEntryType {
+        do when (val opcode = buffer.readUnsignedByte()) {
             0 -> break
-            1 -> type.modelId = buf.readUnsignedShort()
-            2 -> type.animationId = buf.readUnsignedShort()
-            4 -> type.resizeX = buf.readUnsignedShort()
-            5 -> type.resizeY = buf.readUnsignedShort()
-            6 -> type.rotation = buf.readUnsignedShort()
-            7 -> type.ambient = buf.readUnsignedByte()
-            8 -> type.contrast = buf.readUnsignedByte()
+            1 -> type.modelId = buffer.readUnsignedShort()
+            2 -> type.animationId = buffer.readUnsignedShort()
+            4 -> type.resizeX = buffer.readUnsignedShort()
+            5 -> type.resizeY = buffer.readUnsignedShort()
+            6 -> type.rotation = buffer.readUnsignedShort()
+            7 -> type.ambient = buffer.readUnsignedByte()
+            8 -> type.contrast = buffer.readUnsignedByte()
             9 -> {
                 type.anInt2667 = 8224
                 type.aByte2664 = 3
@@ -47,32 +45,32 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
             13 -> type.aByte2664 = 5
             14 -> {
                 type.aByte2664 = 2
-                type.anInt2667 = buf.readUnsignedByte() * 256
+                type.anInt2667 = buffer.readUnsignedByte() * 256
             }
             15 -> {
                 type.aByte2664 = 3
-                type.anInt2667 = buf.readUnsignedShort()
+                type.anInt2667 = buffer.readUnsignedShort()
             }
             16 -> {
                 type.aByte2664 = 3
-                type.anInt2667 = buf.int
+                type.anInt2667 = buffer.int
             }
             40 -> {
-                val size = buf.readUnsignedByte()
+                val size = buffer.readUnsignedByte()
                 type.recolorToFind = ShortArray(size)
                 type.recolorToReplace = ShortArray(size)
                 (0 until size).forEach {
-                    type.recolorToFind!![it] = (buf.readUnsignedShort()).toShort()
-                    type.recolorToReplace!![it] = (buf.readUnsignedShort()).toShort()
+                    type.recolorToFind!![it] = (buffer.readUnsignedShort()).toShort()
+                    type.recolorToReplace!![it] = (buffer.readUnsignedShort()).toShort()
                 }
             }
             41 -> {
-                val size = buf.readUnsignedByte()
+                val size = buffer.readUnsignedByte()
                 type.textureToFind = ShortArray(size)
                 type.textureToReplace = ShortArray(size)
                 (0 until size).forEach {
-                    type.textureToFind!![it] = (buf.readUnsignedShort()).toShort()
-                    type.textureToReplace!![it] = (buf.readUnsignedShort()).toShort()
+                    type.textureToFind!![it] = (buffer.readUnsignedShort()).toShort()
+                    type.textureToReplace!![it] = (buffer.readUnsignedShort()).toShort()
                 }
             }
             else -> throw Exception("Read unused opcode with id: ${opcode}.")

@@ -1,10 +1,10 @@
-package com.xlite.cache.store.fs
+package com.xlite.cache.store
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-object FileConstants {
+internal object Constants {
     private const val PREFIX = "main_file_cache"
     const val MAIN_FILE_IDX = "$PREFIX.idx"
     const val MAIN_FILE_DAT = "$PREFIX.dat2"
@@ -14,8 +14,9 @@ object FileConstants {
     const val MAIN_INDEX_ID = 255
 
     val BZIP_HEADER = byteArrayOf(
-        'B'.toByte(),
-        'Z'.toByte(),
-        'h'.toByte(),
-        '1' .toByte())
+        'B'.code.toByte(),
+        'Z'.code.toByte(),
+        'h'.code.toByte(),
+        '1'.code.toByte()
+    )
 }

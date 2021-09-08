@@ -2,9 +2,9 @@ package com.xlite.cache.store.fs.impl
 
 import com.github.michaelbull.logging.InlineLogger
 import com.xlite.cache.ReferenceTable
-import com.xlite.cache.exception.DataFileException
-import com.xlite.cache.exception.EndOfFileException
-import com.xlite.cache.store.fs.FileConstants.SECTOR_SIZE
+import com.xlite.cache.exception.DatFileException
+import com.xlite.cache.exception.EndOfDatFileException
+import com.xlite.cache.store.Constants.SECTOR_SIZE
 import com.xlite.cache.store.fs.IDatFile
 import java.io.File
 import java.io.RandomAccessFile
@@ -14,13 +14,15 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class DatFile(file: File): IDatFile  {
+internal class DatFile(
+    file: File
+): IDatFile  {
     private val datFile: RandomAccessFile = RandomAccessFile(file, "rw")
 
-    override fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray {
+    override fun readReferenceTable(groupId: Int, referenceTable: ReferenceTable): ByteArray {
         var sector = referenceTable.sector
         val length = referenceTable.length
-        val archiveId = referenceTable.id
+        val fileId = referenceTable.fileId
 
         validateSector(sector, length)
 
@@ -33,7 +35,7 @@ internal class DatFile(file: File): IDatFile  {
 
         while (length > readBytes) {
             if (sector == 0) {
-                throw EndOfFileException("Unexpected end of file. Id=[$id} ArchiveId=[$archiveId] Length=[$length]")
+                throw EndOfDatFileException("Unexpected end of file. GroupId=[$groupId} ArchiveId=[$fileId] Length=[$length]")
             }
 
             datFile.seek((SECTOR_SIZE * sector).toLong())
@@ -44,11 +46,11 @@ internal class DatFile(file: File): IDatFile  {
             var currentPart: Int
             var currentContainerId: Int
 
-            if (archiveId > 0xFFFF) {
+            if (fileId > 0xFFFF) {
                 headerLength = 10
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
-                validateHeader(readBuffer.array(), headerLength, blockLength, id, archiveId)
+                validateHeader(readBuffer.array(), headerLength, blockLength, groupId, fileId)
 
                 currentContainerId = (readBuffer[0].toInt() and 0xFF shl 24
                         or (readBuffer[1].toInt() and 0xFF shl 16)
@@ -64,7 +66,7 @@ internal class DatFile(file: File): IDatFile  {
                 headerLength = 8
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
-                validateHeader(readBuffer.array(), headerLength, blockLength, id, archiveId)
+                validateHeader(readBuffer.array(), headerLength, blockLength, groupId, fileId)
 
                 currentContainerId = (readBuffer[0].toInt() and 0xFF shl 8
                         or (readBuffer[1].toInt() and 0xFF))
@@ -75,7 +77,7 @@ internal class DatFile(file: File): IDatFile  {
                 currentIndex = (readBuffer[7].toInt() and 0xFF)
             }
 
-            validateData(archiveId, currentContainerId, currentPart, part, id, currentIndex)
+            validateData(fileId, currentContainerId, currentPart, part, groupId, currentIndex)
             validateNextSector(nextSector)
 
             buffer.put(readBuffer.array(), headerLength.toInt(), blockLength)
@@ -105,13 +107,13 @@ internal class DatFile(file: File): IDatFile  {
         currentIndex: Int,
     ) {
         if (archiveId != currentArchiveId || currentPart != part || index != currentIndex) {
-           throw DataFileException("DataFile mismatch Id={${currentIndex}} != {${index}}, ArchiveId={${currentArchiveId}} != {${archiveId}}, CurrentPart={${currentPart}} != {${part}}")
+           throw DatFileException("DataFile mismatch Id={${currentIndex}} != {${index}}, ArchiveId={${currentArchiveId}} != {${archiveId}}, CurrentPart={${currentPart}} != {${part}}")
         }
     }
 
     private fun validateNextSector(nextSector: Int) {
         if (nextSector < 0 || datFile.length() / SECTOR_SIZE < nextSector) {
-            throw DataFileException("Invalid next sector $nextSector")
+            throw DatFileException("Invalid next sector $nextSector")
         }
     }
 
@@ -123,13 +125,13 @@ internal class DatFile(file: File): IDatFile  {
         containerId: Int,
     ) {
         if (datFile.read(buffer, 0, headerLength + blockLength) != headerLength + blockLength) {
-            throw DataFileException("Header length mismatch for Id=[$id] Container=[$containerId]")
+            throw DatFileException("Header length mismatch for Id=[$id] Container=[$containerId]")
         }
     }
 
     private fun validateSector(sector: Int, length: Int) {
         if (sector <= 0L || datFile.length() / SECTOR_SIZE < sector) {
-            throw DataFileException("Could not read $length for sector $sector")
+            throw DatFileException("Could not read $length for sector $sector")
         }
     }
 

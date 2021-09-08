@@ -14,14 +14,14 @@ import java.util.*
  */
 internal data class ReferenceTable(
     val idxFile: IdxFile,
-    val id: Int,
+    val fileId: Int,
     val sector: Int,
     val length: Int,
 ) {
     override fun hashCode(): Int {
         var hash = 7
         hash = 19 * hash + Objects.hashCode(this.idxFile)
-        hash = 19 * hash + this.id
+        hash = 19 * hash + this.fileId
         hash = 19 * hash + this.sector
         hash = 19 * hash + this.length
         return hash
@@ -32,25 +32,15 @@ internal data class ReferenceTable(
             null -> {
                 return false
             }
-            else -> when {
-                javaClass != other.javaClass -> {
-                    return false
-                }
+            else -> return when {
+                javaClass != other.javaClass -> false
                 else -> {
                     val referenceTable: ReferenceTable = other as ReferenceTable
-                    return when {
-                        idxFile != referenceTable.idxFile -> {
-                            false
-                        }
-                        id != referenceTable.id -> {
-                            false
-                        }
-                        sector != referenceTable.sector -> {
-                            false
-                        }
-                        this.length != referenceTable.length -> {
-                            false
-                        }
+                    when {
+                        idxFile != referenceTable.idxFile -> false
+                        fileId != referenceTable.fileId -> false
+                        sector != referenceTable.sector -> false
+                        this.length != referenceTable.length -> false
                         else -> true
                     }
                 }
@@ -58,7 +48,7 @@ internal data class ReferenceTable(
         }
     }
 
-    fun loadGroup(indexId: Int, whirlpool: ByteArray, data: ByteArray): Js5Group {
+    fun loadGroup(groupId: Int, whirlpool: ByteArray, data: ByteArray): Js5Group {
         val container = Compression.decompress(data, emptyArray())
         val buffer = ByteBuffer.wrap(container.data)
         val protocol = buffer.readUnsignedByte()
@@ -76,154 +66,142 @@ internal data class ReferenceTable(
         val isNamed = (0x1 and hash) != 0
         val isUsingWhirlPool = (0x2 and hash) != 0
 
-        val validArchivesCount = buffer.readUnsignedShort()
+        val count = buffer.readUnsignedShort()
 
-        var lastArchiveId = 0
-        var biggestArchiveId = -1
+        var lastFileId = 0
+        var biggestFileId = -1
 
-        val validArchiveIds = IntArray(validArchivesCount)
+        val validFileIds = IntArray(count)
 
-        for (index in 0 until validArchivesCount) {
-            validArchiveIds[index] = buffer.readUnsignedShort().let { lastArchiveId += it; lastArchiveId }
-            if (validArchiveIds[index] > biggestArchiveId) biggestArchiveId = validArchiveIds[index]
+        (0 until count).forEach {
+            validFileIds[it] = buffer.readUnsignedShort().let { id -> lastFileId += id; lastFileId }
+            if (validFileIds[it] > biggestFileId) biggestFileId = validFileIds[it]
         }
 
-        val anIntArray2107 = IntArray(biggestArchiveId + 1)
-        val nameHashes = readNameHashes(biggestArchiveId, validArchivesCount, isNamed, validArchiveIds, buffer)
-        val crcs = readCRCS(biggestArchiveId, validArchivesCount, validArchiveIds, buffer)
-        val whirlpools = readWhirlpool(isUsingWhirlPool, validArchivesCount, buffer, validArchiveIds)
-        val revisions = readRevisions(biggestArchiveId, validArchivesCount, validArchiveIds, buffer)
-        val validFileIds = readFileIds(biggestArchiveId, validArchivesCount, validArchiveIds, buffer)
-        val files = readFiles(biggestArchiveId, validFileIds, validArchivesCount, validArchiveIds, buffer, anIntArray2107, isNamed)
+        val nameHashes = nameHashes(biggestFileId, count, isNamed, validFileIds, buffer)
+        val crcs = crcs(biggestFileId, count, validFileIds, buffer)
+        val whirlpools = whirlpools(isUsingWhirlPool, count, buffer, validFileIds)
+        val revisions = revisions(biggestFileId, count, validFileIds, buffer)
+        val validEntryIds = validEntryIds(biggestFileId, count, validFileIds, buffer)
+        val entries = entries(biggestFileId, validEntryIds, count, validFileIds, buffer, isNamed)
 
-        val archives = mutableListOf<Js5File>()
-
-        (0 until validArchivesCount).forEach {
-            archives.add(Js5File(
-                id = it,
-                indexId = indexId,
-                nameHash = if (isNamed) nameHashes[validArchiveIds[it]] else -1,
-                crc = crcs[validArchiveIds[it]],
-                whirlpool = if (isUsingWhirlPool) whirlpools[validArchiveIds[it]] else byteArrayOf(),
-                revision = revisions[validArchiveIds[it]],
+        val files = mutableListOf<Js5File>()
+        (0 until count).forEach {
+            files.add(Js5File(
+                groupId = groupId,
+                fileId = it,
+                nameHash = if (isNamed) nameHashes[validFileIds[it]] else -1,
+                crc = crcs[validFileIds[it]],
+                whirlpool = if (isUsingWhirlPool) whirlpools[validFileIds[it]] else byteArrayOf(),
+                revision = revisions[validFileIds[it]],
                 keys = intArrayOf(),
-                entries = files[it]
+                entries = entries[it]
             ))
         }
-
-        return Js5Group(indexId, container.crc, whirlpool, container.compression, protocol, revision, isNamed, archives)
+        return Js5Group(groupId, container.crc, whirlpool, container.compression, protocol, revision, isNamed, files)
     }
 
-    private fun readFiles(
-        biggestArchiveId: Int,
+    private fun entries(
+        biggestFileId: Int,
+        validEntryIds: IntArray,
+        count: Int,
         validFileIds: IntArray,
-        validArchivesCount: Int,
-        validArchiveIds: IntArray,
         buffer: ByteBuffer,
-        anIntArray2107: IntArray,
         isNamed: Boolean,
     ): Array<Array<Js5FileEntry>> {
-        val files = Array(biggestArchiveId + 1) { row -> Array(validFileIds[row]) { Js5FileEntry(-1)  } }
+        val entries = Array(biggestFileId + 1) { row -> Array(validEntryIds[row]) { Js5FileEntry()  } }
 
-        (0 until validArchivesCount).forEach {
-            val archiveId = validArchiveIds[it]
-            val validFileCount = validFileIds[archiveId]
-            var entryId = 0
-            var currFileId = -1
-            var fileId = 0
-
-            while (validFileCount > fileId) {
-                val lastFileId = buffer.readUnsignedShort()
-                    .let { id -> entryId += id; entryId }
-                    .also { files[archiveId][fileId] = Js5FileEntry(entryId) }
-                if (currFileId < lastFileId) currFileId = lastFileId
-                fileId++
+        (0 until count).forEach {
+            val fileId = validFileIds[it]
+            var currEntryId = 0
+            (0 until validEntryIds[fileId]).forEach { entryId ->
+                buffer.readUnsignedShort()
+                    .let { id -> currEntryId += id; currEntryId }
+                    .also { entries[fileId][entryId] = Js5FileEntry(fileId, currEntryId) }
             }
-            anIntArray2107[archiveId] = currFileId + 1
-//             if (validFileCount == currFileId + 1) files[archiveId] = Array(validFileCount) { FileEntry(-1)  }
         }
 
         if (isNamed) {
-            (0 until validArchivesCount).forEach { count ->
-                val archiveId = validArchiveIds[count]
-                val fileCount = validFileIds[archiveId]
-                (0 until fileCount).forEach {
-                    files[archiveId][it].nameHash = buffer.int
+            (0 until count).forEach {
+                val fileId = validFileIds[it]
+                (0 until validEntryIds[fileId]).forEach { entryId ->
+                    //TODO Construct the entry with the namehash instead of setting it afterward.
+                    entries[fileId][entryId].nameHash = buffer.int
                 }
             }
         }
-        return files
+        return entries
     }
 
-    private fun readFileIds(
-        biggestArchiveId: Int,
-        validArchivesCount: Int,
-        validArchiveIds: IntArray,
+    private fun validEntryIds(
+        biggestFileId: Int,
+        count: Int,
+        validFileIds: IntArray,
         buffer: ByteBuffer,
     ): IntArray {
-        val validFileIds = IntArray(biggestArchiveId + 1)
-        (0 until validArchivesCount).forEach {
-            validFileIds[validArchiveIds[it]] = buffer.readUnsignedShort()
+        val validEntryIds = IntArray(biggestFileId + 1)
+        (0 until count).forEach {
+            validEntryIds[validFileIds[it]] = buffer.readUnsignedShort()
         }
-        return validFileIds
+        return validEntryIds
     }
 
-    private fun readRevisions(
-        biggestArchiveId: Int,
-        validArchivesCount: Int,
-        validArchiveIds: IntArray,
+    private fun revisions(
+        biggestFileId: Int,
+        count: Int,
+        validFileIds: IntArray,
         buffer: ByteBuffer,
     ): IntArray {
-        val revisions = IntArray(biggestArchiveId + 1)
-        (0 until validArchivesCount).forEach {
-            revisions[validArchiveIds[it]] = buffer.int
+        val revisions = IntArray(biggestFileId + 1)
+        (0 until count).forEach {
+            revisions[validFileIds[it]] = buffer.int
         }
         return revisions
     }
 
-    private fun readWhirlpool(
+    private fun whirlpools(
         usesWhirlpool: Boolean,
-        validArchivesCount: Int,
+        count: Int,
         buffer: ByteBuffer,
-        validArchiveIds: IntArray,
+        validFileIds: IntArray,
     ): Array<ByteArray> {
         val whirlpools = Array(64) { byteArrayOf() }
         if (usesWhirlpool) {
-            (0 until validArchivesCount).forEach {
+            (0 until count).forEach {
                 val whirlpool = ByteArray(64)
-                buffer.get(whirlpool, 0, 64)
-                whirlpools[validArchiveIds[it]] = whirlpool
+                buffer.get(whirlpool)
+                whirlpools[validFileIds[it]] = whirlpool
             }
         }
         return whirlpools
     }
 
-    private fun readCRCS(
-        biggestArchiveId: Int,
-        validArchivesCount: Int,
-        validArchiveIds: IntArray,
+    private fun crcs(
+        biggestFileId: Int,
+        count: Int,
+        validFileIds: IntArray,
         buffer: ByteBuffer,
     ): IntArray {
-        val crcs = IntArray(biggestArchiveId + 1)
-        (0 until validArchivesCount).forEach {
-            crcs[validArchiveIds[it]] = buffer.int
+        val crcs = IntArray(biggestFileId + 1)
+        (0 until count).forEach {
+            crcs[validFileIds[it]] = buffer.int
         }
         return crcs
     }
 
-    private fun readNameHashes(
-        biggestArchiveId: Int,
-        validArchivesCount: Int,
+    private fun nameHashes(
+        biggestFileId: Int,
+        count: Int,
         isNamed: Boolean,
-        validArchiveIds: IntArray,
+        validFileIds: IntArray,
         buffer: ByteBuffer,
     ): IntArray {
-        val nameHashes = IntArray(biggestArchiveId + 1) { -1 }
+        val nameHashes = IntArray(biggestFileId + 1) { -1 }
 
         if (isNamed.not()) return nameHashes
 
-        (0 until validArchivesCount).forEach {
-            nameHashes[validArchiveIds[it]] = buffer.int
+        (0 until count).forEach {
+            nameHashes[validFileIds[it]] = buffer.int
         }
         return nameHashes
     }

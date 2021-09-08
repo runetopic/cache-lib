@@ -6,12 +6,12 @@ import com.xlite.cache.compression.IFileCodec
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-class UhandledFileCodec: IFileCodec {
+internal class NoFileCodec: IFileCodec {
     override fun compress(data: ByteArray, length: Int, keys: Array<Int>): ByteArray {
-        throw NotImplementedError("Unhandled codec provided.")
+        throw NotImplementedError("No codec provided.")
     }
 
     override fun decompress(data: ByteArray, length: Int, keys: Array<Int>): ByteArray {
-        throw NotImplementedError("Unhandled codec provided.")
+        throw NotImplementedError("No codec provided.")
     }
 }

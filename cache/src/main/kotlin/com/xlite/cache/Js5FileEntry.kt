@@ -5,8 +5,9 @@ package com.xlite.cache
  * @email <xlitersps@gmail.com>
  */
 data class Js5FileEntry(
-    val id: Int = -1,
-    var nameHash: Int = -1,
+    val fileId: Int = -1,
+    val entryId: Int = -1,
+    internal var nameHash: Int = -1,
     var data: ByteArray? = null
 ) {
     override fun equals(other: Any?): Boolean {
@@ -15,7 +16,7 @@ data class Js5FileEntry(
 
         other as Js5FileEntry
 
-        if (id != other.id) return false
+        if (entryId != other.entryId) return false
         if (nameHash != other.nameHash) return false
         if (data != null) {
             if (other.data == null) return false
@@ -26,7 +27,7 @@ data class Js5FileEntry(
     }
 
     override fun hashCode(): Int {
-        var result = id
+        var result = entryId
         result = 31 * result + nameHash
         result = 31 * result + (data?.contentHashCode() ?: 0)
         return result

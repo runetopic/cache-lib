@@ -8,5 +8,5 @@ import java.nio.ByteBuffer
  */
 internal interface IEntryBuilder<T : IEntryType> {
     fun build(store: Store)
-    fun read(buf: ByteBuffer, type: T): T
+    fun read(buffer: ByteBuffer, type: T): T
 }

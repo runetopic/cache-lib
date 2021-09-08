@@ -67,7 +67,7 @@ internal class Whirlpool {
         }
     }
 
-    fun NESSIEinit() {
+    fun initNESSIE() {
         bitLength.fill(0)
         bufferBits = 0
         bufferPos = 0
@@ -75,7 +75,7 @@ internal class Whirlpool {
         hash.fill(0)
     }
 
-    fun NESSIEadd(source: ByteArray, bits: Long) {
+    fun addNESSIE(source: ByteArray, bits: Long) {
         var sourceBits = bits
         var sourcePos = 0
         val sourceGap = (8 - (sourceBits.toInt() and 7)) and 7
@@ -138,7 +138,7 @@ internal class Whirlpool {
         }
     }
 
-    fun NESSIEfinalize(digest: ByteArray) {
+    fun finalizeNESSIE(digest: ByteArray) {
         buffer[bufferPos] = (buffer[bufferPos].toInt() or (0x80 ushr (bufferBits and 7))).toByte()
         bufferPos++
 
@@ -175,7 +175,7 @@ internal class Whirlpool {
 
     companion object {
         private const val DIGESTBITS = 512
-        const val DIGESTBYTES: Int = DIGESTBITS ushr 3
+        private const val DIGESTBYTES: Int = DIGESTBITS ushr 3
         private const val R = 10
         private const val sbox = "\u1823\uC6E8\u87B8\u014F\u36A6\uD2F5\u796F\u9152" +
             "\u60BC\u9B8E\uA30C\u7B35\u1DE0\uD7C2\u2E4B\uFE57" +
@@ -260,11 +260,11 @@ internal class Whirlpool {
             }
 
             val whirlpool = Whirlpool()
-            whirlpool.NESSIEinit()
-            whirlpool.NESSIEadd(source, (len * 8).toLong())
+            whirlpool.initNESSIE()
+            whirlpool.addNESSIE(source, (len * 8).toLong())
 
             val digest = ByteArray(DIGESTBYTES)
-            whirlpool.NESSIEfinalize(digest)
+            whirlpool.finalizeNESSIE(digest)
             return digest
         }
     }

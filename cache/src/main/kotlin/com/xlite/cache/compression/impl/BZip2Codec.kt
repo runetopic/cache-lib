@@ -1,7 +1,7 @@
 package com.xlite.cache.compression.impl
 
 import com.xlite.cache.compression.IFileCodec
-import com.xlite.cache.store.fs.FileConstants.BZIP_HEADER
+import com.xlite.cache.store.Constants.BZIP_HEADER
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.utils.IOUtils
@@ -14,7 +14,7 @@ import java.util.*
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-class BZip2Codec: IFileCodec {
+internal class BZip2Codec: IFileCodec {
     override fun compress(data: ByteArray, length: Int, keys: Array<Int>): ByteArray {
         val stream: InputStream = ByteArrayInputStream(data)
         val bout = ByteArrayOutputStream()

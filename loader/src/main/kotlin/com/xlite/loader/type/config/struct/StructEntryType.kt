@@ -4,7 +4,7 @@ import com.xlite.loader.IEntryType
 
 data class StructEntryType(
     private val id: Int = 0,
-    var params: HashMap<Long, Any> = hashMapOf()
+    var params: MutableMap<Int, Any> = mutableMapOf()
 ): IEntryType {
     override fun getId(): Int = id
 }
