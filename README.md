@@ -19,10 +19,7 @@ It currently only supports reading from the cache as of now.
 ## Usage
 
 ```
-store.group(5).use {
-    val data = store.getFileData(it.getFile("m${50}_${50}"))
-    logger.debug { data.contentToString() }
-}
+store.file(store.group(5), "m${50}_${50}")
 
 store.group(2).use { group ->
    val js5File = group.files[26]
