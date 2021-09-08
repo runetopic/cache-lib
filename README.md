@@ -10,10 +10,7 @@ It currently only supports reading from the cache as of now.
 - Cache Reading
 
 # TODO
-- Rework how files are being loaded into the archives (Super inefficient atm)
-- Optimize the archive & index building
 - Cache Writing
-- Find archive by name
 - Flat file system to unpacking and packing of the cache in the raw file formats
 
 # Usage
