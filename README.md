@@ -11,10 +11,7 @@ It currently only supports reading from the cache, have only tested this with St
 - Currently only supports reading from the cache
 
 ## TODO
-- Rework how files are being loaded into the archives (Super inefficient atm)
-- Optimize the archive & index building
 - Cache Writing
-- Find archive by name
 - Flat file system to unpacking and packing of the cache in the raw file formats
 
 ## Usage
