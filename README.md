@@ -7,7 +7,8 @@ This library is still a work in progress, and is currently built around RS2 Cach
 It currently only supports reading from the cache as of now.
 
 # Features
-- Currently only supports reading from the cache
+- Cache Reading
+- 
 
 ## TODO
 - Rework how files are being loaded into the archives (Super inefficient atm)
@@ -18,9 +19,11 @@ It currently only supports reading from the cache as of now.
 
 ## Usage
 
-```
-store.file(store.group(5), "m${50}_${50}")
+# Getting file by name
+```store.file(store.group(5), "m${50}_${50}")```
 
+# Getting file entry by id
+```
 store.group(2).use { group ->
    val js5File = group.files[26]
 
