@@ -5,3 +5,4 @@ data/cache/
 /src/main/kotlin/com/xlite/cache/definition/*
 /src/main/kotlin/com/xlite/cache/Application.kt
 /data/dumps/
+/app/*
