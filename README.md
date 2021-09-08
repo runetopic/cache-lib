@@ -3,11 +3,10 @@
 [![Discord](https://img.shields.io/discord/212385463418355713?color=%237289DA&logo=Discord&logoColor=%237289DA)](https://discord.gg/3scgBkrfMG)
 [![License](https://img.shields.io/github/license/xlite2/xlite)](#)
 
-This library is still a work in progress, and is currently built around RS2 Caches. It is however Modular is it's nature, and we will support all revisions in the future.
-It currently only supports reading from the cache, have only tested this with StructTypes so far
+This library is still a work in progress, and is currently built around RS2 Caches 647 to be specific. 
+It currently only supports reading from the cache as of now.
 
 # Features
-- Modular based implementation for different cache formats.
 - Currently only supports reading from the cache
 
 ## TODO
@@ -25,14 +24,12 @@ store.group(5).use {
     logger.debug { data.contentToString() }
 }
 
-val loader = StructTypeLoader()
-val structs = mutableListOf<StructType>()
-
 store.group(2).use { group ->
-    val files = group.getFiles()[26]
+   val js5File = group.files[26]
 
-    files.entries.forEach {
-        structs.add(loader.decode(it.id, store.getFileData(it.id, files)))
+    js5File.entries.forEach { fileEntry ->
+        val entry = store.entry(group, 26, fileEntry.id)
+        add(read(ByteBuffer.wrap(entry.data), StructEntryType(fileEntry.id)))
     }
 }
 ```
