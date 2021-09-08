@@ -10,19 +10,19 @@ It currently only supports reading from the cache as of now.
 - Cache Reading
 - 
 
-## TODO
+# TODO
 - Rework how files are being loaded into the archives (Super inefficient atm)
 - Optimize the archive & index building
 - Cache Writing
 - Find archive by name
 - Flat file system to unpacking and packing of the cache in the raw file formats
 
-## Usage
+# Usage
 
-# Getting file by name
+### Getting file by name
 ```store.file(store.group(5), "m${50}_${50}")```
 
-# Getting file entry by id
+### Getting file entry by id
 ```
 store.group(2).use { group ->
    val js5File = group.files[26]
