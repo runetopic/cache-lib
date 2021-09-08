@@ -11,7 +11,7 @@ It currently only supports reading from the cache as of now.
 
 # TODO
 - Cache Writing
-- Flat file system to unpacking and packing of the cache in the raw file formats
+- Flat file system for unpacking and packing of the cache in the raw file formats
 
 # Usage
 
