@@ -1,7 +1,7 @@
-package com.xlite.cache.type.obj
+package com.xlite.loader.group.obj
 
-import com.displee.cache.index.Index
-import com.xlite.cache.type.IEntryProvider
+import com.xlite.cache.store.Store
+import com.xlite.loader.IEntryProvider
 
 /**
  * @author Jordan Abraham
@@ -10,8 +10,8 @@ class ObjEntryProvider : IEntryProvider<ObjEntryType> {
 
     private val builder = ObjEntryBuilder()
 
-    override fun load(index: Index) {
-        builder.build(index)
+    override fun load(store: Store) {
+        builder.build(store)
     }
 
     override fun lookup(id: Int): ObjEntryType {

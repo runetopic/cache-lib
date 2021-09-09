@@ -23,9 +23,7 @@ data class SpotAnimationEntryType(
     var aBoolean2678: Boolean = false
 ) : IEntryType {
 
-    override fun getId(): Int {
-        return id
-    }
+    override fun getId(): Int = id
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
