@@ -4,9 +4,25 @@ import com.xlite.cache.crypto.Whirlpool
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
+fun ByteBuffer.readUnsignedSmart(): Int {
+    val peek: Int = get(position()).toInt() and 0xFF
+    return if (peek < 128) readUnsignedByte() else (readUnsignedShort()) - 0x8000
+}
+
 fun ByteBuffer.readUnsignedByte(): Int = get().toInt() and 0xFF
 fun ByteBuffer.readUnsignedShort(): Int = short.toInt() and 0xFFFF
 fun ByteBuffer.readMedium(): Int = (get().toInt() and 0xFF) shl 16 or (get().toInt() and 0xFF shl 8) or (get().toInt() and 0xFF)
+
+fun ByteBuffer.readUnsignedIntSmartShortCompat(): Int {
+    var i = 0
+    var i_33_: Int = readUnsignedSmart()
+    while (i_33_ == 32767) {
+        i_33_ = readUnsignedSmart()
+        i += 32767
+    }
+    i += i_33_
+    return i
+}
 
 fun ByteBuffer.whirlpool(): ByteArray {
     val pos = position()
