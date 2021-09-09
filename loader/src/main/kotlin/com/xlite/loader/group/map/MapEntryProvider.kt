@@ -5,7 +5,8 @@ import com.xlite.loader.IEntryProvider
 
 
 /**
- * @author Jordan Abraham
+ * @author Tyler Telis
+ * @email <xlitersps@gmail.com>
  */
 class MapEntryProvider : IEntryProvider<MapEntryType> {
 

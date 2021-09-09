@@ -1,14 +1,14 @@
 package com.xlite.loader.group.map
 
 import com.xlite.cache.compression.Compression
-import com.xlite.cache.exception.FileNotFoundException
 import com.xlite.cache.extension.readUnsignedByte
 import com.xlite.cache.store.Store
 import com.xlite.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
 /**
- * @author Jordan Abraham
+ * @author Tyler Telis
+ * @email <xlitersps@gmail.com>
  */
 internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
 

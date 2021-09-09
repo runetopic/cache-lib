@@ -2,6 +2,10 @@ package com.xlite.loader.group.map
 
 import com.xlite.loader.IEntryType
 
+/**
+ * @author Tyler Telis
+ * @email <xlitersps@gmail.com>
+ */
 data class MapEntryType(
     private val id: Int = 0,
     val regionX: Int,
