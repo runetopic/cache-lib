@@ -1,4 +1,4 @@
-package com.xlite.loader.type.config.spotanim
+package com.xlite.loader.group.config.spotanim
 
 import com.xlite.cache.store.Store
 import com.xlite.loader.IEntryProvider

@@ -1,4 +1,4 @@
-package com.xlite.loader.type.config.struct
+package com.xlite.loader.group.config.struct
 
 import com.xlite.loader.IEntryType
 
