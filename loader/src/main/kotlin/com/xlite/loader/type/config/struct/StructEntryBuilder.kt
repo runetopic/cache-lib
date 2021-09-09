@@ -18,6 +18,13 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
+        val group = store.group(5)
+
+        val file = store.file(5, "m${50}_${50}")
+
+        val entry = store.entry(store.group(2), 26, 1000)
+
+
         structTypes = buildSet {
             store.group(2).use { group ->
                 group.entries(26).forEach {

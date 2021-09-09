@@ -39,6 +39,7 @@ class Store(
 
     fun group(id: Int): Js5Group = this.groups[id]
     fun file(group: Js5Group, fileName: String): Js5File = storage.loadFile(group, fileName)
+    fun file(groupId: Int, fileName: String): Js5File = storage.loadFile(group(groupId), fileName)
     fun file(group: Js5Group, fileId: Int): Js5File = storage.loadFile(group, fileId)
     fun file(groupId: Int, fileId: Int): Js5File = storage.loadFile(group(groupId), fileId)
     fun entry(group: Js5Group, fileId: Int, entryId: Int): Js5FileEntry = storage.loadEntry(group, fileId, entryId)
