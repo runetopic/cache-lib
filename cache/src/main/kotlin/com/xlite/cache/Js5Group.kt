@@ -17,10 +17,8 @@ data class Js5Group(
     internal val isNamed: Boolean,
     internal val files: List<Js5File>
 ) {
-    internal fun getFile(fileId: Int): Js5File = files[fileId]
-    internal fun getFile(name: String): Js5File {
-        return files.find { it.nameHash == name.nameHash() } ?: throw FileNotFoundException("Could not find archive with name $name and name hash ${name.nameHash()}")
-    }
+    internal fun getFile(fileId: Int): Js5File? = files.find { it.fileId == fileId }
+    internal fun getFile(name: String): Js5File? = files.find { it.nameHash == name.nameHash() }
 
     fun use(block: (Js5Group) -> Unit) {
         block.invoke(this)

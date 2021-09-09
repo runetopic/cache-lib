@@ -13,7 +13,7 @@ import java.util.zip.CRC32
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal object Compression {
+object Compression {
 
     fun decompress(data: ByteArray, keys: Array<Int>): Container {
         val buffer = ByteBuffer.wrap(data)
