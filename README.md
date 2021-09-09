@@ -15,19 +15,40 @@ It currently only supports reading from the cache as of now.
 
 # Usage
 
-### Getting file by name
-```store.file(store.group(5), "m${50}_${50}")```
+### Getting a specific group
+```val group = store.group(5)```
 
-### Getting file entry by id
+### Getting a specific file by file id
+```val file = store.file(5, 360)```
+
+```val file = store.file(store.group(5), 360)```
+
+### Getting a specific file by file name
+```val file = store.file(5, "m${50}_${50}")```
+
+```val file = store.file(store.group(5), "m${50}_${50}")```
+
+### Getting a specific entry of a file by entry id
+```val entry = store.entry(2, 26, 1000)```
+
+```val entry = store.entry(store.group(2), 26, 1000)```
+
+### Looping files from a specific group
 ```
-store.group(2).use { group ->
-   val js5File = group.files[26]
+            store.group(21).use { group ->
+                (0 until group.expandedCapacity()).forEach {
+                    val data = store.entry(group, it ushr 8, it and 0xFF).data
+                }
+            }
+```
 
-    js5File.entries.forEach { fileEntry ->
-        val entry = store.entry(group, 26, fileEntry.id)
-        add(read(ByteBuffer.wrap(entry.data), StructEntryType(fileEntry.id)))
-    }
-}
+### Looping entries from a specific file
+```
+            store.group(2).use { group ->
+                group.entries(26).forEach {
+                    val data = store.entry(group, it.fileId, it.entryId).data
+                }
+            }
 ```
 
 
