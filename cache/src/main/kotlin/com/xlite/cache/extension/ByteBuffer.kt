@@ -12,6 +12,7 @@ fun ByteBuffer.readUnsignedSmart(): Int {
 fun ByteBuffer.readUnsignedByte(): Int = get().toInt() and 0xFF
 fun ByteBuffer.readUnsignedShort(): Int = short.toInt() and 0xFFFF
 fun ByteBuffer.readMedium(): Int = (get().toInt() and 0xFF) shl 16 or (get().toInt() and 0xFF shl 8) or (get().toInt() and 0xFF)
+fun ByteBuffer.skip(amount: Int): ByteBuffer = position(position() + amount)
 
 fun ByteBuffer.readUnsignedIntSmartShortCompat(): Int {
     var i = 0

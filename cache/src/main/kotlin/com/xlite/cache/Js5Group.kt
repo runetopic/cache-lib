@@ -20,9 +20,7 @@ data class Js5Group(
     internal fun getFile(fileId: Int): Js5File? = files.find { it.fileId == fileId }
     internal fun getFile(name: String): Js5File? = files.find { it.nameHash == name.nameHash() }
 
-    fun use(block: (Js5Group) -> Unit) {
-        block.invoke(this)
-    }
+    fun use(block: (Js5Group) -> Unit) = block.invoke(this)
 
     fun entries(fileId: Int) = files[fileId].entries
 
