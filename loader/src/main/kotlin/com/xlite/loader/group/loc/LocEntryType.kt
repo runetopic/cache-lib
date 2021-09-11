@@ -9,7 +9,7 @@ import com.xlite.loader.IEntryType
 data class LocEntryType(
     private val id: Int= 0,
     var types: ByteArray? = null,
-    var models: Array<IntArray?>? = null,
+    var models: Array<IntArray>? = null,
     var name: String = "null",
     var sizeX: Int = -1,
     var sizeZ: Int = -1,
