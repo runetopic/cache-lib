@@ -57,14 +57,14 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
             }
             40 -> {
                 val size = buffer.readUnsignedByte()
-                val recolorToFind = ShortArray(size)
-                val recolorToReplace = ShortArray(size)
+                val colorToFind = ShortArray(size)
+                val colorToReplace = ShortArray(size)
                 (0 until size).forEach {
-                    recolorToFind[it] = (buffer.readUnsignedShort()).toShort()
-                    recolorToReplace[it] = (buffer.readUnsignedShort()).toShort()
+                    colorToFind[it] = (buffer.readUnsignedShort()).toShort()
+                    colorToReplace[it] = (buffer.readUnsignedShort()).toShort()
                 }
-                type.recolorToFind = recolorToFind
-                type.recolorToReplace = recolorToReplace
+                type.colorToFind = colorToFind
+                type.colorToReplace = colorToReplace
             }
             41 -> {
                 val size = buffer.readUnsignedByte()
