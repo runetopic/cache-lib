@@ -57,21 +57,25 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
             }
             40 -> {
                 val size = buffer.readUnsignedByte()
-                type.recolorToFind = ShortArray(size)
-                type.recolorToReplace = ShortArray(size)
+                val recolorToFind = ShortArray(size)
+                val recolorToReplace = ShortArray(size)
                 (0 until size).forEach {
-                    type.recolorToFind!![it] = (buffer.readUnsignedShort()).toShort()
-                    type.recolorToReplace!![it] = (buffer.readUnsignedShort()).toShort()
+                    recolorToFind[it] = (buffer.readUnsignedShort()).toShort()
+                    recolorToReplace[it] = (buffer.readUnsignedShort()).toShort()
                 }
+                type.recolorToFind = recolorToFind
+                type.recolorToReplace = recolorToReplace
             }
             41 -> {
                 val size = buffer.readUnsignedByte()
-                type.textureToFind = ShortArray(size)
-                type.textureToReplace = ShortArray(size)
+                val textureToFind = ShortArray(size)
+                val textureToReplace = ShortArray(size)
                 (0 until size).forEach {
-                    type.textureToFind!![it] = (buffer.readUnsignedShort()).toShort()
-                    type.textureToReplace!![it] = (buffer.readUnsignedShort()).toShort()
+                    textureToFind[it] = (buffer.readUnsignedShort()).toShort()
+                    textureToReplace[it] = (buffer.readUnsignedShort()).toShort()
                 }
+                type.textureToFind = textureToFind
+                type.textureToReplace = textureToReplace
             }
             else -> throw Exception("Read unused opcode with id: ${opcode}.")
         } while (true)
