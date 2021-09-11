@@ -6,7 +6,6 @@ import com.xlite.cache.extension.readUnsignedIntSmartShortCompat
 import com.xlite.cache.extension.readUnsignedSmart
 import com.xlite.cache.store.Store
 import com.xlite.loader.IEntryBuilder
-import java.lang.Exception
 import java.nio.ByteBuffer
 import java.util.zip.ZipException
 
