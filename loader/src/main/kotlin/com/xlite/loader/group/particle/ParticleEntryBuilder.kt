@@ -59,17 +59,15 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
             }
             9 -> {
                 val size = buffer.readUnsignedByte()
-                type.localMagnets = IntArray(size)
-                (0 until size).forEach {
-                    type.localMagnets!![it] = buffer.readUnsignedShort()
-                }
+                val localMagnets = IntArray(size)
+                (0 until size).forEach { localMagnets[it] = buffer.readUnsignedShort() }
+                type.localMagnets = localMagnets
             }
             10 -> {
                 val size = buffer.readUnsignedByte()
-                type.globalMagnets = IntArray(size)
-                (0 until size).forEach {
-                    type.globalMagnets!![it] = buffer.readUnsignedShort()
-                }
+                val globalMagnets = IntArray(size)
+                (0 until size).forEach { globalMagnets[it] = buffer.readUnsignedShort() }
+                type.globalMagnets = globalMagnets
             }
             12 -> type.minLevel = buffer.get().toInt()
             13 -> type.maxLevel = buffer.get().toInt()
@@ -91,10 +89,9 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
             24 -> type.uniformColorVariance = false
             25 -> {
                 val size = buffer.readUnsignedByte()
-                type.generalMagnets = IntArray(size)
-                (0 until size).forEach {
-                    type.generalMagnets!![it] = buffer.readUnsignedShort()
-                }
+                val generalMagnets = IntArray(size)
+                (0 until size).forEach { generalMagnets[it] = buffer.readUnsignedShort() }
+                type.generalMagnets = generalMagnets
             }
             26 -> type.aBoolean3070 = false
             27 -> type.anInt3065 = buffer.readUnsignedShort() shl 12 shl 2
