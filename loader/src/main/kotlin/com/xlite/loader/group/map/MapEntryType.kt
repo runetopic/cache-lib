@@ -1,6 +1,7 @@
 package com.xlite.loader.group.map
 
 import com.xlite.loader.IEntryType
+import com.xlite.loader.group.lighting.AtmosphereLightingEntryType
 
 /**
  * @author Tyler Telis
@@ -10,8 +11,9 @@ data class MapEntryType(
     private val id: Int = 0,
     val regionX: Int,
     val regionY: Int,
-    val tiles: Array<Array<Array<Tile?>>> = Array(PLANES) { Array(MAP_SIZE) { arrayOfNulls(MAP_SIZE) } }
-): IEntryType {
+    val tiles: Array<Array<Array<Tile?>>> = Array(PLANES) { Array(MAP_SIZE) { arrayOfNulls(MAP_SIZE) } },
+    var atmosphere: AtmosphereEntryType = AtmosphereEntryType()
+) : IEntryType {
     override fun getId(): Int = id
 
     data class Tile(
@@ -22,6 +24,22 @@ data class MapEntryType(
         var overlayPath: Byte = 0,
         var overlayRotation: Byte = 0,
         var underlayId: Byte = 0
+    )
+
+    data class AtmosphereEntryType(
+        var sunColor: Int = 16777215,
+        var aFloat2882: Float = 1.1523438f,
+        var aFloat2884: Float = 0.69921875f,
+        var aFloat2876: Float = 1.2f,
+        var anInt2887: Int = -50,
+        var anInt2886: Int = -60,
+        var anInt2881: Int = -50,
+        var anInt2888: Int = 13156520,
+        var anInt2890: Int = 0,
+        var aFloat2889: Float = 1.0f,
+        var aFloat2880: Float = 1.0f,
+        var aFloat2877: Float = 0.25f,
+        var lightingEntryId: Int = -1
     )
 
     override fun equals(other: Any?): Boolean {

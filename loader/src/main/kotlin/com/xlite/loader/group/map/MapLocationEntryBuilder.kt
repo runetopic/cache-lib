@@ -68,6 +68,7 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
                 )
             }
         }
+
         return type
     }
 }
