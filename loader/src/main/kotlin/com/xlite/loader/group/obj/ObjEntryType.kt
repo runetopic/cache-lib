@@ -20,10 +20,10 @@ data class ObjEntryType(
     var stackable: Int = 0,
     var inventoryModel: Int = 0,
     var members: Boolean = false,
-    var colorFind: ShortArray? = null,
-    var colorReplace: ShortArray? = null,
-    var textureFind: ShortArray? = null,
-    var textureReplace: ShortArray? = null,
+    var colorToFind: ShortArray? = null,
+    var colorToReplace: ShortArray? = null,
+    var textureToFind: ShortArray? = null,
+    var textureToReplace: ShortArray? = null,
     var aByteArray1858: ByteArray? = null,
     var zoom2d: Int = 2000,
     var xOffset2d: Int = 0,
@@ -92,22 +92,22 @@ data class ObjEntryType(
         if (stackable != other.stackable) return false
         if (inventoryModel != other.inventoryModel) return false
         if (members != other.members) return false
-        if (colorFind != null) {
-            if (other.colorFind == null) return false
-            if (!colorFind.contentEquals(other.colorFind)) return false
-        } else if (other.colorFind != null) return false
-        if (colorReplace != null) {
-            if (other.colorReplace == null) return false
-            if (!colorReplace.contentEquals(other.colorReplace)) return false
-        } else if (other.colorReplace != null) return false
-        if (textureFind != null) {
-            if (other.textureFind == null) return false
-            if (!textureFind.contentEquals(other.textureFind)) return false
-        } else if (other.textureFind != null) return false
-        if (textureReplace != null) {
-            if (other.textureReplace == null) return false
-            if (!textureReplace.contentEquals(other.textureReplace)) return false
-        } else if (other.textureReplace != null) return false
+        if (colorToFind != null) {
+            if (other.colorToFind == null) return false
+            if (!colorToFind.contentEquals(other.colorToFind)) return false
+        } else if (other.colorToFind != null) return false
+        if (colorToReplace != null) {
+            if (other.colorToReplace == null) return false
+            if (!colorToReplace.contentEquals(other.colorToReplace)) return false
+        } else if (other.colorToReplace != null) return false
+        if (textureToFind != null) {
+            if (other.textureToFind == null) return false
+            if (!textureToFind.contentEquals(other.textureToFind)) return false
+        } else if (other.textureToFind != null) return false
+        if (textureToReplace != null) {
+            if (other.textureToReplace == null) return false
+            if (!textureToReplace.contentEquals(other.textureToReplace)) return false
+        } else if (other.textureToReplace != null) return false
         if (aByteArray1858 != null) {
             if (other.aByteArray1858 == null) return false
             if (!aByteArray1858.contentEquals(other.aByteArray1858)) return false
@@ -183,10 +183,10 @@ data class ObjEntryType(
         result = 31 * result + stackable
         result = 31 * result + inventoryModel
         result = 31 * result + members.hashCode()
-        result = 31 * result + (colorFind?.contentHashCode() ?: 0)
-        result = 31 * result + (colorReplace?.contentHashCode() ?: 0)
-        result = 31 * result + (textureFind?.contentHashCode() ?: 0)
-        result = 31 * result + (textureReplace?.contentHashCode() ?: 0)
+        result = 31 * result + (colorToFind?.contentHashCode() ?: 0)
+        result = 31 * result + (colorToReplace?.contentHashCode() ?: 0)
+        result = 31 * result + (textureToFind?.contentHashCode() ?: 0)
+        result = 31 * result + (textureToReplace?.contentHashCode() ?: 0)
         result = 31 * result + (aByteArray1858?.contentHashCode() ?: 0)
         result = 31 * result + zoom2d
         result = 31 * result + xOffset2d

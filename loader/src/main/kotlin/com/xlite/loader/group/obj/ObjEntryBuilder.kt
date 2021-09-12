@@ -32,13 +32,11 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
             4 -> type.zoom2d = buffer.readUnsignedShort()
             5 -> type.xan2d = buffer.readUnsignedShort()
             6 -> type.yan2d = buffer.readUnsignedShort()
-            7 -> {
-                type.xOffset2d = buffer.readUnsignedShort()
-                if (type.xOffset2d > Short.MAX_VALUE) type.xOffset2d -= 65536
+            7 -> buffer.readUnsignedShort().let {
+                type.xOffset2d = if (it > Short.MAX_VALUE) it - 65536 else it
             }
-            8 -> {
-                type.yOffset2d = buffer.readUnsignedShort()
-                if (type.yOffset2d > Short.MAX_VALUE) type.yOffset2d -= 65536
+            8 -> buffer.readUnsignedShort().let {
+                type.yOffset2d = if (it > Short.MAX_VALUE) it - 65536 else it
             }
             11 -> type.stackable = 1
             12 -> type.cost = buffer.int
@@ -47,32 +45,35 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
             24 -> type.maleModel1 = buffer.readUnsignedShort()
             25 -> type.femaleModel0 = buffer.readUnsignedShort()
             26 -> type.femaleModel1 = buffer.readUnsignedShort()
-            in 30..34 -> type.options[opcode - 30] = buffer.readString()
-            in 35..39 -> type.interfaceOptions[opcode - 35] = buffer.readString()
+            in 30..34 -> buffer.readString().let { type.options[opcode - 30] = it }
+            in 35..39 -> buffer.readString().let { type.interfaceOptions[opcode - 35] = it }
             40 -> {
                 val size = buffer.readUnsignedByte()
-                type.colorFind = ShortArray(size)
-                type.colorReplace = ShortArray(size)
+                val colorToFind = ShortArray(size)
+                val colorToReplace = ShortArray(size)
                 (0 until size).forEach {
-                    type.colorFind!![it] = buffer.readUnsignedShort().toShort()
-                    type.colorReplace!![it] = buffer.readUnsignedShort().toShort()
+                    colorToFind[it] = buffer.readUnsignedShort().toShort()
+                    colorToReplace[it] = buffer.readUnsignedShort().toShort()
                 }
+                type.colorToFind = colorToFind
+                type.colorToReplace = colorToReplace
             }
             41 -> {
                 val size = buffer.readUnsignedByte()
-                type.textureFind = ShortArray(size)
-                type.textureReplace = ShortArray(size)
+                val textureToFind = ShortArray(size)
+                val textureToReplace = ShortArray(size)
                 (0 until size).forEach {
-                    type.textureFind!![it] = buffer.readUnsignedShort().toShort()
-                    type.textureReplace!![it] = buffer.readUnsignedShort().toShort()
+                    textureToFind[it] = buffer.readUnsignedShort().toShort()
+                    textureToReplace[it] = buffer.readUnsignedShort().toShort()
                 }
+                type.textureToFind = textureToFind
+                type.textureToReplace = textureToReplace
             }
             42 -> {
                 val size = buffer.readUnsignedByte()
-                type.aByteArray1858 = ByteArray(size)
-                (0 until size).forEach {
-                    type.aByteArray1858!![it] = buffer.readUnsignedByte().toByte()
-                }
+                val aByteArray1858 = ByteArray(size)
+                (0 until size).forEach { aByteArray1858[it] = buffer.readUnsignedByte().toByte() }
+                type.aByteArray1858 = aByteArray1858
             }
             65 -> type.tradeable = true
             78 -> type.maleModel2 = buffer.readUnsignedShort()
@@ -86,12 +87,12 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
             97 -> type.notedId = buffer.readUnsignedShort()
             98 -> type.notedTemplate = buffer.readUnsignedShort()
             in 100..109 -> {
-                if (type.countObj == null) {
-                    type.countObj = IntArray(10)
-                    type.countCo = IntArray(10)
-                }
-                type.countObj!![opcode - 100] = buffer.readUnsignedShort()
-                type.countCo!![opcode - 100] = buffer.readUnsignedShort()
+                val countObj = IntArray(10)
+                val countCo = IntArray(10)
+                countObj[opcode - 100] = buffer.readUnsignedShort()
+                countCo[opcode - 100] = buffer.readUnsignedShort()
+                type.countObj = countObj
+                type.countCo = countCo
             }
             110 -> type.resizeX = buffer.readUnsignedShort()
             111 -> type.resizeY = buffer.readUnsignedShort()
@@ -129,10 +130,9 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
             }
             132 -> {
                 val size = buffer.readUnsignedByte()
-                type.anIntArray1893 = IntArray(size)
-                (0 until size).forEach {
-                    type.anIntArray1893!![it] = buffer.readUnsignedShort()
-                }
+                val anIntArray1893 = IntArray(size)
+                (0 until size).forEach { anIntArray1893[it] = buffer.readUnsignedShort() }
+                type.anIntArray1893 = anIntArray1893
             }
             134 -> type.anInt1902 = buffer.readUnsignedByte()
             139 -> type.anInt1875 = buffer.readUnsignedShort()

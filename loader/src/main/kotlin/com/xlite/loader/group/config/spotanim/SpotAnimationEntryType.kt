@@ -12,8 +12,8 @@ data class SpotAnimationEntryType(
     var textureToFind: ShortArray? = null,
     var resizeY: Int = 128,
     var animationId: Int = -1,
-    var recolorToFind: ShortArray? = null,
-    var recolorToReplace: ShortArray? = null,
+    var colorToFind: ShortArray? = null,
+    var colorToReplace: ShortArray? = null,
     var resizeX: Int = 128,
     var modelId: Int = 0,
     var ambient: Int = 0,
@@ -43,14 +43,14 @@ data class SpotAnimationEntryType(
         } else if (other.textureToFind != null) return false
         if (resizeY != other.resizeY) return false
         if (animationId != other.animationId) return false
-        if (recolorToFind != null) {
-            if (other.recolorToFind == null) return false
-            if (!recolorToFind.contentEquals(other.recolorToFind)) return false
-        } else if (other.recolorToFind != null) return false
-        if (recolorToReplace != null) {
-            if (other.recolorToReplace == null) return false
-            if (!recolorToReplace.contentEquals(other.recolorToReplace)) return false
-        } else if (other.recolorToReplace != null) return false
+        if (colorToFind != null) {
+            if (other.colorToFind == null) return false
+            if (!colorToFind.contentEquals(other.colorToFind)) return false
+        } else if (other.colorToFind != null) return false
+        if (colorToReplace != null) {
+            if (other.colorToReplace == null) return false
+            if (!colorToReplace.contentEquals(other.colorToReplace)) return false
+        } else if (other.colorToReplace != null) return false
         if (resizeX != other.resizeX) return false
         if (modelId != other.modelId) return false
         if (ambient != other.ambient) return false
@@ -69,8 +69,8 @@ data class SpotAnimationEntryType(
         result = 31 * result + (textureToFind?.contentHashCode() ?: 0)
         result = 31 * result + resizeY
         result = 31 * result + animationId
-        result = 31 * result + (recolorToFind?.contentHashCode() ?: 0)
-        result = 31 * result + (recolorToReplace?.contentHashCode() ?: 0)
+        result = 31 * result + (colorToFind?.contentHashCode() ?: 0)
+        result = 31 * result + (colorToReplace?.contentHashCode() ?: 0)
         result = 31 * result + resizeX
         result = 31 * result + modelId
         result = 31 * result + ambient
