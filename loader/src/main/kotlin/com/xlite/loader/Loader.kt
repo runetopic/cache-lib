@@ -1,5 +1,6 @@
 package com.xlite.loader
 
+import com.xlite.loader.group.config.overlay.OverlayEntryProvider
 import com.xlite.loader.group.config.param.ParamEntryProvider
 import com.xlite.loader.group.config.spotanim.SpotAnimationEntryProvider
 import com.xlite.loader.group.config.struct.StructEntryProvider
@@ -22,6 +23,7 @@ private val particlesEntryProvider = ParticleEntryProvider()
 private val underlaysEntryProvider = UnderlayEntryProvider()
 private val locEntryProvider = LocEntryProvider()
 private val paramEntryProvider = ParamEntryProvider()
+private val overlayEntryProvider = OverlayEntryProvider()
 
 fun spotAnimations(): SpotAnimationEntryProvider = spotAnimationEntryProvider
 fun structs(): StructEntryProvider = structEntryProvider
@@ -32,3 +34,4 @@ fun particles(): ParticleEntryProvider = particlesEntryProvider
 fun underlays(): UnderlayEntryProvider = underlaysEntryProvider
 fun locs(): LocEntryProvider = locEntryProvider
 fun params(): ParamEntryProvider = paramEntryProvider
+fun overlays(): OverlayEntryProvider = overlayEntryProvider
