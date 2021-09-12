@@ -1,7 +1,6 @@
 package com.xlite.loader.group.map
 
 import com.xlite.loader.IEntryType
-import com.xlite.loader.group.lighting.AtmosphereLightingEntryType
 
 /**
  * @author Tyler Telis

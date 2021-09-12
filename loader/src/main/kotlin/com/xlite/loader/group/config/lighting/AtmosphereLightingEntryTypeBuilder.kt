@@ -1,4 +1,4 @@
-package com.xlite.loader.group.lighting
+package com.xlite.loader.group.config.lighting
 
 import com.xlite.cache.extension.readUnsignedByte
 import com.xlite.cache.extension.readUnsignedShort

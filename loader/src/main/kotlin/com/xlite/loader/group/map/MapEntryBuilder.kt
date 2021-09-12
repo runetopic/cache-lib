@@ -6,8 +6,6 @@ import com.xlite.cache.extension.readUnsignedShort
 import com.xlite.cache.extension.skip
 import com.xlite.cache.store.Store
 import com.xlite.loader.IEntryBuilder
-import com.xlite.loader.group.lighting.AtmosphereLightingEntryType
-import com.xlite.loader.group.lighting.AtmosphereLightingEntryTypeBuilder
 import java.nio.ByteBuffer
 
 /**
