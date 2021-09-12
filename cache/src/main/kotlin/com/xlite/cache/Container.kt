@@ -4,7 +4,7 @@ package com.xlite.cache
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal data class Container(
+data class Container(
     val data: ByteArray,
     val compression: Int,
     val revision: Int,

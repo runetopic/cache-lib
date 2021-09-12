@@ -4,6 +4,7 @@ import com.xlite.cache.Container
 import com.xlite.cache.compression.CompressionType.*
 import com.xlite.cache.exception.CompressionException
 import com.xlite.cache.extension.decipherXTEA
+import com.xlite.cache.extension.readUnsignedShort
 import com.xlite.cache.extension.remainingBytes
 import java.nio.ByteBuffer
 import java.util.zip.CRC32
@@ -12,7 +13,7 @@ import java.util.zip.CRC32
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal object Compression {
+object Compression {
 
     fun decompress(data: ByteArray, keys: Array<Int>): Container {
         val buffer = ByteBuffer.wrap(data)
@@ -48,7 +49,7 @@ internal object Compression {
                 var revision = -1
 
                 if (buffer.remaining() >= 2) {
-                    revision = buffer.short.toInt() and 0xFFFF
+                    revision = buffer.readUnsignedShort()
                 }
 
                 val byteBuffer = ByteBuffer.wrap(decryptedData)

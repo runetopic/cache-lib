@@ -1,4 +1,4 @@
-package com.xlite.loader.type.config.struct
+package com.xlite.loader.group.config.struct
 
 import com.xlite.cache.extension.readMedium
 import com.xlite.cache.extension.readString
@@ -10,7 +10,8 @@ import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**
- * @author Jordan Abraham
+ * @author Tyler Telis
+ * @email <xlitersps@gmail.com>
  */
 internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
 

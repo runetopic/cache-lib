@@ -60,22 +60,22 @@ internal class DiskStorage(
         return table.loadGroup(id, whirlpool, groupData)
     }
 
-    override fun loadFile(group: Js5Group, fileName: String): Js5File {
+    override fun loadFile(group: Js5Group, fileName: String): Js5File? {
         val file = group.getFile(fileName)
-        file.load(datFile, getIdxFile(file.groupId))
+        file?.load(datFile, getIdxFile(file.groupId))
         return file
     }
 
-    override fun loadFile(group: Js5Group, fileId: Int): Js5File {
+    override fun loadFile(group: Js5Group, fileId: Int): Js5File? {
         val file = group.getFile(fileId)
-        file.load(datFile, getIdxFile(file.groupId))
+        file?.load(datFile, getIdxFile(file.groupId))
         return file
     }
 
     override fun loadEntry(group: Js5Group, fileId: Int, entryId: Int): Js5FileEntry {
-        val file = group.getFile(fileId)
-        file.loadFileEntriesData(entryId, loadFile(group, fileId))
-        return file.entries.find { it.entryId == entryId } ?: Js5FileEntry(fileId, entryId, -1, byteArrayOf(0))
+        val js5File = loadFile(group, fileId)
+        js5File?.loadFileEntriesData(entryId, js5File)
+        return js5File?.entries?.find { it.entryId == entryId } ?: Js5FileEntry(fileId, entryId, -1, byteArrayOf(0))
     }
 
     private fun getIdxFile(id: Int): IdxFile {
