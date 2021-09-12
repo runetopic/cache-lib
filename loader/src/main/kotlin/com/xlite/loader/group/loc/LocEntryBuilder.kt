@@ -243,7 +243,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
             178 -> type.anInt1113 = buffer.readUnsignedByte()
             249 -> {
                 val length = buffer.readUnsignedByte()
-                (0 until length).forEach { index ->
+                (0 until length).forEach { _ ->
                     val string = buffer.readUnsignedByte().toBoolean()
                     type.params[buffer.readMedium()] = if (string) buffer.readString() else buffer.int
                 }
