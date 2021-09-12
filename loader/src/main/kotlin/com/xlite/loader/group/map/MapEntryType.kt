@@ -1,6 +1,7 @@
 package com.xlite.loader.group.map
 
 import com.xlite.loader.IEntryType
+import com.xlite.loader.util.vector.Vector3f
 
 /**
  * @author Tyler Telis
@@ -11,7 +12,8 @@ data class MapEntryType(
     val regionX: Int,
     val regionY: Int,
     val tiles: Array<Array<Array<Tile?>>> = Array(PLANES) { Array(MAP_SIZE) { arrayOfNulls(MAP_SIZE) } },
-    var atmosphere: AtmosphereEntryType = AtmosphereEntryType()
+    var atmosphere: AtmosphereEntryType = AtmosphereEntryType(),
+    var cameraAngles: Array<Array<ByteArray>?> = arrayOfNulls(4)
 ) : IEntryType {
     override fun getId(): Int = id
 
@@ -27,18 +29,42 @@ data class MapEntryType(
 
     data class AtmosphereEntryType(
         var sunColor: Int = 16777215,
-        var aFloat2882: Float = 1.1523438f,
-        var aFloat2884: Float = 0.69921875f,
-        var aFloat2876: Float = 1.2f,
-        var anInt2887: Int = -50,
-        var anInt2886: Int = -60,
-        var anInt2881: Int = -50,
-        var anInt2888: Int = 13156520,
-        var anInt2890: Int = 0,
-        var aFloat2889: Float = 1.0f,
-        var aFloat2880: Float = 1.0f,
-        var aFloat2877: Float = 0.25f,
-        var lightingEntryId: Int = -1
+        var sunBrightness: Float = 1.1523438f,
+        var sunCoordinateX: Float = 0.69921875f,
+        var sunCoordinateY: Float = 1.2f,
+        var sunAngle: Vector3f = Vector3f(-50f, -60f, -50f),
+        var skyColor: Int = 13156520,
+        var fogDensity: Int = 0,
+        var highDynamicRange: HighDynamicRange = HighDynamicRange(),
+        var lightingEntryId: Int = -1,
+        var environmentMap: EnvironmentMap = EnvironmentMap(682, 683, 684, 685, 686, 687),
+        var lightEffectPoint: LightEffectPoint = LightEffectPoint()
+    )
+
+    data class HighDynamicRange(
+        var bloom: Float = 1.0f,
+        var brightness: Float = 1.0f,
+        var whitePoint: Float = 0.25f
+    )
+
+    data class LightEffectPoint(
+        var fromFirstLevel: Boolean = false,
+        var toLastLevel: Boolean = false,
+        var level: Int = 0,
+        var x: Int = 0,
+        var y: Int = 0,
+        var z: Int = 0,
+        var color: Int = 0,
+        var strength: Int = 0,
+    )
+
+    data class EnvironmentMap(
+        var faceTop: Int,
+        var faceBottom: Int,
+        var faceFront: Int,
+        var faceBack: Int,
+        var faceLeft: Int,
+        var faceRight: Int
     )
 
     override fun equals(other: Any?): Boolean {

@@ -9,7 +9,7 @@ import com.xlite.loader.group.config.skybox.SkyBoxEntryProvider
 import com.xlite.loader.group.config.spotanim.SpotAnimationEntryProvider
 import com.xlite.loader.group.config.struct.StructEntryProvider
 import com.xlite.loader.group.config.underlay.UnderlayEntryProvider
-import com.xlite.loader.group.config.lighting.AtmosphereLightingEntryProvider
+import com.xlite.loader.group.config.lighting.LightingEntryProvider
 import com.xlite.loader.group.loc.LocEntryProvider
 import com.xlite.loader.group.map.MapEntryProvider
 import com.xlite.loader.group.map.MapLocationEntryProvider
@@ -34,7 +34,7 @@ private val identityKitEntryProvider = IdentityKitEntryProvider()
 private val skyBoxEntryProvider = SkyBoxEntryProvider()
 private val mouseIconEntryProvider = MouseIconEntryProvider()
 private val inventoryEntryProvider = InventoryEntryProvider()
-private val atmosphereLightingEntryProvider = AtmosphereLightingEntryProvider()
+private val lightingEntryProvider = LightingEntryProvider()
 private val identityKitProvider = IdentityKitEntryProvider()
 private val npcEntryProvider = NpcEntryProvider()
 
@@ -52,5 +52,5 @@ fun kits(): IdentityKitEntryProvider = identityKitEntryProvider
 fun skyboxes(): SkyBoxEntryProvider = skyBoxEntryProvider
 fun mouseIcons(): MouseIconEntryProvider = mouseIconEntryProvider
 fun invs(): InventoryEntryProvider = inventoryEntryProvider
-fun atmosphereLightings(): AtmosphereLightingEntryProvider = atmosphereLightingEntryProvider
+fun lightings(): LightingEntryProvider = lightingEntryProvider
 fun npcs(): NpcEntryProvider = npcEntryProvider

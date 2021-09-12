@@ -2,7 +2,7 @@ package com.xlite.loader.group.config.lighting
 
 import com.xlite.loader.IEntryType
 
-data class AtmosphereLightingEntryType(
+data class LightingEntryType(
     private val id: Int = 0,
     var anInt961: Int = 0,
     var anInt962: Int = 0,

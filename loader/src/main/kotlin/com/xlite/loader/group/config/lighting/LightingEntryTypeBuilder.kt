@@ -11,22 +11,22 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class AtmosphereLightingEntryTypeBuilder : IEntryBuilder<AtmosphereLightingEntryType> {
+internal class LightingEntryTypeBuilder : IEntryBuilder<LightingEntryType> {
 
-    lateinit var atmosphereTypes: Set<AtmosphereLightingEntryType>
+    lateinit var lightings: Set<LightingEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
-        atmosphereTypes = buildSet {
+        lightings = buildSet {
             store.group(2).use { group ->
                 group.entries(31).forEach {
-                    add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), AtmosphereLightingEntryType(it.entryId)))
+                    add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), LightingEntryType(it.entryId)))
                 }
             }
         }
     }
 
-    override fun read(buffer: ByteBuffer, type: AtmosphereLightingEntryType): AtmosphereLightingEntryType {
+    override fun read(buffer: ByteBuffer, type: LightingEntryType): LightingEntryType {
         do when (val opcode = buffer.readUnsignedByte()) {
             0 -> break
             1 -> type.anInt961 = buffer.readUnsignedByte()
