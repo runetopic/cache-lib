@@ -104,7 +104,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
             64 -> type.shadowed = false
             65 -> type.modelSizeX = buffer.readUnsignedShort()
             66 -> type.modelSizeHeight = buffer.readUnsignedShort()
-            67 -> type.modelSizeZ = buffer.readUnsignedShort()
+            67 -> type.modelSizeY = buffer.readUnsignedShort()
             69 -> type.clippingFlag = buffer.readUnsignedByte()
             70 -> type.anInt1150 = (buffer.readUnsignedShort() shl 2)
             71 -> type.anInt1149 = (buffer.readUnsignedShort() shl 2)

@@ -30,7 +30,7 @@ internal class MouseIconEntryBuilder: IEntryBuilder<MouseIconEntryType> {
             1 -> type.spriteId = buffer.readUnsignedShort()
             2 -> {
                 type.xCoord = buffer.readUnsignedByte()
-                type.zCoord = buffer.readUnsignedByte()
+                type.yCoord = buffer.readUnsignedByte()
             }
             else -> throw Exception("Read unused opcode with id: ${opcode}.")
         } while (true)

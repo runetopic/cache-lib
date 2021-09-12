@@ -33,7 +33,7 @@ data class LocEntryType(
     var shadowed: Boolean = false,
     var modelSizeX: Int = 128,
     var modelSizeHeight: Int = 128,
-    var modelSizeZ: Int = 128,
+    var modelSizeY: Int = 128,
     var clippingFlag: Int = 0,
     var anInt1150: Int = 0,
     var anInt1149: Int = 0,
