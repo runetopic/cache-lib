@@ -3,6 +3,7 @@ package com.xlite.loader
 import com.xlite.loader.group.config.overlay.OverlayEntryProvider
 import com.xlite.loader.group.config.idk.IdentityKitEntryProvider
 import com.xlite.loader.group.config.param.ParamEntryProvider
+import com.xlite.loader.group.config.skybox.SkyBoxEntryProvider
 import com.xlite.loader.group.config.spotanim.SpotAnimationEntryProvider
 import com.xlite.loader.group.config.struct.StructEntryProvider
 import com.xlite.loader.group.config.underlay.UnderlayEntryProvider
@@ -26,6 +27,7 @@ private val locEntryProvider = LocEntryProvider()
 private val paramEntryProvider = ParamEntryProvider()
 private val overlayEntryProvider = OverlayEntryProvider()
 private val identityKitProvider = IdentityKitEntryProvider()
+private val skyBoxEntryProvider = SkyBoxEntryProvider()
 
 fun spotAnimations(): SpotAnimationEntryProvider = spotAnimationEntryProvider
 fun structs(): StructEntryProvider = structEntryProvider
@@ -38,3 +40,4 @@ fun locs(): LocEntryProvider = locEntryProvider
 fun params(): ParamEntryProvider = paramEntryProvider
 fun overlays(): OverlayEntryProvider = overlayEntryProvider
 fun kits(): IdentityKitEntryProvider = identityKitProvider
+fun skyboxes(): SkyBoxEntryProvider = skyBoxEntryProvider
