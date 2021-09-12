@@ -1,8 +1,20 @@
 package com.xlite.cache.extension
 
 import com.xlite.cache.crypto.Whirlpool
+import com.xlite.cache.store.Constants.cp1252Identifiers
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
+
+fun ByteBuffer.readCp1252Char(): Char {
+    var unsigned = get().toInt() and 0xff
+    require(unsigned != 0) { "Non cp1252 character 0x" + unsigned.toString(16) + " provided" }
+    if (unsigned in 128..159) {
+        var value: Int = cp1252Identifiers[unsigned - 128].toInt()
+        if (value == 0) value = 63
+        unsigned = value
+    }
+    return unsigned.toChar()
+}
 
 fun ByteBuffer.readUnsignedSmart(): Int {
     val peek: Int = get(position()).toInt() and 0xFF

@@ -3,6 +3,7 @@ package com.xlite.loader.group.loc
 import com.xlite.cache.extension.*
 import com.xlite.cache.store.Store
 import com.xlite.loader.IEntryBuilder
+import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**
@@ -247,6 +248,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                     type.params[buffer.readMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
+            else -> throw Exception("Read unused opcode with id: ${opcode}.")
         } while (true)
         return type
     }
