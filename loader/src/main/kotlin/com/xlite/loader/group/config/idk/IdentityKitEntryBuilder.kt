@@ -7,15 +7,16 @@ import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**
- * @author Jordan Abraham
+ * @author Tyler Telis
+ * @email <xlitersps@gmail.com>
  */
 internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
 
-    lateinit var structTypes: Set<IdentityKitEntryType>
+    lateinit var identityKitTypes: Set<IdentityKitEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
-        structTypes = buildSet {
+        identityKitTypes = buildSet {
             store.group(2).use { group ->
                 group.entries(3).forEach {
                     add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), IdentityKitEntryType(it.entryId)))

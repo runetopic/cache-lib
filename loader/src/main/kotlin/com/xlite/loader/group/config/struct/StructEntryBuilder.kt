@@ -10,7 +10,8 @@ import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**
- * @author Jordan Abraham
+ * @author Tyler Telis
+ * @email <xlitersps@gmail.com>
  */
 internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
 

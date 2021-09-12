@@ -9,15 +9,16 @@ import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**
- * @author Jordan Abraham
+ * @author Tyler Telis
+ * @email <xlitersps@gmail.com>
  */
 internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
 
-    lateinit var structTypes: Set<ParamEntryType>
+    lateinit var paramTypes: Set<ParamEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
-        structTypes = buildSet {
+        paramTypes = buildSet {
             store.group(2).use { group ->
                 group.entries(11).forEach {
                     add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), ParamEntryType(it.entryId)))

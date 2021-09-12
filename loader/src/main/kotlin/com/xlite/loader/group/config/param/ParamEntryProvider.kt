@@ -16,14 +16,14 @@ class ParamEntryProvider : IEntryProvider<ParamEntryType> {
     }
 
     override fun lookup(id: Int): ParamEntryType {
-        return builder.structTypes.elementAt(id)
+        return builder.paramTypes.elementAt(id)
     }
 
     override fun size(): Int {
-        return builder.structTypes.size
+        return builder.paramTypes.size
     }
 
     override fun collect(): Set<ParamEntryType> {
-        return builder.structTypes
+        return builder.paramTypes
     }
 }

@@ -16,14 +16,14 @@ class IdentityKitEntryProvider : IEntryProvider<IdentityKitEntryType> {
     }
 
     override fun lookup(id: Int): IdentityKitEntryType {
-        return builder.structTypes.elementAt(id)
+        return builder.identityKitTypes.elementAt(id)
     }
 
     override fun size(): Int {
-        return builder.structTypes.size
+        return builder.identityKitTypes.size
     }
 
     override fun collect(): Set<IdentityKitEntryType> {
-        return builder.structTypes
+        return builder.identityKitTypes
     }
 }
