@@ -3,6 +3,11 @@ plugins {
     `maven-publish`
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -26,7 +31,7 @@ publishing {
             }
         }
         create<MavenPublication>("maven") {
-            groupId = "com.xlite.cache"
+            groupId = "com.runetopic.cache"
             artifactId = "cache"
             version = "1.0-SNAPSHOT"
 

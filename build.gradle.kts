@@ -5,7 +5,7 @@ plugins {
 }
 
 configure(allprojects) {
-    group = "com.xlite.cache"
+    group = "com.runetopic.cache"
     version = "1.0-SNAPSHOT"
 
     plugins.withType<KotlinPluginWrapper> {

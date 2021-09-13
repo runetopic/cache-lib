@@ -1,6 +1,12 @@
 plugins {
     kotlin("jvm")
     `maven-publish`
+    signing
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 publishing {
@@ -26,7 +32,7 @@ publishing {
             }
         }
         create<MavenPublication>("maven") {
-            groupId = "com.xlite.cache"
+            groupId = "com.runetopic.cache"
             artifactId = "loader"
             version = "647.0-SNAPSHOT"
 
