@@ -4,9 +4,11 @@ plugins {
     signing
 }
 
+version = "647.1"
+
 java {
-    withSourcesJar()
     withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
@@ -29,16 +31,38 @@ publishing {
                         name.set("Jordan Abraham")
                     }
                 }
+
+
+                artifact(tasks["javadocJar"])
+                artifact(tasks["sourcesJar"])
             }
         }
         create<MavenPublication>("maven") {
-            groupId = "com.runetopic.cache"
-            artifactId = "loader"
-            version = "647.0-SNAPSHOT"
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
 
             from(components["java"])
         }
+        repositories {
+            val ossrhUsername: String by project
+            val ossrhPassword: String by project
+
+            maven {
+                val releasesRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
+                val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+            }
+        }
     }
+}
+
+signing {
+    sign(publishing.publications["mavenJava"])
 }
 
 dependencies {

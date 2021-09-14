@@ -6,7 +6,6 @@ plugins {
 
 configure(allprojects) {
     group = "com.runetopic.cache"
-    version = "1.0-SNAPSHOT"
 
     plugins.withType<KotlinPluginWrapper> {
         java.sourceCompatibility = JavaVersion.VERSION_16

@@ -1,17 +1,21 @@
 plugins {
     kotlin("jvm")
     `maven-publish`
+    signing
 }
 
+version = "1.0"
+
 java {
-    withSourcesJar()
     withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             pom {
+                packaging = "jar"
                 name.set("Xlite Cache Library")
                 description.set("Cache Library for reading and writing to the jagex cache in the 647 protocol.")
                 url.set("https://github.com/xlite2/cache-lib")
@@ -28,16 +32,44 @@ publishing {
                         name.set("Jordan Abraham")
                     }
                 }
+
+                scm {
+                    connection.set("scm:git:git://github.com/runetopic/cache-lib.git")
+                    developerConnection.set("scm:git:ssh://github.com/runetopic/cache-lib.git")
+                    url.set("http://github.com/rune-topic/")
+                }
             }
+
+            artifact(tasks["javadocJar"])
+            artifact(tasks["sourcesJar"])
         }
         create<MavenPublication>("maven") {
-            groupId = "com.runetopic.cache"
-            artifactId = "cache"
-            version = "1.0-SNAPSHOT"
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
 
             from(components["java"])
         }
     }
+    repositories {
+        val ossrhUsername: String by project
+        val ossrhPassword: String by project
+
+        maven {
+            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
+            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
+}
+
+
+signing {
+    sign(publishing.publications["mavenJava"])
 }
 
 dependencies {
