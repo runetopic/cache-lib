@@ -9,7 +9,7 @@ import com.runetopic.cache.extension.nameHash
 data class Js5Group(
     internal val id: Int,
     val crc: Int,
-    val whirlpool: ByteArray,
+    val whirlpool: ByteArray? = null,
     internal val compression: Int,
     internal val protocol: Int,
     internal val revision: Int,

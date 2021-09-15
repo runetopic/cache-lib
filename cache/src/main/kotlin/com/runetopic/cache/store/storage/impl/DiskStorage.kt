@@ -95,6 +95,7 @@ internal class DiskStorage(
     override fun close() {
         masterIdxFile.close()
         datFile.close()
+        idxFiles.forEach { it.close() }
     }
 
     override fun flush() {

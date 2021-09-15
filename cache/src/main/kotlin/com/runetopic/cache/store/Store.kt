@@ -1,5 +1,7 @@
 package com.runetopic.cache.store
 
+import com.runetopic.cache.crypto.Whirlpool
+
 import com.runetopic.cache.Js5File
 import com.runetopic.cache.Js5FileEntry
 import com.runetopic.cache.Js5Group
@@ -7,6 +9,8 @@ import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.impl.DiskStorage
 import java.io.Closeable
 import java.io.File
+import java.math.BigInteger
+import java.nio.ByteBuffer
 
 /**
  * @author Tyler Telis
@@ -44,6 +48,33 @@ class Store(
     fun file(groupId: Int, fileId: Int): Js5File? = storage.loadFile(group(groupId), fileId)
     fun entry(group: Js5Group, fileId: Int, entryId: Int): Js5FileEntry = storage.loadEntry(group, fileId, entryId)
     fun entry(groupId: Int, fileId: Int, entryId: Int): Js5FileEntry = storage.loadEntry(group(groupId), fileId, entryId)
+
+    fun generateUpdateKeys(exponent: BigInteger, modulus: BigInteger): ByteArray {
+        val buffer = ByteBuffer.allocate((6 + groups.size) * 72)
+        buffer
+            .position(5)
+            .put(groups.size.toByte())
+        val emptyBuffer = ByteArray(Whirlpool.DIGESTBYTES)
+        groups.forEach {
+            buffer
+                .putInt(it.crc)
+                .putInt(it.revision)
+                .put(it.whirlpool ?: emptyBuffer)
+        }
+        val groupArray = buffer.array()
+        val whirlpoolBuffer = ByteBuffer
+            .allocate(Whirlpool.DIGESTBYTES + 1)
+            .put(1)
+            .put(Whirlpool.digest(groupArray, 5, groupArray.size - 5))
+        buffer.put(BigInteger(whirlpoolBuffer.array()).modPow(exponent, modulus).toByteArray())
+        val end = buffer.position() + 1
+        buffer.position(0)
+        buffer
+            .put(0)
+            .putInt(end - 5)
+        buffer.position(end)
+        return buffer.array()
+    }
 
     override fun close() {
         storage.close()
