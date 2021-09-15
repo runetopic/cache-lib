@@ -54,7 +54,7 @@ class Store(
         buffer
             .position(5)
             .put(groups.size.toByte())
-        val emptyBuffer = ByteArray(64)
+        val emptyBuffer = ByteArray(Whirlpool.DIGESTBYTES)
         groups.forEach {
             buffer
                 .putInt(it.crc)
@@ -63,7 +63,7 @@ class Store(
         }
         val groupArray = buffer.array()
         val whirlpoolBuffer = ByteBuffer
-            .allocate(65)
+            .allocate(Whirlpool.DIGESTBYTES + 1)
             .put(1)
             .put(Whirlpool.digest(groupArray, 5, groupArray.size - 5))
         buffer.put(BigInteger(whirlpoolBuffer.array()).modPow(exponent, modulus).toByteArray())
