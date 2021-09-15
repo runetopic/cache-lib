@@ -50,24 +50,25 @@ class Store(
     fun entry(groupId: Int, fileId: Int, entryId: Int): Js5FileEntry = storage.loadEntry(group(groupId), fileId, entryId)
 
     fun generateUpdateKeys(exponent: BigInteger, modulus: BigInteger): ByteArray {
-        val buffer = ByteBuffer.allocate(6 + groups.size * 72)
+        val buffer = ByteBuffer.allocate((6 + groups.size) * 72)
         buffer
             .position(5)
             .put(groups.size.toByte())
-        val whirlpool = ByteArray(64)
+        val emptyBuffer = ByteArray(64)
         groups.forEach {
             buffer
                 .putInt(it.crc)
                 .putInt(it.revision)
-                .put(it.whirlpool ?: whirlpool)
+                .put(it.whirlpool ?: emptyBuffer)
         }
-        val array = buffer.array()
-        val whirlpoolBuffer = ByteBuffer.allocate(64 + 1)
-        whirlpoolBuffer
+        val groupArray = buffer.array()
+        val whirlpoolBuffer = ByteBuffer
+            .allocate(65)
             .put(1)
-            .put(Whirlpool.digest(array, 5, array.size - 5))
+            .put(Whirlpool.digest(groupArray, 5, groupArray.size - 5))
         buffer.put(BigInteger(whirlpoolBuffer.array()).modPow(exponent, modulus).toByteArray())
-        val end = buffer.position()
+        val end = buffer.position() + 1
+        buffer.position(0)
         buffer
             .put(0)
             .putInt(end - 5)
