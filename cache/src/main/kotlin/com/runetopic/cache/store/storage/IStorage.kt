@@ -17,4 +17,5 @@ internal interface IStorage: Closeable, Flushable {
     fun loadFile(group: Js5Group, fileName: String): Js5File?
     fun loadFile(group: Js5Group, fileId: Int): Js5File?
     fun loadEntry(group: Js5Group, fileId: Int, entryId: Int): Js5FileEntry
+    fun loadReferenceTable(group: Js5Group, fileId: Int): ByteArray
 }

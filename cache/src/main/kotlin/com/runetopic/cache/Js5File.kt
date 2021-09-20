@@ -42,10 +42,10 @@ open class Js5File(
         return byteArrayOf()
     }
 
-    internal fun loadFileEntriesData(fileId: Int, js5File: Js5File): ByteArray {
+    internal fun loadFileEntriesData(fileId: Int): ByteArray {
         val fileEntry = entries.find { it.entryId == fileId } ?: return byteArrayOf()
 
-        val decompressed = Compression.decompress(js5File.data!!, emptyArray())
+        val decompressed = Compression.decompress(data!!, emptyArray())
 
         val count = entries.size
 

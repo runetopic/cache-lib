@@ -1,6 +1,5 @@
 package com.runetopic.cache.store.fs.impl
 
-import com.github.michaelbull.logging.InlineLogger
 import com.runetopic.cache.ReferenceTable
 import com.runetopic.cache.exception.DatFileException
 import com.runetopic.cache.exception.EndOfDatFileException
@@ -22,9 +21,11 @@ internal class DatFile(
     override fun readReferenceTable(groupId: Int, referenceTable: ReferenceTable): ByteArray {
         var sector = referenceTable.sector
         val length = referenceTable.length
-        val fileId = referenceTable.fileId
+        if (groupId == 28)
+            println(length)
+        val id = referenceTable.id
 
-        validateSector(sector, length)
+        if (validateSector(sector, length).not()) return byteArrayOf()
 
         val buffer = ByteBuffer.allocate(length)
         val readBuffer = ByteBuffer.wrap(ByteArray(SECTOR_SIZE))
@@ -35,7 +36,7 @@ internal class DatFile(
 
         while (length > readBytes) {
             if (sector == 0) {
-                throw EndOfDatFileException("Unexpected end of file. GroupId=[$groupId} ArchiveId=[$fileId] Length=[$length]")
+                throw EndOfDatFileException("Unexpected end of file. GroupId=[$groupId} ArchiveId=[$id] Length=[$length]")
             }
 
             datFile.seek((SECTOR_SIZE * sector).toLong())
@@ -46,11 +47,11 @@ internal class DatFile(
             var currentPart: Int
             var currentContainerId: Int
 
-            if (fileId > 0xFFFF) {
+            if (id > 0xFFFF) {
                 headerLength = 10
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
-                validateHeader(readBuffer.array(), headerLength, blockLength, groupId, fileId)
+                validateHeader(readBuffer.array(), headerLength, blockLength, groupId, id)
 
                 currentContainerId = (readBuffer[0].toInt() and 0xFF shl 24
                         or (readBuffer[1].toInt() and 0xFF shl 16)
@@ -66,7 +67,7 @@ internal class DatFile(
                 headerLength = 8
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
-                validateHeader(readBuffer.array(), headerLength, blockLength, groupId, fileId)
+                validateHeader(readBuffer.array(), headerLength, blockLength, groupId, id)
 
                 currentContainerId = (readBuffer[0].toInt() and 0xFF shl 8
                         or (readBuffer[1].toInt() and 0xFF))
@@ -77,7 +78,7 @@ internal class DatFile(
                 currentIndex = (readBuffer[7].toInt() and 0xFF)
             }
 
-            validateData(fileId, currentContainerId, currentPart, part, groupId, currentIndex)
+            validateData(id, currentContainerId, currentPart, part, groupId, currentIndex)
             validateNextSector(nextSector)
 
             buffer.put(readBuffer.array(), headerLength.toInt(), blockLength)
@@ -129,15 +130,12 @@ internal class DatFile(
         }
     }
 
-    private fun validateSector(sector: Int, length: Int) {
+    private fun validateSector(sector: Int, length: Int): Boolean {
         if (sector <= 0L || datFile.length() / SECTOR_SIZE < sector) {
-            throw DatFileException("Could not read $length for sector $sector")
+            return false//throw DatFileException("Could not read $length for sector $sector")
         }
+        return true
     }
 
     override fun close() = datFile.close()
-
-    private companion object {
-        private val logger = InlineLogger()
-    }
 }

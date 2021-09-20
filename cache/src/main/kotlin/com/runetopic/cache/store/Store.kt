@@ -41,13 +41,27 @@ class Store(
         this.groups.add(group)
     }
 
-    fun group(id: Int): Js5Group = this.groups[id]
+    fun group(id: Int): Js5Group = this.groups.find { it.id == id }!!
     fun file(group: Js5Group, fileName: String): Js5File? = storage.loadFile(group, fileName)
     fun file(groupId: Int, fileName: String): Js5File? = storage.loadFile(group(groupId), fileName)
     fun file(group: Js5Group, fileId: Int): Js5File? = storage.loadFile(group, fileId)
     fun file(groupId: Int, fileId: Int): Js5File? = storage.loadFile(group(groupId), fileId)
     fun entry(group: Js5Group, fileId: Int, entryId: Int): Js5FileEntry = storage.loadEntry(group, fileId, entryId)
     fun entry(groupId: Int, fileId: Int, entryId: Int): Js5FileEntry = storage.loadEntry(group(groupId), fileId, entryId)
+
+    fun sectors(groupId: Int): Int {
+        var total = 0
+        println(group(groupId).files.size)
+        group(groupId).use { group ->
+            group.files.forEach { file ->
+                file(groupId, file.fileId)?.data?.let {
+                    total += it.size
+                }
+//                total += storage.loadReferenceTable(group, file.fileId).size
+            }
+        }
+        return total
+    }
 
     fun generateUpdateKeys(exponent: BigInteger, modulus: BigInteger): ByteArray {
         val buffer = ByteBuffer.allocate((6 + groups.size) * 72)

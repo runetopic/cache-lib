@@ -17,8 +17,8 @@ internal class IdxFile(
     private val idxFile: RandomAccessFile = RandomAccessFile(file, "rw")
     private val readBuffer = ByteArray(ENTRY_LIMIT)
 
-    override fun loadReferenceTable(fileId: Int): ReferenceTable {
-        idxFile.seek((fileId * ENTRY_LIMIT).toLong())
+    override fun loadReferenceTable(id: Int): ReferenceTable {
+        idxFile.seek((id * ENTRY_LIMIT).toLong())
 
         validateHeader()
 
@@ -29,15 +29,13 @@ internal class IdxFile(
         val sector = (readBuffer[3].toInt() and 0xFF shl 16
                 or (readBuffer[4].toInt() and 0xFF shl 8)
                 or (readBuffer[5].toInt() and 0xFF))
-
-        validateSectorLength(length, sector)
-
-        return ReferenceTable(this, fileId, sector, length)
+        validateLengthAtSector(length, sector)
+        return ReferenceTable(this, id, sector, length)
     }
 
-    private fun validateSectorLength(length: Int, sector: Int) {
-        if (length <= 0 || sector <= 0) {
-            throw IdxFileException("Invalid length or sector Length=$length Sector=$sector")
+    private fun validateLengthAtSector(length: Int, sector: Int) {
+        if (length < 0) {
+            throw IdxFileException("Invalid length for sector Length=$length Sector=$sector")
         }
     }
 

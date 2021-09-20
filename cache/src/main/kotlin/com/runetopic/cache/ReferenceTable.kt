@@ -14,14 +14,14 @@ import java.util.*
  */
 internal data class ReferenceTable(
     val idxFile: IdxFile,
-    val fileId: Int,
+    val id: Int,
     val sector: Int,
     val length: Int,
 ) {
     override fun hashCode(): Int {
         var hash = 7
         hash = 19 * hash + Objects.hashCode(this.idxFile)
-        hash = 19 * hash + this.fileId
+        hash = 19 * hash + this.id
         hash = 19 * hash + this.sector
         hash = 19 * hash + this.length
         return hash
@@ -38,7 +38,7 @@ internal data class ReferenceTable(
                     val referenceTable: ReferenceTable = other as ReferenceTable
                     when {
                         idxFile != referenceTable.idxFile -> false
-                        fileId != referenceTable.fileId -> false
+                        id != referenceTable.id -> false
                         sector != referenceTable.sector -> false
                         this.length != referenceTable.length -> false
                         else -> true
