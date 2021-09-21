@@ -24,15 +24,9 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
                 (0 until Short.MAX_VALUE + 1).forEach { regionId ->
                     val regionX: Int = regionId shr 8
                     val regionY: Int = regionId and 0xFF
-                    val js5File = store.group(it, "l${regionX}_${regionY}")
-
-                    if (js5File != null) {
-                        try {
-                            val container = Compression.decompress(js5File.data!!, emptyArray())
-                            add(read(ByteBuffer.wrap(container.data), MapLocationEntryType(regionId, regionX, regionY)))
-                        } catch (exception: ZipException) {
-                            println("Couldn't decompress Region $regionId")
-                        }
+                    store.group(it, "l${regionX}_${regionY}")?.let { group ->
+                        val container = Compression.decompress(group.data!!, emptyArray())
+                        add(read(ByteBuffer.wrap(container.data), MapLocationEntryType(regionId, regionX, regionY)))
                     }
                 }
             }

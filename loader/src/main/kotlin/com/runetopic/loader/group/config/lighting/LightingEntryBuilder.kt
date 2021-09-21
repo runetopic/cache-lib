@@ -11,16 +11,16 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class LightingEntryTypeBuilder : IEntryBuilder<LightingEntryType> {
+internal class LightingEntryBuilder : IEntryBuilder<LightingEntryType> {
 
     lateinit var lightings: Set<LightingEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         lightings = buildSet {
-            store.index(2).use { group ->
-                group.entries(31).forEach {
-                    add(read(ByteBuffer.wrap(store.file(group, it.groupId, it.id).data), LightingEntryType(it.id)))
+            store.index(2).use { index ->
+                index.files(31).forEach {
+                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), LightingEntryType(it.id)))
                 }
             }
         }

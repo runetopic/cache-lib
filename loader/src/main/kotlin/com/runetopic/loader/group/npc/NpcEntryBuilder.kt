@@ -15,9 +15,9 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         npcs = buildSet {
-            store.index(18).use { group ->
-                (0 until group.expandedCapacity()).forEach {
-                    add(read(ByteBuffer.wrap(store.file(group, it ushr 8, it and 0xFF).data), NpcEntryType(it)))
+            store.index(18).use { index ->
+                (0 until index.expand()).forEach {
+                    add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).data), NpcEntryType(it)))
                 }
             }
         }

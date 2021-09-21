@@ -21,7 +21,7 @@ internal class DatFile(
     override fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray {
         var sector = referenceTable.sector
         val length = referenceTable.length
-        val id = referenceTable.id
+        val referenceTableId = referenceTable.id
 
         if (validateSector(sector, length).not()) return byteArrayOf()
 
@@ -43,15 +43,15 @@ internal class DatFile(
             var headerLength: Byte
             var currentIndex: Int
             var currentPart: Int
-            var currentContainerId: Int
+            var currentReferenceTableId: Int
 
-            if (id > 0xFFFF) {
+            if (referenceTableId > 0xFFFF) {
                 headerLength = 10
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
-                validateHeader(readBuffer.array(), headerLength, blockLength, id, id)
+                validateHeader(readBuffer.array(), headerLength, blockLength, id, referenceTableId)
 
-                currentContainerId = (readBuffer[0].toInt() and 0xFF shl 24
+                currentReferenceTableId = (readBuffer[0].toInt() and 0xFF shl 24
                         or (readBuffer[1].toInt() and 0xFF shl 16)
                         or (readBuffer[2].toInt() and 0xFF shl 8)
                         or (readBuffer[3].toInt() and 0xFF))
@@ -65,9 +65,9 @@ internal class DatFile(
                 headerLength = 8
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
-                validateHeader(readBuffer.array(), headerLength, blockLength, id, id)
+                validateHeader(readBuffer.array(), headerLength, blockLength, id, referenceTableId)
 
-                currentContainerId = (readBuffer[0].toInt() and 0xFF shl 8
+                currentReferenceTableId = (readBuffer[0].toInt() and 0xFF shl 8
                         or (readBuffer[1].toInt() and 0xFF))
                 currentPart = ((readBuffer[2].toInt() and 0xFF) shl 8) + (readBuffer[3].toInt() and 0xFF)
                 nextSector = (readBuffer[4].toInt() and 0xFF shl 16
@@ -76,7 +76,7 @@ internal class DatFile(
                 currentIndex = (readBuffer[7].toInt() and 0xFF)
             }
 
-            validateData(id, currentContainerId, currentPart, part, id, currentIndex)
+            validateData(referenceTableId, currentReferenceTableId, currentPart, part, id, currentIndex)
             validateNextSector(nextSector)
 
             buffer.put(readBuffer.array(), headerLength.toInt(), blockLength)
@@ -98,15 +98,15 @@ internal class DatFile(
     }
 
     private fun validateData(
-        archiveId: Int,
-        currentArchiveId: Int,
+        referenceTableId: Int,
+        currentReferenceTableId: Int,
         currentPart: Int,
         part: Int,
-        index: Int,
-        currentIndex: Int,
+        id: Int,
+        currentId: Int,
     ) {
-        if (archiveId != currentArchiveId || currentPart != part || index != currentIndex) {
-           throw DatFileException("DataFile mismatch Id={${currentIndex}} != {${index}}, ArchiveId={${currentArchiveId}} != {${archiveId}}, CurrentPart={${currentPart}} != {${part}}")
+        if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentId) {
+           throw DatFileException("DataFile mismatch Id={${currentId}} != {${id}}, ReferenceTableId={${currentReferenceTableId}} != {${referenceTableId}}, CurrentPart={${currentPart}} != {${part}}")
         }
     }
 
@@ -121,10 +121,10 @@ internal class DatFile(
         headerLength: Byte,
         blockLength: Int,
         id: Int,
-        containerId: Int,
+        referenceTableId: Int,
     ) {
         if (datFile.read(buffer, 0, headerLength + blockLength) != headerLength + blockLength) {
-            throw DatFileException("Header length mismatch for Id=[$id] Container=[$containerId]")
+            throw DatFileException("Header length mismatch for Id=[$id] ReferenceTableId=[$referenceTableId]")
         }
     }
 

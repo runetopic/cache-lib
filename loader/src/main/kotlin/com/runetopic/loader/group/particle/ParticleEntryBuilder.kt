@@ -18,9 +18,9 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         particles = buildSet {
-            store.index(27).use { group ->
-                group.entries(0).forEach {
-                    add(read(ByteBuffer.wrap(store.file(group, it.groupId, it.id).data), ParticleEntryType(it.id)))
+            store.index(27).use { index ->
+                index.files(0).forEach {
+                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), ParticleEntryType(it.id)))
                 }
             }
         }

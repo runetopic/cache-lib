@@ -16,9 +16,9 @@ internal class InventoryEntryBuilder: IEntryBuilder<InventoryEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         inventoryTypes = buildSet {
-            store.index(2).use { group ->
-                group.entries(5).forEach {
-                    add(read(ByteBuffer.wrap(store.file(group, it.groupId, it.id).data), InventoryEntryType(it.id)))
+            store.index(2).use { index ->
+                index.files(5).forEach {
+                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), InventoryEntryType(it.id)))
                 }
             }
         }

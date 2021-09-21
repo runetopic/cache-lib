@@ -10,7 +10,7 @@ import com.runetopic.loader.IEntryProvider
  */
 class LightingEntryProvider : IEntryProvider<LightingEntryType> {
 
-    private val builder = LightingEntryTypeBuilder()
+    private val builder = LightingEntryBuilder()
 
     override fun load(store: Store) {
         builder.build(store)

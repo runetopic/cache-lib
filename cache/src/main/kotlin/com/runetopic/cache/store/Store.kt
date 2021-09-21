@@ -49,11 +49,11 @@ class Store(
     fun file(group: Js5Index, fileId: Int, entryId: Int): Js5File = storage.loadFile(group, fileId, entryId)
     fun file(groupId: Int, fileId: Int, entryId: Int): Js5File = storage.loadFile(index(groupId), fileId, entryId)
 
-    fun fetchIndexReferenceTableSize(groupId: Int): Int {
+    fun fetchIndexReferenceTableSize(indexId: Int): Int {
         var total = 0
-        index(groupId).use { group ->
-            group.files.forEach {
-                total += storage.loadReferenceTable(group, it.value.groupId).size
+        index(indexId).use { index ->
+            index.groups.forEach {
+                total += storage.loadReferenceTable(index, it.value.groupId).size
             }
         }
         return total
