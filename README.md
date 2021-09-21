@@ -14,42 +14,39 @@ It currently only supports reading from the cache as of now.
 - Flat file system for unpacking the cache files into a raw format that can be git versioned.
 
 # Usage
+Index -> Group -> File
 
-### Getting a specific group
-```val group = store.group(5)```
+### Getting an index
+```val index = store.index(5)```
 
-### Getting a specific file by file id
-```val file = store.file(5, 360)```
+### Getting a group by group id
+```val group = store.group(5, 360)```
 
-```val file = store.file(store.group(5), 360)```
+```val group = store.group(store.index(5), 360)```
 
-### Getting a specific file by file name
-```val file = store.file(5, "m${50}_${50}")```
+### Getting a group by group name
+```val group = store.group(5, "m${50}_${50}")```
 
-```val file = store.file(store.group(5), "m${50}_${50}")```
+```val group = store.group(store.index(5), "m${50}_${50}")```
 
-### Getting a specific entry of a file by entry id
-```val entry = store.entry(2, 26, 1000)```
+### Getting a file from a group by id
+```val file = store.file(2, 26, 1000)```
 
-```val entry = store.entry(store.group(2), 26, 1000)```
+```val file = store.file(store.index(2), 26, 1000)```
 
-### Looping files from a specific group
-```
-            store.group(21).use { group ->
-                (0 until group.expandedCapacity()).forEach {
-                    val data = store.entry(group, it ushr 8, it and 0xFF).data
-                }
-            }
-```
+### Looping multiple groups from an index
+    store.index(21).use { index ->
+        (0 until index.expand()).forEach {
+            val data = store.file(index, it ushr 8, it and 0xFF).data
+        }
+    }
 
-### Looping entries from a specific file
-```
-            store.group(2).use { group ->
-                group.entries(26).forEach {
-                    val data = store.entry(group, it.fileId, it.entryId).data
-                }
-            }
-```
+### Looping multiple files from a group
+    store.index(2).use { index ->
+        group.files(26).forEach {
+            val data = store.file(index, it.groupId, it.id).data
+        }
+    }
 
 
 ## Contributing
