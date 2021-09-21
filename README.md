@@ -13,6 +13,13 @@ It currently only supports reading from the cache as of now.
 - Cache Writing
 - Flat file system for unpacking the cache files into a raw format that can be git versioned.
 
+#Gradle
+*Just use cache if you do not require any of the revision specific loaders.*
+```
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.1-SNAPSHOT" }
+```
+
 # Usage
 Index -> Group -> File
 
