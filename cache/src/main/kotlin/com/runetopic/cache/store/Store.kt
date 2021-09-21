@@ -41,26 +41,31 @@ class Store(
         this.indexes.add(index)
     }
 
-    fun index(id: Int): Js5Index = this.indexes.find { it.id == id }!!
-    fun group(group: Js5Index, fileName: String): Js5Group? = storage.loadGroup(group, fileName)
-    fun group(groupId: Int, fileName: String): Js5Group? = storage.loadGroup(index(groupId), fileName)
-    fun group(group: Js5Index, fileId: Int): Js5Group? = storage.loadGroup(group, fileId)
-    fun group(groupId: Int, fileId: Int): Js5Group? = storage.loadGroup(index(groupId), fileId)
-    fun file(group: Js5Index, fileId: Int, entryId: Int): Js5File = storage.loadFile(group, fileId, entryId)
-    fun file(groupId: Int, fileId: Int, entryId: Int): Js5File = storage.loadFile(index(groupId), fileId, entryId)
+    fun index(indexId: Int): Js5Index = this.indexes.find { it.id == indexId }!!
+    fun group(index: Js5Index, groupName: String): Js5Group? = storage.loadGroup(index, groupName)
+    fun group(indexId: Int, groupName: String): Js5Group? = storage.loadGroup(index(indexId), groupName)
+    fun group(index: Js5Index, groupId: Int): Js5Group? = storage.loadGroup(index, groupId)
+    fun group(indexId: Int, groupId: Int): Js5Group? = storage.loadGroup(index(indexId), groupId)
+    fun file(index: Js5Index, groupId: Int, fileId: Int): Js5File = storage.loadFile(index, groupId, fileId)
+    fun file(indexId: Int, groupId: Int, fileId: Int): Js5File = storage.loadFile(index(indexId), groupId, fileId)
 
     fun fetchIndexReferenceTableSize(indexId: Int): Int {
-        var total = 0
+        var size = 0
         index(indexId).use { index ->
             index.groups.forEach {
-                total += storage.loadReferenceTable(index, it.value.groupId).size
+                size += storage.loadReferenceTable(index, it.value.groupId).size
             }
         }
-        return total
+        return size
     }
 
-    fun fetchGroupReferenceTableSize(groupId: Int, groupName: String): Int {
-        val referenceTable = storage.loadReferenceTable(index(groupId), groupName)
+    fun fetchGroupReferenceTableSize(indexId: Int, groupName: String): Int {
+        val referenceTable = storage.loadReferenceTable(index(indexId), groupName)
+        return if (referenceTable.isEmpty()) 0 else referenceTable.size
+    }
+
+    fun fetchGroupReferenceTableSize(indexId: Int, groupId: Int): Int {
+        val referenceTable = storage.loadReferenceTable(index(indexId), groupId)
         return if (referenceTable.isEmpty()) 0 else referenceTable.size
     }
 
@@ -73,12 +78,11 @@ class Store(
         buffer
             .position(5)
             .put(indexes.size.toByte())
-        val emptyBuffer = ByteArray(Whirlpool.DIGESTBYTES)
         indexes.forEach {
             buffer
                 .putInt(it.crc)
                 .putInt(it.revision)
-                .put(it.whirlpool ?: emptyBuffer)
+                .put(it.whirlpool)
         }
         val groupArray = buffer.array()
         val whirlpoolBuffer = ByteBuffer
