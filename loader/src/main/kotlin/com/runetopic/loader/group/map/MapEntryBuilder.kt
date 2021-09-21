@@ -20,11 +20,11 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         mapTypes = buildSet {
-            store.group(5).use {
+            store.index(5).use {
                 (0 until Short.MAX_VALUE + 1).forEach { regionId ->
                     val regionX: Int = regionId shr 8
                     val regionY: Int = regionId and 0xFF
-                    store.file(it, "m${regionX}_${regionY}")?.let { file ->
+                    store.group(it, "m${regionX}_${regionY}")?.let { file ->
                         val container = Compression.decompress(file.data!!, emptyArray())
                         add(read(ByteBuffer.wrap(container.data), MapEntryType(regionId, regionX, regionY)))
                     }

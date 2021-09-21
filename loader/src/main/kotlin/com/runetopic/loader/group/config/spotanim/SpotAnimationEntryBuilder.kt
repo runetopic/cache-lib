@@ -17,9 +17,9 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         spotAnimations = buildSet {
-            store.group(21).use { group ->
+            store.index(21).use { group ->
                 (0 until group.expandedCapacity()).forEach {
-                    add(read(ByteBuffer.wrap(store.entry(group, it ushr 8, it and 0xFF).data), SpotAnimationEntryType(it)))
+                    add(read(ByteBuffer.wrap(store.file(group, it ushr 8, it and 0xFF).data), SpotAnimationEntryType(it)))
                 }
             }
         }

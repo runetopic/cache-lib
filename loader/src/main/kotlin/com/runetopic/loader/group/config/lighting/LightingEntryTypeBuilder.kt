@@ -18,9 +18,9 @@ internal class LightingEntryTypeBuilder : IEntryBuilder<LightingEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         lightings = buildSet {
-            store.group(2).use { group ->
+            store.index(2).use { group ->
                 group.entries(31).forEach {
-                    add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), LightingEntryType(it.entryId)))
+                    add(read(ByteBuffer.wrap(store.file(group, it.groupId, it.id).data), LightingEntryType(it.id)))
                 }
             }
         }

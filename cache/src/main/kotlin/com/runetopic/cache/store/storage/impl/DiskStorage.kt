@@ -1,9 +1,9 @@
 package com.runetopic.cache.store.storage.impl
 
 import com.github.michaelbull.logging.InlineLogger
-import com.runetopic.cache.Js5File
-import com.runetopic.cache.Js5FileEntry
 import com.runetopic.cache.Js5Group
+import com.runetopic.cache.Js5File
+import com.runetopic.cache.Js5Index
 import com.runetopic.cache.ReferenceTable
 import com.runetopic.cache.extension.whirlpool
 import com.runetopic.cache.store.Store
@@ -27,7 +27,7 @@ internal class DiskStorage(
     private var masterIdxFile: IIdxFile
     private var datFile: IDatFile
     private var idxFiles: ArrayList<IdxFile> = arrayListOf()
-    private var referenceTables: ArrayList<ReferenceTable> = arrayListOf()
+    private var indexReferenceTables: ArrayList<ReferenceTable> = arrayListOf()
     private val logger = InlineLogger()
 
     init {
@@ -51,42 +51,49 @@ internal class DiskStorage(
         (0 until masterIdxFile.validIndexCount()).forEach {
             val referenceTable = masterIdxFile.loadReferenceTable(it)
             if (referenceTable.sector > 0) {
-                referenceTables.add(referenceTable)
+                indexReferenceTables.add(referenceTable)
                 idxFiles.add(getIdxFile(it))
-                store.addGroup(loadGroup(it))
+                store.addIndex(loadIndex(it))
             }
         }
         logger.debug { "Loaded ${idxFiles.size} indices." }
     }
 
-    override fun loadGroup(id: Int): Js5Group {
-        val table = referenceTables.find { it.id == id }!!
-        val groupData = datFile.readReferenceTable(masterIdxFile.id(), table)
-        val whirlpool = ByteBuffer.wrap(groupData).whirlpool()
-        return table.loadGroup(id, whirlpool, groupData)
+    override fun loadIndex(indexId: Int): Js5Index {
+        val table = indexReferenceTables.find { it.id == indexId }!!
+        val referenceTable = datFile.readReferenceTable(masterIdxFile.id(), table)
+        val whirlpool = ByteBuffer.wrap(referenceTable).whirlpool()
+        return table.loadIndex(indexId, whirlpool, referenceTable)
     }
 
-    override fun loadFile(group: Js5Group, fileName: String): Js5File? {
-        val file = group.getFile(fileName)
-        file?.load(datFile, idxFiles.find { it.id() == file.groupId }!!)
+    override fun loadGroup(index: Js5Index, groupName: String): Js5Group? {
+        val file = index.getGroup(groupName)
+        index.files.filter { file?.groupId == it.value.groupId }.keys.firstOrNull()?.let { fileId ->
+            file?.loadGroup(datFile, getIdxFile(file.indexId), fileId)
+        }
         return file
     }
 
-    override fun loadFile(group: Js5Group, fileId: Int): Js5File? {
-        val file = group.getFile(fileId)
-        file?.load(datFile, idxFiles.find { it.id() == file.groupId }!!)
-        return file
+    override fun loadGroup(index: Js5Index, groupId: Int): Js5Group? {
+        val group = index.getGroup(groupId)
+        group?.loadGroup(datFile, getIdxFile(group.indexId), groupId)
+        return group
     }
 
-    override fun loadEntry(group: Js5Group, fileId: Int, entryId: Int): Js5FileEntry {
-        val js5File = loadFile(group, fileId)
-        js5File?.loadFileEntriesData(entryId)
-        return js5File?.entries?.find { it.entryId == entryId } ?: Js5FileEntry(fileId, entryId, -1, byteArrayOf(0))
+    override fun loadFile(index: Js5Index, groupId: Int, fileId: Int): Js5File {
+        val group = loadGroup(index, groupId)
+        group?.loadFiles(fileId)
+        return group?.files?.find { it.id == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
     }
 
-    override fun loadReferenceTable(group: Js5Group, fileId: Int): ByteArray {
-        val table = getIdxFile(255).loadReferenceTable(28)
-        return datFile.readReferenceTable(255, table)
+    override fun loadReferenceTable(index: Js5Index, groupId: Int): ByteArray {
+        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(groupId))
+    }
+
+    override fun loadReferenceTable(index: Js5Index, groupName: String): ByteArray {
+        val file = index.getGroup(groupName)
+        val fileId = index.files.filter { file?.groupId == it.value.groupId }.keys.firstOrNull() ?: return byteArrayOf()
+        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(fileId))
     }
 
     private fun getIdxFile(id: Int): IdxFile {

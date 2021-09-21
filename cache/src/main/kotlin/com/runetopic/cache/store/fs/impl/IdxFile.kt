@@ -19,9 +19,7 @@ internal class IdxFile(
 
     override fun loadReferenceTable(id: Int): ReferenceTable {
         idxFile.seek((id * ENTRY_LIMIT).toLong())
-
         validateHeader()
-
         val length = (readBuffer[0].toInt() and 0xFF shl 16
                 or (readBuffer[1].toInt() and 0xFF shl 8)
                 or (readBuffer[2].toInt() and 0xFF))

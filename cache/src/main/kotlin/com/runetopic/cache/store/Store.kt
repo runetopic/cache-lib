@@ -2,9 +2,9 @@ package com.runetopic.cache.store
 
 import com.runetopic.cache.crypto.Whirlpool
 
-import com.runetopic.cache.Js5File
-import com.runetopic.cache.Js5FileEntry
 import com.runetopic.cache.Js5Group
+import com.runetopic.cache.Js5File
+import com.runetopic.cache.Js5Index
 import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.impl.DiskStorage
 import java.io.Closeable
@@ -20,7 +20,7 @@ class Store(
     directory: File
 ) : Closeable {
     private var storage: IStorage = DiskStorage(directory)
-    private val groups: ArrayList<Js5Group> = arrayListOf()
+    private val indexes: ArrayList<Js5Index> = arrayListOf()
 
     init {
         this.storage.init(this)
@@ -36,40 +36,45 @@ class Store(
         this.storage.init(this)
     }*/
 
-    fun addGroup(group: Js5Group) {
-        groups.forEach { i -> require(group.id != i.id) { "Group with Id={${group.id}} already exists." } }
-        this.groups.add(group)
+    fun addIndex(index: Js5Index) {
+        indexes.forEach { i -> require(index.id != i.id) { "Index with Id={${index.id}} already exists." } }
+        this.indexes.add(index)
     }
 
-    fun group(id: Int): Js5Group = this.groups.find { it.id == id }!!
-    fun file(group: Js5Group, fileName: String): Js5File? = storage.loadFile(group, fileName)
-    fun file(groupId: Int, fileName: String): Js5File? = storage.loadFile(group(groupId), fileName)
-    fun file(group: Js5Group, fileId: Int): Js5File? = storage.loadFile(group, fileId)
-    fun file(groupId: Int, fileId: Int): Js5File? = storage.loadFile(group(groupId), fileId)
-    fun entry(group: Js5Group, fileId: Int, entryId: Int): Js5FileEntry = storage.loadEntry(group, fileId, entryId)
-    fun entry(groupId: Int, fileId: Int, entryId: Int): Js5FileEntry = storage.loadEntry(group(groupId), fileId, entryId)
+    fun index(id: Int): Js5Index = this.indexes.find { it.id == id }!!
+    fun group(group: Js5Index, fileName: String): Js5Group? = storage.loadGroup(group, fileName)
+    fun group(groupId: Int, fileName: String): Js5Group? = storage.loadGroup(index(groupId), fileName)
+    fun group(group: Js5Index, fileId: Int): Js5Group? = storage.loadGroup(group, fileId)
+    fun group(groupId: Int, fileId: Int): Js5Group? = storage.loadGroup(index(groupId), fileId)
+    fun file(group: Js5Index, fileId: Int, entryId: Int): Js5File = storage.loadFile(group, fileId, entryId)
+    fun file(groupId: Int, fileId: Int, entryId: Int): Js5File = storage.loadFile(index(groupId), fileId, entryId)
 
-    fun sectors(groupId: Int): Int {
+    fun fetchIndexReferenceTableSize(groupId: Int): Int {
         var total = 0
-        println(group(groupId).files.size)
-        group(groupId).use { group ->
-            group.files.forEach { file ->
-                file(groupId, file.fileId)?.data?.let {
-                    total += it.size
-                }
-//                total += storage.loadReferenceTable(group, file.fileId).size
+        index(groupId).use { group ->
+            group.files.forEach {
+                total += storage.loadReferenceTable(group, it.value.groupId).size
             }
         }
         return total
     }
 
+    fun fetchGroupReferenceTableSize(groupId: Int, groupName: String): Int {
+        val referenceTable = storage.loadReferenceTable(index(groupId), groupName)
+        return if (referenceTable.isEmpty()) 0 else referenceTable.size
+    }
+
+    fun fetchGroupReferenceTable(indexId: Int, groupId: Int): ByteArray {
+        return storage.loadReferenceTable(index(indexId), groupId)
+    }
+
     fun generateUpdateKeys(exponent: BigInteger, modulus: BigInteger): ByteArray {
-        val buffer = ByteBuffer.allocate((6 + groups.size) * 72)
+        val buffer = ByteBuffer.allocate((6 + indexes.size) * 72)
         buffer
             .position(5)
-            .put(groups.size.toByte())
+            .put(indexes.size.toByte())
         val emptyBuffer = ByteArray(Whirlpool.DIGESTBYTES)
-        groups.forEach {
+        indexes.forEach {
             buffer
                 .putInt(it.crc)
                 .putInt(it.revision)

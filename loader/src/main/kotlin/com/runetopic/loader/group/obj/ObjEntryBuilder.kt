@@ -16,9 +16,9 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         objs = buildSet {
-            store.group(19).use { group ->
+            store.index(19).use { group ->
                 (0 until group.expandedCapacity()).forEach {
-                    add(read(ByteBuffer.wrap(store.entry(group, it ushr 8, it and 0xFF).data), ObjEntryType(it)))
+                    add(read(ByteBuffer.wrap(store.file(group, it ushr 8, it and 0xFF).data), ObjEntryType(it)))
                 }
             }
         }

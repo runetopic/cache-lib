@@ -18,11 +18,9 @@ internal class DatFile(
 ): IDatFile  {
     private val datFile: RandomAccessFile = RandomAccessFile(file, "rw")
 
-    override fun readReferenceTable(groupId: Int, referenceTable: ReferenceTable): ByteArray {
+    override fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray {
         var sector = referenceTable.sector
         val length = referenceTable.length
-        if (groupId == 28)
-            println(length)
         val id = referenceTable.id
 
         if (validateSector(sector, length).not()) return byteArrayOf()
@@ -36,7 +34,7 @@ internal class DatFile(
 
         while (length > readBytes) {
             if (sector == 0) {
-                throw EndOfDatFileException("Unexpected end of file. GroupId=[$groupId} ArchiveId=[$id] Length=[$length]")
+                throw EndOfDatFileException("Unexpected end of file. Id=[$id} Length=[$length]")
             }
 
             datFile.seek((SECTOR_SIZE * sector).toLong())
@@ -51,7 +49,7 @@ internal class DatFile(
                 headerLength = 10
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
-                validateHeader(readBuffer.array(), headerLength, blockLength, groupId, id)
+                validateHeader(readBuffer.array(), headerLength, blockLength, id, id)
 
                 currentContainerId = (readBuffer[0].toInt() and 0xFF shl 24
                         or (readBuffer[1].toInt() and 0xFF shl 16)
@@ -67,7 +65,7 @@ internal class DatFile(
                 headerLength = 8
                 blockLength = adjustBlockLength(blockLength, headerLength)
 
-                validateHeader(readBuffer.array(), headerLength, blockLength, groupId, id)
+                validateHeader(readBuffer.array(), headerLength, blockLength, id, id)
 
                 currentContainerId = (readBuffer[0].toInt() and 0xFF shl 8
                         or (readBuffer[1].toInt() and 0xFF))
@@ -78,7 +76,7 @@ internal class DatFile(
                 currentIndex = (readBuffer[7].toInt() and 0xFF)
             }
 
-            validateData(id, currentContainerId, currentPart, part, groupId, currentIndex)
+            validateData(id, currentContainerId, currentPart, part, id, currentIndex)
             validateNextSector(nextSector)
 
             buffer.put(readBuffer.array(), headerLength.toInt(), blockLength)

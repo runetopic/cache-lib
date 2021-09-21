@@ -20,9 +20,9 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         structTypes = buildSet {
-            store.group(2).use { group ->
+            store.index(2).use { group ->
                 group.entries(26).forEach {
-                    add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), StructEntryType(it.entryId)))
+                    add(read(ByteBuffer.wrap(store.file(group, it.groupId, it.id).data), StructEntryType(it.id)))
                 }
             }
         }

@@ -1,91 +1,35 @@
 package com.runetopic.cache
 
-import com.runetopic.cache.compression.Compression
-import com.runetopic.cache.exception.FileDataException
-import com.runetopic.cache.store.fs.IDatFile
-import com.runetopic.cache.store.fs.IIdxFile
-import java.nio.ByteBuffer
-
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-open class Js5File(
-    internal val groupId: Int,
-    internal val fileId: Int,
-    internal val nameHash: Int,
-    internal val crc: Int,
-    internal val whirlpool: ByteArray,
-    internal val revision: Int,
-    internal val keys: IntArray,
-    internal val entries: Array<Js5FileEntry>,
-    private var isLoaded: Boolean = false,
+data class Js5File(
+    val groupId: Int = -1,
+    val id: Int = -1,
+    internal var nameHash: Int = -1,
     var data: ByteArray? = null
-): Comparable<Js5File> {
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    override fun compareTo(other: Js5File): Int {
-        return fileId.compareTo(other.fileId)
-    }
+        other as Js5File
 
-    internal fun load(datFile: IDatFile, idxFile: IIdxFile): ByteArray {
-        if (isLoaded) {
-            return data!!
-        }
-
-        data = datFile.readReferenceTable(groupId, idxFile.loadReferenceTable(fileId))
-
+        if (id != other.id) return false
+        if (nameHash != other.nameHash) return false
         if (data != null) {
-            isLoaded = true
-            return data ?: throw FileDataException("Archive data could not be loaded.")
-        }
+            if (other.data == null) return false
+            if (!data.contentEquals(other.data)) return false
+        } else if (other.data != null) return false
 
-        return byteArrayOf()
+        return true
     }
 
-    internal fun loadFileEntriesData(fileId: Int): ByteArray {
-        val fileEntry = entries.find { it.entryId == fileId } ?: return byteArrayOf()
-
-        val decompressed = Compression.decompress(data!!, emptyArray())
-
-        val count = entries.size
-
-        if (count == 1) {
-            return decompressed.data
-        }
-
-        return fileEntry.data ?: let {
-            var size = decompressed.data.size
-            val chunks: Int = decompressed.data[--size].toInt() and 0xFF
-            size -= chunks * (count * 4)
-            val buffer = ByteBuffer.wrap(decompressed.data)
-            buffer.position(size)
-            val entriesSizes = IntArray(count)
-            (0 until chunks).forEach { _ ->
-                var read = 0
-                (0 until count).forEach {
-                    read += buffer.int
-                    entriesSizes[it] += read
-                }
-            }
-            val entries = Array(count) { byteArrayOf() }
-            (0 until count).forEach {
-                entries[it] = ByteArray(entriesSizes[it])
-                entriesSizes[it] = 0
-            }
-            buffer.position(size)
-            var offset = 0
-            (0 until chunks).forEach { _ ->
-                var read = 0
-                (0 until count).forEach {
-                    read += buffer.int
-                    System.arraycopy(decompressed.data, offset, entries[it], entriesSizes[it], read)
-                    offset += read
-                    entriesSizes[it] += read
-                }
-            }
-
-            this.entries.indices.forEach { this.entries[it].data = entries[it] }
-            fileEntry.data ?: throw FileDataException("Could not load file entries from archive.")
-        }
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + nameHash
+        result = 31 * result + (data?.contentHashCode() ?: 0)
+        return result
     }
 }

@@ -20,11 +20,11 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         mapTypes = buildSet {
-            store.group(5).use {
+            store.index(5).use {
                 (0 until Short.MAX_VALUE + 1).forEach { regionId ->
                     val regionX: Int = regionId shr 8
                     val regionY: Int = regionId and 0xFF
-                    val js5File = store.file(it, "l${regionX}_${regionY}")
+                    val js5File = store.group(it, "l${regionX}_${regionY}")
 
                     if (js5File != null) {
                         try {

@@ -16,9 +16,9 @@ internal class MouseIconEntryBuilder: IEntryBuilder<MouseIconEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         mouseIconTypes = buildSet {
-            store.group(2).use { group ->
+            store.index(2).use { group ->
                 group.entries(33).forEach {
-                    add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), MouseIconEntryType(it.entryId)))
+                    add(read(ByteBuffer.wrap(store.file(group, it.groupId, it.id).data), MouseIconEntryType(it.id)))
                 }
             }
         }

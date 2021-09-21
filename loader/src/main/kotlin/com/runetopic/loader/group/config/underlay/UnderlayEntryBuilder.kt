@@ -18,9 +18,9 @@ class UnderlayEntryBuilder: IEntryBuilder<UnderlayEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         underlays = buildSet {
-            store.group(2).use { group ->
+            store.index(2).use { group ->
                 group.entries(1).forEach {
-                    add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), UnderlayEntryType(it.entryId)))
+                    add(read(ByteBuffer.wrap(store.file(group, it.groupId, it.id).data), UnderlayEntryType(it.id)))
                 }
             }
         }

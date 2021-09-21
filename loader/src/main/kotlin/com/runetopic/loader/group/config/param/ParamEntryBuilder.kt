@@ -19,9 +19,9 @@ internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         paramTypes = buildSet {
-            store.group(2).use { group ->
+            store.index(2).use { group ->
                 group.entries(11).forEach {
-                    add(read(ByteBuffer.wrap(store.entry(group, it.fileId, it.entryId).data), ParamEntryType(it.entryId)))
+                    add(read(ByteBuffer.wrap(store.file(group, it.groupId, it.id).data), ParamEntryType(it.id)))
                 }
             }
         }
