@@ -17,7 +17,7 @@ It currently only supports reading from the cache as of now.
 *Just use cache if you do not require any of the revision specific loaders.*
 ```
 cache = { module = "com.runetopic.cache:cache", version.ref "1.4-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.1-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.2-SNAPSHOT" }
 ```
 
 # Usage
