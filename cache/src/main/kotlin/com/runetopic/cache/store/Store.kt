@@ -49,7 +49,7 @@ class Store(
     fun file(index: Js5Index, groupId: Int, fileId: Int): Js5File = storage.loadFile(index, groupId, fileId)
     fun file(indexId: Int, groupId: Int, fileId: Int): Js5File = storage.loadFile(index(indexId), groupId, fileId)
 
-    fun fetchIndexReferenceTableSize(indexId: Int): Int {
+    fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0
         index(indexId).use { index ->
             index.groups.forEach {
@@ -59,17 +59,17 @@ class Store(
         return size
     }
 
-    fun fetchGroupReferenceTableSize(indexId: Int, groupName: String): Int {
+    fun groupReferenceTableSize(indexId: Int, groupName: String): Int {
         val referenceTable = storage.loadReferenceTable(index(indexId), groupName)
         return if (referenceTable.isEmpty()) 0 else referenceTable.size
     }
 
-    fun fetchGroupReferenceTableSize(indexId: Int, groupId: Int): Int {
+    fun groupReferenceTableSize(indexId: Int, groupId: Int): Int {
         val referenceTable = storage.loadReferenceTable(index(indexId), groupId)
         return if (referenceTable.isEmpty()) 0 else referenceTable.size
     }
 
-    fun fetchGroupReferenceTable(indexId: Int, groupId: Int): ByteArray {
+    fun groupReferenceTable(indexId: Int, groupId: Int): ByteArray {
         return storage.loadReferenceTable(index(indexId), groupId)
     }
 

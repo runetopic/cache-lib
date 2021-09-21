@@ -81,9 +81,9 @@ internal class DiskStorage(
     }
 
     override fun loadFile(index: Js5Index, groupId: Int, fileId: Int): Js5File {
-        val group = loadGroup(index, groupId)
-        group?.loadFiles(fileId)
-        return group?.files?.find { it.id == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
+        val group = loadGroup(index, groupId)!!
+        group.loadFiles(fileId)
+        return group.files.find { it.id == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
     }
 
     override fun loadReferenceTable(index: Js5Index, groupId: Int): ByteArray {
