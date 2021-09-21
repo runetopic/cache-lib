@@ -49,16 +49,16 @@ Index -> Group -> File
     }
 
 ### Getting the reference table of an index and group by id.
-```store.fetchGroupReferenceTable(indexId = 255, groupId = 255)```
+```store.groupReferenceTable(indexId = 255, groupId = 255)```
 
 ### Getting an index reference table size by id
-```store.fetchIndexReferenceTableSize(indexId = 28)```
+```store.indexReferenceTableSize(indexId = 28)```
 
 ### Getting a group reference table size by name
-```store.fetchGroupReferenceTableSize(indexId = 30, groupName = "windows/x86/jaclib.dll")```
+```store.groupReferenceTableSize(indexId = 30, groupName = "windows/x86/jaclib.dll")```
 
 ### Getting a group reference table size by id
-```store.fetchGroupReferenceTableSize(indexId = 30, groupId = 6)```
+```store.groupReferenceTableSize(indexId = 30, groupId = 6)```
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
