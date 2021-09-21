@@ -21,7 +21,7 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
     override fun build(store: Store) {
         mapTypes = buildSet {
             store.index(5).use {
-                (0 until Short.MAX_VALUE + 1).forEach { regionId ->
+                (0..Short.MAX_VALUE).forEach { regionId ->
                     val regionX: Int = regionId shr 8
                     val regionY: Int = regionId and 0xFF
                     store.group(it, "m${regionX}_${regionY}")?.let { group ->

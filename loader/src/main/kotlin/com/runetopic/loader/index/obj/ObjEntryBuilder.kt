@@ -17,7 +17,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
     override fun build(store: Store) {
         objs = buildSet {
             store.index(19).use { index ->
-                (0 until index.expand()).forEach {
+                (0..index.expand()).forEach {
                     add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).data), ObjEntryType(it)))
                 }
             }
