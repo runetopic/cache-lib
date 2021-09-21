@@ -43,7 +43,7 @@ Index -> Group -> File
 
 ### Looping multiple groups from an index
     store.index(indexId = 21).use { index ->
-        (0 until index.expand()).forEach {
+        (0..index.expand()).forEach {
             val data = store.file(index = index, groupId = it ushr 8, fileId = it and 0xFF).data
         }
     }
