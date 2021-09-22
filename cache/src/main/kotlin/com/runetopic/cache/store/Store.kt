@@ -69,6 +69,7 @@ class Store(
     }
 
     fun groupReferenceTable(indexId: Int, groupId: Int): ByteArray {
+        if (indexId == Constants.MASTER_INDEX_ID) return storage.loadMasterReferenceTable(groupId)
         return storage.loadReferenceTable(index(indexId), groupId)
     }
 

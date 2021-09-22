@@ -5,6 +5,7 @@ import com.runetopic.cache.Js5Group
 import com.runetopic.cache.Js5File
 import com.runetopic.cache.Js5Index
 import com.runetopic.cache.ReferenceTable
+import com.runetopic.cache.crypto.Whirlpool
 import com.runetopic.cache.extension.whirlpool
 import com.runetopic.cache.store.Store
 import com.runetopic.cache.store.Constants
@@ -43,7 +44,7 @@ internal class DiskStorage(
             throw FileNotFoundException("Missing ${Constants.MAIN_FILE_DAT} in directory ${directory}/${Constants.MAIN_FILE_DAT}")
         }
 
-        this.masterIdxFile = IdxFile(Constants.MAIN_INDEX_ID, masterIndexFile)
+        this.masterIdxFile = IdxFile(Constants.MASTER_INDEX_ID, masterIndexFile)
         this.datFile = DatFile(datFile)
     }
 
@@ -51,19 +52,20 @@ internal class DiskStorage(
         (0 until masterIdxFile.validIndexCount()).forEach {
             val referenceTable = masterIdxFile.loadReferenceTable(it)
             indexReferenceTables.add(referenceTable)
-            getIdxFile(it)?.let { file ->
-                idxFiles.add(file)
-                store.addIndex(loadIndex(it))
-            }
+            idxFiles.add(getIdxFile(it))
+            store.addIndex(loadIndex(it))
         }
         logger.debug { "Loaded ${idxFiles.size} indices." }
     }
 
     override fun loadIndex(indexId: Int): Js5Index {
         val table = indexReferenceTables.find { it.id == indexId }!!
+        if (table.exists().not()) {
+            return Js5Index(indexId, 0, ByteArray(Whirlpool.DIGESTBYTES), -1, -1, 0, false, hashMapOf())
+        }
         val referenceTable = datFile.readReferenceTable(masterIdxFile.id(), table)
         val whirlpool = ByteBuffer.wrap(referenceTable).whirlpool()
-        return table.loadIndex(datFile, getIdxFile(indexId)!!, whirlpool, referenceTable)
+        return table.loadIndex(datFile, getIdxFile(indexId), whirlpool, referenceTable)
     }
 
     override fun loadGroup(index: Js5Index, groupName: String): Js5Group? {
@@ -82,26 +84,30 @@ internal class DiskStorage(
         return file
     }
 
+    override fun loadMasterReferenceTable(groupId: Int): ByteArray {
+        return datFile.readReferenceTable(Constants.MASTER_INDEX_ID, masterIdxFile.loadReferenceTable(groupId))
+    }
+
     override fun loadReferenceTable(index: Js5Index, groupId: Int): ByteArray {
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id)!!.loadReferenceTable(groupId))
+        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(groupId))
     }
 
     override fun loadReferenceTable(index: Js5Index, groupName: String): ByteArray {
         val group = index.getGroup(groupName) ?: return byteArrayOf()
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id)!!.loadReferenceTable(group.groupId))
+        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(group.groupId))
     }
 
-    private fun getIdxFile(id: Int): IdxFile? {
+    private fun getIdxFile(id: Int): IdxFile {
         val cachedIndexFile = idxFiles.find { it.id() == id }
 
         if (cachedIndexFile != null) return cachedIndexFile
 
         val file = File("$directory/${Constants.MAIN_FILE_IDX}${id}")
 
-        if (file.exists().not()) {
-            //throw FileNotFoundException("Missing ${Constants.MAIN_FILE_IDX} in directory $directory")
-            return null
-        }
+//        if (file.exists().not()) {
+//            //throw FileNotFoundException("Missing ${Constants.MAIN_FILE_IDX} in directory $directory")
+//            return null
+//        }
         return IdxFile(id, file)
     }
 

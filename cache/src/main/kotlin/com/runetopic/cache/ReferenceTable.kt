@@ -7,7 +7,6 @@ import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.store.fs.IDatFile
 import com.runetopic.cache.store.fs.IIdxFile
-import com.runetopic.cache.store.fs.impl.DatFile
 import com.runetopic.cache.store.fs.impl.IdxFile
 import java.nio.ByteBuffer
 import java.util.*
@@ -52,6 +51,8 @@ internal data class ReferenceTable(
         }
     }
 
+    fun exists(): Boolean = (length != 0 && sector != 0)
+
     fun loadIndex(datFile: IDatFile, idxFile: IIdxFile, whirlpool: ByteArray, data: ByteArray): Js5Index {
         val container = Compression.decompress(data, emptyArray())
         val buffer = ByteBuffer.wrap(container.data)
@@ -85,7 +86,7 @@ internal data class ReferenceTable(
         val size = largestGroupId + 1
         val nameHashes = nameHashes(size, count, isNamed, validGroupIds, buffer)
         val crcs = crcs(size, count, validGroupIds, buffer)
-        val whirlpools = whirlpools(Whirlpool.DIGESTBYTES, isUsingWhirlPool, count, buffer, validGroupIds)
+        val whirlpools = whirlpools(isUsingWhirlPool, count, buffer, validGroupIds)
         val revisions = revisions(size, count, validGroupIds, buffer)
         val validFileIds = validFileIds(size, count, validGroupIds, buffer)
         val files = entries(size, validFileIds, count, validGroupIds, buffer, isNamed)
@@ -165,16 +166,15 @@ internal data class ReferenceTable(
     }
 
     private fun whirlpools(
-        size: Int,
         usesWhirlpool: Boolean,
         count: Int,
         buffer: ByteBuffer,
         validGroupIds: IntArray,
     ): Array<ByteArray> {
-        val whirlpools = Array(size) { byteArrayOf() }
+        val whirlpools = Array(Whirlpool.DIGESTBYTES) { byteArrayOf() }
         if (usesWhirlpool) {
             (0 until count).forEach {
-                val whirlpool = ByteArray(size)
+                val whirlpool = ByteArray(Whirlpool.DIGESTBYTES)
                 buffer.get(whirlpool)
                 whirlpools[validGroupIds[it]] = whirlpool
             }
