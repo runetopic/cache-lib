@@ -6,7 +6,6 @@ import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.toBoolean
 import com.runetopic.cache.store.Store
 import com.runetopic.loader.IEntryBuilder
-import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**

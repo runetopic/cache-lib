@@ -1,15 +1,15 @@
 package com.runetopic.loader
 
-import com.runetopic.loader.index.config.overlay.OverlayEntryProvider
 import com.runetopic.loader.index.config.idk.IdentityKitEntryProvider
 import com.runetopic.loader.index.config.inv.InventoryEntryProvider
+import com.runetopic.loader.index.config.lighting.LightingEntryProvider
 import com.runetopic.loader.index.config.mouseicon.MouseIconEntryProvider
+import com.runetopic.loader.index.config.overlay.OverlayEntryProvider
 import com.runetopic.loader.index.config.param.ParamEntryProvider
 import com.runetopic.loader.index.config.skybox.SkyBoxEntryProvider
 import com.runetopic.loader.index.config.spotanim.SpotAnimationEntryProvider
 import com.runetopic.loader.index.config.struct.StructEntryProvider
 import com.runetopic.loader.index.config.underlay.UnderlayEntryProvider
-import com.runetopic.loader.index.config.lighting.LightingEntryProvider
 import com.runetopic.loader.index.loc.LocEntryProvider
 import com.runetopic.loader.index.map.MapEntryProvider
 import com.runetopic.loader.index.map.MapLocationEntryProvider

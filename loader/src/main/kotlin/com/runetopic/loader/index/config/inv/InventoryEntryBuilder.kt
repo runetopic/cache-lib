@@ -1,9 +1,9 @@
 package com.runetopic.loader.index.config.inv
 
-import com.runetopic.cache.extension.*
+import com.runetopic.cache.extension.readUnsignedByte
+import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.store.Store
 import com.runetopic.loader.IEntryBuilder
-import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**

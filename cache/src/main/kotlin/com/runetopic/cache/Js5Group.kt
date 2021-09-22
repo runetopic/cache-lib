@@ -2,8 +2,6 @@ package com.runetopic.cache
 
 import com.runetopic.cache.compression.Compression
 import com.runetopic.cache.exception.FileDataException
-import com.runetopic.cache.store.fs.IDatFile
-import com.runetopic.cache.store.fs.IIdxFile
 import java.nio.ByteBuffer
 
 /**
