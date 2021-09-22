@@ -50,7 +50,7 @@ Index -> Group -> File
 
 ### Looping multiple files from a group
     store.index(indexId = 2).use { index ->
-        group.files(groupId = 26).forEach {
+        index.files(groupId = 26).forEach {
             val data = store.file(index = index, groupId = it.groupId, fileId = it.id).data
         }
     }
