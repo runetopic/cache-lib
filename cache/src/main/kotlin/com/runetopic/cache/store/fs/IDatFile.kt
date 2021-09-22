@@ -8,5 +8,5 @@ import java.io.Closeable
  * @email <xlitersps@gmail.com>
  */
 internal interface IDatFile: Closeable {
-    fun readReferenceTable(groupId: Int, referenceTable: ReferenceTable): ByteArray
+    fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray
 }
