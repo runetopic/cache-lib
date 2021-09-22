@@ -3,7 +3,6 @@ package com.runetopic.loader.index.obj
 import com.runetopic.cache.extension.*
 import com.runetopic.cache.store.Store
 import com.runetopic.loader.IEntryBuilder
-import java.lang.Exception
 import java.nio.ByteBuffer
 
 /**

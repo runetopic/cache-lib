@@ -1,7 +1,7 @@
 package com.runetopic.cache.store.storage
 
-import com.runetopic.cache.Js5Group
 import com.runetopic.cache.Js5File
+import com.runetopic.cache.Js5Group
 import com.runetopic.cache.Js5Index
 import com.runetopic.cache.store.Store
 import java.io.Closeable
