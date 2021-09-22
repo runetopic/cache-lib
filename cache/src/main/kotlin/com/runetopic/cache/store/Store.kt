@@ -73,27 +73,29 @@ class Store(
         return storage.loadReferenceTable(index(indexId), groupId)
     }
 
-    fun generateUpdateKeys(exponent: BigInteger, modulus: BigInteger): ByteArray {
-        val raw = ByteBuffer.allocate(3072)
-        raw.position(5)
-        raw.put(indexes.size.toByte())
+    fun checksumsWithRSA(exponent: BigInteger, modulus: BigInteger): ByteArray {
+        val header = ByteBuffer.allocate(indexes.size.times(72).plus(6))
+        header.position(5)
+        header.put(indexes.size.toByte())
         indexes.forEach {
-            raw.putInt(it.crc)
-            raw.putInt(it.revision)
-            raw.put(it.whirlpool)
+            header.putInt(it.crc)
+            header.putInt(it.revision)
+            header.put(it.whirlpool)
         }
-        val whirlpool = ByteBuffer.allocate(Whirlpool.DIGESTBYTES + 1)
+        val headerPosition = header.position()
+        val headerArray = header.array()
+
+        val whirlpool = ByteBuffer.allocate(Whirlpool.DIGESTBYTES.plus(1))
         whirlpool.put(1)
-        whirlpool.put(Whirlpool.digest(raw.array(), 5, raw.position() - 5))
-        raw.put(BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray())
-        val buffer = ByteBuffer.allocate(raw.position())
-        buffer.put(raw.array(), 0, raw.position())
-        val position = buffer.position()
-        buffer.position(0)
-        buffer.put(0)
-        buffer.putInt(position - 5)
-        buffer.position(position)
-        return buffer.array()
+        whirlpool.put(Whirlpool.digest(headerArray, 5, headerPosition.minus(5)))
+        val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
+
+        val checksums = ByteBuffer.allocate(headerPosition.plus(rsa.size))
+        checksums.put(0)
+        checksums.putInt((headerPosition.plus(rsa.size)).minus(5))
+        checksums.put(headerArray, 5, headerPosition.minus(5))
+        checksums.put(rsa)
+        return checksums.array()
     }
 
     override fun close() {

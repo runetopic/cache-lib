@@ -97,7 +97,7 @@ internal data class ReferenceTable(
                 groupId = validGroupIds[it],
                 nameHash = if (isNamed) nameHashes[validGroupIds[it]] else -1,
                 crc = crcs[validGroupIds[it]],
-                whirlpool = if (isUsingWhirlPool) whirlpools[validGroupIds[it]] else byteArrayOf(),
+                whirlpool = if (isUsingWhirlPool) whirlpools[validGroupIds[it]] else ByteArray(Whirlpool.DIGESTBYTES),
                 revision = revisions[validGroupIds[it]],
                 keys = intArrayOf(),
                 files = files[it],
