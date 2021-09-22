@@ -50,9 +50,9 @@ internal class DiskStorage(
     override fun init(store: Store) {
         (0 until masterIdxFile.validIndexCount()).forEach {
             val referenceTable = masterIdxFile.loadReferenceTable(it)
-            if (referenceTable.sector > 0) {
-                indexReferenceTables.add(referenceTable)
-                idxFiles.add(getIdxFile(it))
+            indexReferenceTables.add(referenceTable)
+            getIdxFile(it)?.let { file ->
+                idxFiles.add(file)
                 store.addIndex(loadIndex(it))
             }
         }
@@ -63,40 +63,35 @@ internal class DiskStorage(
         val table = indexReferenceTables.find { it.id == indexId }!!
         val referenceTable = datFile.readReferenceTable(masterIdxFile.id(), table)
         val whirlpool = ByteBuffer.wrap(referenceTable).whirlpool()
-        return table.loadIndex(indexId, whirlpool, referenceTable)
+        return table.loadIndex(datFile, getIdxFile(indexId)!!, whirlpool, referenceTable)
     }
 
     override fun loadGroup(index: Js5Index, groupName: String): Js5Group? {
-        val file = index.getGroup(groupName)
-        index.groups.filter { file?.groupId == it.value.groupId }.keys.firstOrNull()?.let { fileId ->
-            file?.loadGroup(datFile, getIdxFile(file.indexId), fileId)
-        }
-        return file
+        return index.getGroup(groupName)
     }
 
     override fun loadGroup(index: Js5Index, groupId: Int): Js5Group? {
-        val group = index.getGroup(groupId)
-        group?.loadGroup(datFile, getIdxFile(group.indexId), groupId)
-        return group
+        return index.getGroup(groupId)
     }
 
     override fun loadFile(index: Js5Index, groupId: Int, fileId: Int): Js5File {
         val group = loadGroup(index, groupId)!!
-        group.loadFiles(fileId)
-        return group.files.find { it.id == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
+        val file = group.files.find { it.id == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
+        //a file not found with have data != null with a byte of 0 which will auto break a loader at opcode 0.
+        file.data ?: group.loadFiles(file)
+        return file
     }
 
     override fun loadReferenceTable(index: Js5Index, groupId: Int): ByteArray {
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(groupId))
+        return datFile.readReferenceTable(index.id, getIdxFile(index.id)!!.loadReferenceTable(groupId))
     }
 
     override fun loadReferenceTable(index: Js5Index, groupName: String): ByteArray {
-        val file = index.getGroup(groupName)
-        val fileId = index.groups.filter { file?.groupId == it.value.groupId }.keys.firstOrNull() ?: return byteArrayOf()
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(fileId))
+        val group = index.getGroup(groupName) ?: return byteArrayOf()
+        return datFile.readReferenceTable(index.id, getIdxFile(index.id)!!.loadReferenceTable(group.groupId))
     }
 
-    private fun getIdxFile(id: Int): IdxFile {
+    private fun getIdxFile(id: Int): IdxFile? {
         val cachedIndexFile = idxFiles.find { it.id() == id }
 
         if (cachedIndexFile != null) return cachedIndexFile
@@ -104,9 +99,9 @@ internal class DiskStorage(
         val file = File("$directory/${Constants.MAIN_FILE_IDX}${id}")
 
         if (file.exists().not()) {
-            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_IDX} in directory $directory")
+            //throw FileNotFoundException("Missing ${Constants.MAIN_FILE_IDX} in directory $directory")
+            return null
         }
-
         return IdxFile(id, file)
     }
 

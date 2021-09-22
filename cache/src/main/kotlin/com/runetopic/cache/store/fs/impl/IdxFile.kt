@@ -31,6 +31,8 @@ internal class IdxFile(
         return ReferenceTable(this, id, sector, length)
     }
 
+    fun exists(): Boolean = file.exists()
+
     private fun validateLengthAtSector(length: Int, sector: Int) {
         if (length < 0) {
             throw IdxFileException("Invalid length for sector Length=$length Sector=$sector")

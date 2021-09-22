@@ -5,6 +5,9 @@ import com.runetopic.cache.crypto.Whirlpool
 import com.runetopic.cache.exception.ProtocolException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
+import com.runetopic.cache.store.fs.IDatFile
+import com.runetopic.cache.store.fs.IIdxFile
+import com.runetopic.cache.store.fs.impl.DatFile
 import com.runetopic.cache.store.fs.impl.IdxFile
 import java.nio.ByteBuffer
 import java.util.*
@@ -49,7 +52,7 @@ internal data class ReferenceTable(
         }
     }
 
-    fun loadIndex(indexId: Int, whirlpool: ByteArray, data: ByteArray): Js5Index {
+    fun loadIndex(datFile: IDatFile, idxFile: IIdxFile, whirlpool: ByteArray, data: ByteArray): Js5Index {
         val container = Compression.decompress(data, emptyArray())
         val buffer = ByteBuffer.wrap(container.data)
         val protocol = buffer.readUnsignedByte()
@@ -90,17 +93,17 @@ internal data class ReferenceTable(
         val groups = hashMapOf<Int, Js5Group>()
         (0 until count).forEach {
             groups[it] = (Js5Group(
-                indexId = indexId,
                 groupId = validGroupIds[it],
                 nameHash = if (isNamed) nameHashes[validGroupIds[it]] else -1,
                 crc = crcs[validGroupIds[it]],
                 whirlpool = if (isUsingWhirlPool) whirlpools[validGroupIds[it]] else byteArrayOf(),
                 revision = revisions[validGroupIds[it]],
                 keys = intArrayOf(),
-                files = files[it]
+                files = files[it],
+                data = datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(it))
             ))
         }
-        return Js5Index(indexId, container.crc, whirlpool, container.compression, protocol, revision, isNamed, groups)
+        return Js5Index(idxFile.id(), container.crc, whirlpool, container.compression, protocol, revision, isNamed, groups)
     }
 
     private fun entries(

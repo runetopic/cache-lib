@@ -1,10 +1,9 @@
 package com.runetopic.cache.store
 
-import com.runetopic.cache.crypto.Whirlpool
-
-import com.runetopic.cache.Js5Group
 import com.runetopic.cache.Js5File
+import com.runetopic.cache.Js5Group
 import com.runetopic.cache.Js5Index
+import com.runetopic.cache.crypto.Whirlpool
 import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.impl.DiskStorage
 import java.io.Closeable
@@ -61,12 +60,12 @@ class Store(
 
     fun groupReferenceTableSize(indexId: Int, groupName: String): Int {
         val referenceTable = storage.loadReferenceTable(index(indexId), groupName)
-        return if (referenceTable.isEmpty()) 0 else referenceTable.size
+        return if (referenceTable.isEmpty()) 0 else referenceTable.size - 2
     }
 
     fun groupReferenceTableSize(indexId: Int, groupId: Int): Int {
         val referenceTable = storage.loadReferenceTable(index(indexId), groupId)
-        return if (referenceTable.isEmpty()) 0 else referenceTable.size
+        return if (referenceTable.isEmpty()) 0 else referenceTable.size - 2
     }
 
     fun groupReferenceTable(indexId: Int, groupId: Int): ByteArray {
@@ -74,28 +73,25 @@ class Store(
     }
 
     fun generateUpdateKeys(exponent: BigInteger, modulus: BigInteger): ByteArray {
-        val buffer = ByteBuffer.allocate((6 + indexes.size) * 72)
-        buffer
-            .position(5)
-            .put(indexes.size.toByte())
+        val raw = ByteBuffer.allocate(3072)
+        raw.position(5)
+        raw.put(indexes.size.toByte())
         indexes.forEach {
-            buffer
-                .putInt(it.crc)
-                .putInt(it.revision)
-                .put(it.whirlpool)
+            raw.putInt(it.crc)
+            raw.putInt(it.revision)
+            raw.put(it.whirlpool)
         }
-        val groupArray = buffer.array()
-        val whirlpoolBuffer = ByteBuffer
-            .allocate(Whirlpool.DIGESTBYTES + 1)
-            .put(1)
-            .put(Whirlpool.digest(groupArray, 5, groupArray.size - 5))
-        buffer.put(BigInteger(whirlpoolBuffer.array()).modPow(exponent, modulus).toByteArray())
-        val end = buffer.position() + 1
+        val whirlpool = ByteBuffer.allocate(Whirlpool.DIGESTBYTES + 1)
+        whirlpool.put(1)
+        whirlpool.put(Whirlpool.digest(raw.array(), 5, raw.position() - 5))
+        raw.put(BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray())
+        val buffer = ByteBuffer.allocate(raw.position())
+        buffer.put(raw.array(), 0, raw.position())
+        val position = buffer.position()
         buffer.position(0)
-        buffer
-            .put(0)
-            .putInt(end - 5)
-        buffer.position(end)
+        buffer.put(0)
+        buffer.putInt(position - 5)
+        buffer.position(position)
         return buffer.array()
     }
 
