@@ -16,7 +16,7 @@ It currently only supports reading from the cache as of now.
 # Gradle
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.2-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.3-SNAPSHOT" }
 loader = { module = "com.runetopic.cache:loader", version.ref "647.3.0-SNAPSHOT" }
 ```
 
