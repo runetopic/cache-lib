@@ -17,7 +17,7 @@ internal class InventoryEntryBuilder: IEntryBuilder<InventoryEntryType> {
     override fun build(store: Store) {
         inventoryTypes = buildSet {
             store.index(2).use { index ->
-                index.files(5).forEach {
+                index.getFiles(5).forEach {
                     add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), InventoryEntryType(it.id)))
                 }
             }

@@ -18,7 +18,7 @@ internal class LightingEntryBuilder : IEntryBuilder<LightingEntryType> {
     override fun build(store: Store) {
         lightings = buildSet {
             store.index(2).use { index ->
-                index.files(31).forEach {
+                index.getFiles(31).forEach {
                     add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), LightingEntryType(it.id)))
                 }
             }

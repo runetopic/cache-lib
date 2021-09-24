@@ -25,7 +25,7 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
                     val regionX: Int = regionId shr 8
                     val regionY: Int = regionId and 0xFF
                     store.group(it, "m${regionX}_${regionY}")?.let { group ->
-                        val container = Compression.decompress(group.data!!, emptyArray())
+                        val container = Compression.decompress(group.getData(), emptyArray())
                         add(read(ByteBuffer.wrap(container.data), MapEntryType(regionId, regionX, regionY)))
                     }
                 }

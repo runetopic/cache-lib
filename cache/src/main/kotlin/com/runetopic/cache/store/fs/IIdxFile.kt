@@ -1,6 +1,6 @@
 package com.runetopic.cache.store.fs
 
-import com.runetopic.cache.ReferenceTable
+import com.runetopic.cache.hierarchy.ReferenceTable
 import java.io.Closeable
 
 /**

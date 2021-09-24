@@ -1,6 +1,5 @@
 package com.runetopic.cache.compression
 
-import com.runetopic.cache.Container
 import com.runetopic.cache.compression.CompressionType.*
 import com.runetopic.cache.exception.CompressionException
 import com.runetopic.cache.extension.decipherXTEA

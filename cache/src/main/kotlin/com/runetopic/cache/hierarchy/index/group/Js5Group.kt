@@ -1,30 +1,35 @@
-package com.runetopic.cache
+package com.runetopic.cache.hierarchy.index.group
 
 import com.runetopic.cache.compression.Compression
 import com.runetopic.cache.exception.FileDataException
+import com.runetopic.cache.hierarchy.index.group.file.Js5File
 import java.nio.ByteBuffer
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-open class Js5Group(
-    internal val groupId: Int,
-    internal val nameHash: Int,
-    internal val crc: Int,
-    internal val whirlpool: ByteArray,
-    internal val revision: Int,
-    internal val keys: IntArray,
-    internal val files: Array<Js5File>,
-    val data: ByteArray
-): Comparable<Js5Group> {
-
-    override fun compareTo(other: Js5Group): Int {
-        return groupId.compareTo(other.groupId)
-    }
+class Js5Group(
+    private val groupId: Int,
+    private val nameHash: Int,
+    private val crc: Int,
+    private val whirlpool: ByteArray,
+    private val revision: Int,
+    private val keys: IntArray,
+    private val files: Array<Js5File>,
+    private val data: ByteArray
+): IJs5Group {
+    override fun getId(): Int = groupId
+    override fun getNameHash(): Int = nameHash
+    override fun getCRC(): Int = crc
+    override fun getWhirlpool(): ByteArray = whirlpool
+    override fun getRevision(): Int = revision
+    override fun getKeys(): IntArray = keys
+    override fun getFiles(): Array<Js5File> = files
+    override fun getData(): ByteArray = data
 
     internal fun loadFiles(file: Js5File) {
-        val decompressed = Compression.decompress(data!!, emptyArray())
+        val decompressed = Compression.decompress(data, emptyArray())
         val count = files.size
         if (count == 1) {
             file.data = decompressed.data

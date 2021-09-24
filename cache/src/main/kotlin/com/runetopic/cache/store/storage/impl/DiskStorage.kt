@@ -1,12 +1,12 @@
 package com.runetopic.cache.store.storage.impl
 
 import com.github.michaelbull.logging.InlineLogger
-import com.runetopic.cache.Js5File
-import com.runetopic.cache.Js5Group
-import com.runetopic.cache.Js5Index
-import com.runetopic.cache.ReferenceTable
 import com.runetopic.cache.crypto.Whirlpool
 import com.runetopic.cache.extension.whirlpool
+import com.runetopic.cache.hierarchy.ReferenceTable
+import com.runetopic.cache.hierarchy.index.Js5Index
+import com.runetopic.cache.hierarchy.index.group.Js5Group
+import com.runetopic.cache.hierarchy.index.group.file.Js5File
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Store
 import com.runetopic.cache.store.fs.IDatFile
@@ -78,7 +78,7 @@ internal class DiskStorage(
 
     override fun loadFile(index: Js5Index, groupId: Int, fileId: Int): Js5File {
         val group = loadGroup(index, groupId)!!
-        val file = group.files.find { it.id == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
+        val file = group.getFiles().find { it.id == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
         //a file not found with have data != null with a byte of 0 which will auto break a loader at opcode 0.
         file.data ?: group.loadFiles(file)
         return file
@@ -89,26 +89,17 @@ internal class DiskStorage(
     }
 
     override fun loadReferenceTable(index: Js5Index, groupId: Int): ByteArray {
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(groupId))
+        return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(groupId))
     }
 
     override fun loadReferenceTable(index: Js5Index, groupName: String): ByteArray {
         val group = index.getGroup(groupName) ?: return byteArrayOf()
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(group.groupId))
+        return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(group.getId()))
     }
 
     private fun getIdxFile(id: Int): IdxFile {
-        val cachedIndexFile = idxFiles.find { it.id() == id }
-
-        if (cachedIndexFile != null) return cachedIndexFile
-
-        val file = File("$directory/${Constants.MAIN_FILE_IDX}${id}")
-
-//        if (file.exists().not()) {
-//            //throw FileNotFoundException("Missing ${Constants.MAIN_FILE_IDX} in directory $directory")
-//            return null
-//        }
-        return IdxFile(id, file)
+        idxFiles.find { it.id() == id }?.let { return it }
+        return IdxFile(id, File("$directory/${Constants.MAIN_FILE_IDX}${id}"))
     }
 
     override fun close() {
