@@ -74,7 +74,7 @@ class Store(
     }
 
     fun checksumsWithRSA(exponent: BigInteger, modulus: BigInteger): ByteArray {
-        val header = ByteBuffer.allocate(indexes.size.times(72).plus(6))
+        val header = ByteBuffer.allocate(indexes.size * 72 + 6)
         header.position(5)
         header.put(indexes.size.toByte())
         indexes.forEach {
@@ -85,15 +85,15 @@ class Store(
         val headerPosition = header.position()
         val headerArray = header.array()
 
-        val whirlpool = ByteBuffer.allocate(Whirlpool.DIGESTBYTES.plus(1))
+        val whirlpool = ByteBuffer.allocate(Whirlpool.DIGESTBYTES + 1)
         whirlpool.put(1)
-        whirlpool.put(Whirlpool.digest(headerArray, 5, headerPosition.minus(5)))
+        whirlpool.put(Whirlpool.digest(headerArray, 5, headerPosition - 5))
         val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
 
         val checksums = ByteBuffer.allocate(headerPosition.plus(rsa.size))
         checksums.put(0)
-        checksums.putInt((headerPosition.plus(rsa.size)).minus(5))
-        checksums.put(headerArray, 5, headerPosition.minus(5))
+        checksums.putInt((headerPosition.plus(rsa.size)) - 5)
+        checksums.put(headerArray, 5, headerPosition - 5)
         checksums.put(rsa)
         return checksums.array()
     }
