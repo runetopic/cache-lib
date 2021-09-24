@@ -10,7 +10,7 @@ import java.nio.ByteBuffer
  * @email <xlitersps@gmail.com>
  */
 class Js5Group(
-    private val groupId: Int,
+    private val id: Int,
     private val nameHash: Int,
     private val crc: Int,
     private val whirlpool: ByteArray,
@@ -18,8 +18,8 @@ class Js5Group(
     private val keys: IntArray,
     private val files: Array<Js5File>,
     private val data: ByteArray
-): IJs5Group {
-    override fun getId(): Int = groupId
+): IGroup {
+    override fun getId(): Int = id
     override fun getNameHash(): Int = nameHash
     override fun getCRC(): Int = crc
     override fun getWhirlpool(): ByteArray = whirlpool
@@ -29,6 +29,7 @@ class Js5Group(
     override fun getData(): ByteArray = data
 
     internal fun loadFiles(file: Js5File) {
+        //TODO: Make this better.
         val decompressed = Compression.decompress(data, emptyArray())
         val count = files.size
         if (count == 1) {

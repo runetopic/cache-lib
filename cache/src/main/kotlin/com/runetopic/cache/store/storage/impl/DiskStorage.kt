@@ -9,10 +9,10 @@ import com.runetopic.cache.hierarchy.index.group.Js5Group
 import com.runetopic.cache.hierarchy.index.group.file.Js5File
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Store
-import com.runetopic.cache.store.fs.IDatFile
-import com.runetopic.cache.store.fs.IIdxFile
-import com.runetopic.cache.store.fs.impl.DatFile
-import com.runetopic.cache.store.fs.impl.IdxFile
+import com.runetopic.cache.store.js5.IDatFile
+import com.runetopic.cache.store.js5.IIdxFile
+import com.runetopic.cache.store.js5.impl.DatFile
+import com.runetopic.cache.store.js5.impl.IdxFile
 import com.runetopic.cache.store.storage.IStorage
 import java.io.File
 import java.io.FileNotFoundException

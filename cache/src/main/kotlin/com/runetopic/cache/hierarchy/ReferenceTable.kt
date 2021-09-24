@@ -8,9 +8,9 @@ import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.hierarchy.index.Js5Index
 import com.runetopic.cache.hierarchy.index.group.Js5Group
 import com.runetopic.cache.hierarchy.index.group.file.Js5File
-import com.runetopic.cache.store.fs.IDatFile
-import com.runetopic.cache.store.fs.IIdxFile
-import com.runetopic.cache.store.fs.impl.IdxFile
+import com.runetopic.cache.store.js5.IDatFile
+import com.runetopic.cache.store.js5.IIdxFile
+import com.runetopic.cache.store.js5.impl.IdxFile
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -97,7 +97,7 @@ internal data class ReferenceTable(
         val groups = hashMapOf<Int, Js5Group>()
         (0 until count).forEach {
             groups[it] = (Js5Group(
-                groupId = validGroupIds[it],
+                id = validGroupIds[it],
                 nameHash = if (isNamed) nameHashes[validGroupIds[it]] else -1,
                 crc = crcs[validGroupIds[it]],
                 whirlpool = if (isUsingWhirlPool) whirlpools[validGroupIds[it]] else ByteArray(Whirlpool.DIGESTBYTES),

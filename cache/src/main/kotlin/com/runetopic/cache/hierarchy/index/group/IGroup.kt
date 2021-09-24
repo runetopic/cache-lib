@@ -5,7 +5,7 @@ import com.runetopic.cache.hierarchy.index.group.file.Js5File
 /**
  * @author Jordan Abraham
  */
-interface IJs5Group: Comparable<IJs5Group> {
+interface IGroup: Comparable<IGroup> {
     fun getId(): Int
     fun getNameHash(): Int
     fun getCRC(): Int
@@ -15,7 +15,7 @@ interface IJs5Group: Comparable<IJs5Group> {
     fun getFiles(): Array<Js5File>
     fun getData(): ByteArray
 
-    override fun compareTo(other: IJs5Group): Int {
+    override fun compareTo(other: IGroup): Int {
         return getId().compareTo(other.getId())
     }
 }

@@ -17,7 +17,7 @@ class Js5Index(
     private val revision: Int,
     private val isNamed: Boolean,
     private val groups: Map<Int, Js5Group>
-): IJs5Index {
+): IIndex {
     override fun getId(): Int = id
     override fun getCRC(): Int = crc
     override fun getWhirlpool(): ByteArray = whirlpool

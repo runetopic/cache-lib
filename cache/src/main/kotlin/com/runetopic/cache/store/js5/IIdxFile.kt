@@ -1,4 +1,4 @@
-package com.runetopic.cache.store.fs
+package com.runetopic.cache.store.js5
 
 import com.runetopic.cache.hierarchy.ReferenceTable
 import java.io.Closeable

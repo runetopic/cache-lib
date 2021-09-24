@@ -1,8 +1,8 @@
-package com.runetopic.cache.store.fs.impl
+package com.runetopic.cache.store.js5.impl
 
 import com.runetopic.cache.exception.IdxFileException
 import com.runetopic.cache.hierarchy.ReferenceTable
-import com.runetopic.cache.store.fs.IIdxFile
+import com.runetopic.cache.store.js5.IIdxFile
 import java.io.File
 import java.io.RandomAccessFile
 
