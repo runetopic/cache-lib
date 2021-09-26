@@ -17,7 +17,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
         npcs = buildSet {
             store.index(18).use { index ->
                 (0..index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).data), NpcEntryType(it)))
+                    add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).getData()), NpcEntryType(it)))
                 }
             }
         }

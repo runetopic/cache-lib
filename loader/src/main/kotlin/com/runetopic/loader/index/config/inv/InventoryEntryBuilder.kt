@@ -18,7 +18,7 @@ internal class InventoryEntryBuilder: IEntryBuilder<InventoryEntryType> {
         inventoryTypes = buildSet {
             store.index(2).use { index ->
                 index.getFiles(5).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), InventoryEntryType(it.id)))
+                    add(read(ByteBuffer.wrap(store.file(index, it.getGroupId(), it.getId()).getData()), InventoryEntryType(it.getId())))
                 }
             }
         }

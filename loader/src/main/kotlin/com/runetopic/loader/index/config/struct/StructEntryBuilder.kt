@@ -21,7 +21,7 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
         structTypes = buildSet {
             store.index(2).use { index ->
                 index.getFiles(26).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), StructEntryType(it.id)))
+                    add(read(ByteBuffer.wrap(store.file(index, it.getGroupId(), it.getId()).getData()), StructEntryType(it.getId())))
                 }
             }
         }

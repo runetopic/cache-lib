@@ -18,7 +18,7 @@ internal class MouseIconEntryBuilder: IEntryBuilder<MouseIconEntryType> {
         mouseIconTypes = buildSet {
             store.index(2).use { index ->
                 index.getFiles(33).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), MouseIconEntryType(it.id)))
+                    add(read(ByteBuffer.wrap(store.file(index, it.getGroupId(), it.getId()).getData()), MouseIconEntryType(it.getId())))
                 }
             }
         }

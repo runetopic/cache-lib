@@ -78,9 +78,9 @@ internal class DiskStorage(
 
     override fun loadFile(index: Js5Index, groupId: Int, fileId: Int): Js5File {
         val group = loadGroup(index, groupId)!!
-        val file = group.getFiles().find { it.id == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
+        val file = group.getFiles().find { it.getId() == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
         //a file not found with have data != null with a byte of 0 which will auto break a loader at opcode 0.
-        file.data ?: group.loadFiles(file)
+        file.getData() ?: group.loadFiles(file)
         return file
     }
 

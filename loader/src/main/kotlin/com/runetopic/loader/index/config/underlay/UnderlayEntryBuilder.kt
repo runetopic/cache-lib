@@ -19,7 +19,7 @@ class UnderlayEntryBuilder: IEntryBuilder<UnderlayEntryType> {
         underlays = buildSet {
             store.index(2).use { index ->
                 index.getFiles(1).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), UnderlayEntryType(it.id)))
+                    add(read(ByteBuffer.wrap(store.file(index, it.getGroupId(), it.getId()).getData()), UnderlayEntryType(it.getId())))
                 }
             }
         }

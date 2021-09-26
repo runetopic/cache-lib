@@ -33,7 +33,7 @@ class Js5Group(
         val decompressed = Compression.decompress(data, emptyArray())
         val count = files.size
         if (count == 1) {
-            file.data = decompressed.data
+            file.setData(decompressed.data)
             return
         }
         var size = decompressed.data.size
@@ -66,7 +66,7 @@ class Js5Group(
             }
         }
 
-        this.files.indices.forEach { this.files[it].data = files[it] }
-        file.data ?: throw FileDataException("Could not load group files from archive.")
+        this.files.indices.forEach { this.files[it].setData(files[it]) }
+        file.getData() ?: throw FileDataException("Could not load group files from archive.")
     }
 }

@@ -17,7 +17,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
         objs = buildSet {
             store.index(19).use { index ->
                 (0..index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).data), ObjEntryType(it)))
+                    add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).getData()), ObjEntryType(it)))
                 }
             }
         }

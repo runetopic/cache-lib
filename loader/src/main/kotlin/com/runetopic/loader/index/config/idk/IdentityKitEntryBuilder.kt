@@ -20,7 +20,7 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
         identityKitTypes = buildSet {
             store.index(2).use { index ->
                 index.getFiles(3).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), IdentityKitEntryType(it.id)))
+                    add(read(ByteBuffer.wrap(store.file(index, it.getGroupId(), it.getId()).getData()), IdentityKitEntryType(it.getId())))
                 }
             }
         }

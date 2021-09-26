@@ -20,7 +20,7 @@ internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
         paramTypes = buildSet {
             store.index(2).use { index ->
                 index.getFiles(11).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), ParamEntryType(it.id)))
+                    add(read(ByteBuffer.wrap(store.file(index, it.getGroupId(), it.getId()).getData()), ParamEntryType(it.getId())))
                 }
             }
         }

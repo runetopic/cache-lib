@@ -18,7 +18,7 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
         spotAnimations = buildSet {
             store.index(21).use { index ->
                 (0 until index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).data), SpotAnimationEntryType(it)))
+                    add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).getData()), SpotAnimationEntryType(it)))
                 }
             }
         }

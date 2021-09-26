@@ -19,7 +19,7 @@ internal class LightingEntryBuilder : IEntryBuilder<LightingEntryType> {
         lightings = buildSet {
             store.index(2).use { index ->
                 index.getFiles(31).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), LightingEntryType(it.id)))
+                    add(read(ByteBuffer.wrap(store.file(index, it.getGroupId(), it.getId()).getData()), LightingEntryType(it.getId())))
                 }
             }
         }
