@@ -73,6 +73,15 @@ class Store(
         return storage.loadReferenceTable(index(indexId), groupId)
     }
 
+    fun checksumsWithoutRSA(): ByteArray {
+        val header = ByteBuffer.allocate(indexes.size * 8)
+        indexes.forEach {
+            header.putInt(it.getCRC())
+            header.putInt(it.getRevision())
+        }
+        return header.array()
+    }
+
     fun checksumsWithRSA(exponent: BigInteger, modulus: BigInteger): ByteArray {
         val header = ByteBuffer.allocate(indexes.size * 72 + 6)
         header.position(5)
