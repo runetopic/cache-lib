@@ -3,8 +3,11 @@
 [![Discord](https://img.shields.io/discord/212385463418355713?color=%237289DA&logo=Discord&logoColor=%237289DA)](https://discord.gg/3scgBkrfMG)
 [![License](https://img.shields.io/github/license/xlite2/xlite)](#)
 
-This library is still a work in progress, and is currently built around RS2 Caches 647 to be specific. 
-It currently only supports reading from the cache as of now.
+This library is still a work in progress, and is currently built around RS2 Caches. It currently only supports reading from the cache as of now.
+
+# Supported
+- RS2 (414-659)
+- OSRS (1-current)
 
 # Features
 - Cache Reading
@@ -12,6 +15,9 @@ It currently only supports reading from the cache as of now.
 # TODO
 - Cache Writing
 - Flat file system for unpacking the cache files into a raw format that can be git versioned.
+- Support for RS2 caches bigger than revision 659.
+- ~317 cache format support.
+- RS3 caches.
 
 # Gradle
 Just use cache if you do not require any of the revision specific loaders.
