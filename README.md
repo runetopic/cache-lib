@@ -74,14 +74,10 @@ Index -> Group -> File
 ```store.groupReferenceTableSize(indexId = 30, groupId = 6)```
 
 ### Getting 255, 255 checksums with RSA/Whirlpool
-```
-val checksums = store.checksumsWithRSA(exponent = BigInteger(""), modulus = BigInteger(""))
-```
+```val checksums = store.checksumsWithRSA(exponent = BigInteger(""), modulus = BigInteger(""))```
 
 ### Getting 255, 255 checksums without RSA/Whirlpool
-```
-val checksums = store.checksumsWithoutRSA()
-```
+```val checksums = store.checksumsWithoutRSA()```
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
