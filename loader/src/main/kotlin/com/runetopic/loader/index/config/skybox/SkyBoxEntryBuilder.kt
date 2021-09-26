@@ -17,7 +17,7 @@ internal class SkyBoxEntryBuilder: IEntryBuilder<SkyBoxEntryType> {
     override fun build(store: Store) {
         skyBoxTypes = buildSet {
             store.index(2).use { index ->
-                index.files(29).forEach {
+                index.getFiles(29).forEach {
                     add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), SkyBoxEntryType(it.id)))
                 }
             }

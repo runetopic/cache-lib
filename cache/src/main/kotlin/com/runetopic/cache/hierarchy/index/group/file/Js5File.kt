@@ -1,4 +1,4 @@
-package com.runetopic.cache
+package com.runetopic.cache.hierarchy.index.group.file
 
 /**
  * @author Tyler Telis
@@ -7,7 +7,7 @@ package com.runetopic.cache
 data class Js5File(
     val groupId: Int = -1,
     val id: Int = -1,
-    internal var nameHash: Int = -1,
+    internal val nameHash: Int = -1,
     var data: ByteArray? = null
 ) {
     override fun equals(other: Any?): Boolean {

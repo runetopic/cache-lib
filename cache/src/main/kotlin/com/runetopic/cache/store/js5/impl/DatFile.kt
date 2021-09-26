@@ -1,10 +1,10 @@
-package com.runetopic.cache.store.fs.impl
+package com.runetopic.cache.store.js5.impl
 
-import com.runetopic.cache.ReferenceTable
 import com.runetopic.cache.exception.DatFileException
 import com.runetopic.cache.exception.EndOfDatFileException
+import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.store.Constants.SECTOR_SIZE
-import com.runetopic.cache.store.fs.IDatFile
+import com.runetopic.cache.store.js5.IDatFile
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer

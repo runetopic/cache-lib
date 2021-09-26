@@ -19,7 +19,7 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
     override fun build(store: Store) {
         particles = buildSet {
             store.index(27).use { index ->
-                index.files(0).forEach {
+                index.getFiles(0).forEach {
                     add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), ParticleEntryType(it.id)))
                 }
             }
