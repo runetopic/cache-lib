@@ -13,7 +13,7 @@ interface IIndex: Comparable<IIndex> {
     fun getProtocol(): Int
     fun getRevision(): Int
     fun getIsNamed(): Boolean
-    fun getGroups(): Map<Int, IGroup>
+    fun getGroups(): Collection<IGroup>
     fun getGroup(groupId: Int): IGroup
     fun getGroup(groupName: String): IGroup
     fun expand(): Int

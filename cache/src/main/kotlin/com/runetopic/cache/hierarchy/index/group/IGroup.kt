@@ -12,7 +12,7 @@ interface IGroup: Comparable<IGroup> {
     fun getWhirlpool(): ByteArray
     fun getRevision(): Int
     fun getKeys(): IntArray
-    fun getFiles(): Map<Int, IFile>
+    fun getFiles(): Collection<IFile>
     fun getData(): ByteArray
     fun getFile(fileId: Int): IFile
 

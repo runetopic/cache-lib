@@ -25,7 +25,7 @@ class Js5Group(
     override fun getWhirlpool(): ByteArray = whirlpool
     override fun getRevision(): Int = revision
     override fun getKeys(): IntArray = keys
-    override fun getFiles(): Map<Int, IFile> = files
+    override fun getFiles(): Collection<IFile> = files.values
     override fun getData(): ByteArray = data
 
     override fun getFile(fileId: Int): IFile = files[fileId] ?: Js5File.DEFAULT
