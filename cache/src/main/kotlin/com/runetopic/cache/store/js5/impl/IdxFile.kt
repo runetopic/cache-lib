@@ -17,6 +17,7 @@ internal class IdxFile(
     private val idxFile: RandomAccessFile = RandomAccessFile(file, "rw")
     private val readBuffer = ByteArray(ENTRY_LIMIT)
 
+    @Synchronized
     override fun loadReferenceTable(id: Int): ReferenceTable {
         idxFile.seek((id * ENTRY_LIMIT).toLong())
         validateHeader()

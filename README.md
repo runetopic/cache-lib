@@ -3,7 +3,7 @@
 [![Discord](https://img.shields.io/discord/212385463418355713?color=%237289DA&logo=Discord&logoColor=%237289DA)](https://discord.gg/3scgBkrfMG)
 [![License](https://img.shields.io/github/license/xlite2/xlite)](#)
 
-This library is still a work in progress, and is currently built around RS2 Caches. It currently only supports reading from the cache as of now.
+A thread-safe cache library written in Kotlin. 
 
 # Supported
 - RS2 (414-659)
@@ -11,6 +11,10 @@ This library is still a work in progress, and is currently built around RS2 Cach
 
 # Features
 - Cache Reading
+- Thread-safe
+  - Cache Building
+  - Definition/Loaders Building
+- Fast
 
 # TODO
 - Cache Writing
@@ -22,8 +26,8 @@ This library is still a work in progress, and is currently built around RS2 Cach
 # Gradle
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.4-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.4.0-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.5-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.5.0-SNAPSHOT" }
 ```
 
 # Usage
@@ -88,6 +92,34 @@ val file = group.getFile(fileId = 1000)
 
 ### Getting 255, 255 checksums without RSA/Whirlpool
 ```val checksums = store.checksumsWithoutRSA()```
+
+### An example of a single thread loading providers
+```
+objs().load(store)
+npcs().load(store)
+locs().load(store)
+particles().load(store)
+```
+
+### An example of multiple threads parallel loading providers
+```
+val pool = Executors.newFixedThreadPool(4)
+val providers = listOf(
+    objs(),
+    npcs(),
+    locs(),
+    particles()
+)
+val latch = CountDownLatch(providers.size)
+providers.forEach {
+    pool.execute {
+        it.load(store)
+        latch.countDown()
+    }
+}
+latch.await()
+pool.shutdown()
+```
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

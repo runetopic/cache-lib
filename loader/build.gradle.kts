@@ -4,7 +4,7 @@ plugins {
     signing
 }
 
-version = "647.4.0-SNAPSHOT"
+version = "647.5.0-SNAPSHOT"
 
 java {
     withJavadocJar()

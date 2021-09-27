@@ -30,7 +30,6 @@ internal class DiskStorage(
     private var masterIdxFile: IIdxFile
     private var datFile: IDatFile
     private var idxFiles: ArrayList<IdxFile> = arrayListOf()
-    private var indexReferenceTables: ArrayList<ReferenceTable> = arrayListOf()
     private val logger = InlineLogger()
 
     init {
@@ -53,31 +52,29 @@ internal class DiskStorage(
     override fun init(store: Store) {
         val cores = Runtime.getRuntime().availableProcessors()
         var pool: ExecutorService? = null
-        if (cores > 2) {
+        if (cores > 4) {
             pool = Executors.newFixedThreadPool(if (cores > 8) 4 else 2)
         }
         val latch = CountDownLatch(masterIdxFile.validIndexCount())
 
         (0 until masterIdxFile.validIndexCount()).forEach {
             val referenceTable = masterIdxFile.loadReferenceTable(it)
-            indexReferenceTables.add(referenceTable)
             idxFiles.add(getIdxFile(it))
 
-            val indexTable = indexReferenceTables.find { id -> id.id == it }!!
-            if (indexTable.exists().not()) {
+            if (referenceTable.exists().not()) {
                 store.addIndex(Js5Index.default(it))
                 latch.countDown()
                 return@forEach
             }
-            val datTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
+            val datTable = datFile.readReferenceTable(masterIdxFile.id(), referenceTable)
 
             pool?.let { service ->
                 service.execute {
-                    store.addIndex(loadIndex(indexTable, it, ByteBuffer.wrap(datTable).whirlpool(), datTable))
+                    store.addIndex(loadIndex(referenceTable, it, ByteBuffer.wrap(datTable).whirlpool(), datTable))
                     latch.countDown()
                 }
             } ?: run {
-                store.addIndex(loadIndex(indexTable, it, ByteBuffer.wrap(datTable).whirlpool(), datTable))
+                store.addIndex(loadIndex(referenceTable, it, ByteBuffer.wrap(datTable).whirlpool(), datTable))
                 latch.countDown()
             }
         }
