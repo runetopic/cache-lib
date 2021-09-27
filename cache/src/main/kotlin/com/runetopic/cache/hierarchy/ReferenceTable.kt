@@ -245,7 +245,7 @@ internal data class ReferenceTable(
         }
 
         if (count == 1) {
-            return hashMapOf(Pair(0, Js5File(groupId, fileIds[groupId][0], fileNameHashes[groupId][0], src)))
+            return hashMapOf(Pair(0, Js5File(fileIds[groupId][0], fileNameHashes[groupId][0], src)))
         }
 
         var position = src.size
@@ -280,7 +280,7 @@ internal data class ReferenceTable(
 
         val files = hashMapOf<Int, Js5File>()
         (0 until count).forEach {
-            files[it] = Js5File(groupId, fileIds[groupId][it], fileNameHashes[groupId][it], filesDatas[it])
+            files[it] = Js5File(fileIds[groupId][it], fileNameHashes[groupId][it], filesDatas[it])
         }
         return files
     }
