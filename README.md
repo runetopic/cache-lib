@@ -92,6 +92,13 @@ val file = group.getFile(fileId = 1000)
 ### Getting 255, 255 checksums without RSA/Whirlpool
 ```val checksums = store.checksumsWithoutRSA()```
 
+### Decompressing a group
+```
+val index = store.index(indexId = 5)
+val group = index.getGroup(groupName = "m50_50")
+val decompressed = group.getData().decompress()
+```
+
 ### An example of a single thread loading providers
 ```
 objs().load(store)
