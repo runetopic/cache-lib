@@ -29,6 +29,11 @@ loader = { module = "com.runetopic.cache:loader", version.ref "647.4.0-SNAPSHOT"
 # Usage
 Index -> Group -> File
 
+### Creating a new store
+```
+val store = Store(File("/filepath/"))
+```
+
 ### Getting an index
 ```
 val index = store.index(indexId = 5)
