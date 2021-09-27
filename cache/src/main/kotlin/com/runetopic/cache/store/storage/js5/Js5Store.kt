@@ -1,13 +1,12 @@
-package com.runetopic.cache.store
+package com.runetopic.cache.store.storage.js5
 
 import com.runetopic.cache.hierarchy.index.IIndex
-import com.runetopic.cache.store.storage.IStorage
-import com.runetopic.cache.store.storage.impl.DiskStorage
+import com.runetopic.cache.store.Constants
 import com.runetopic.cryptography.ext.toWhirlpool
 import java.io.Closeable
-import java.io.File
 import java.math.BigInteger
 import java.nio.ByteBuffer
+import java.nio.file.Path
 
 /**
  * @author Tyler Telis
@@ -15,11 +14,11 @@ import java.nio.ByteBuffer
  *
  * @author Jordan Abraham
  */
-class Store(
-    directory: File
+class Js5Store(
+    path: Path
 ) : Closeable {
-    private var storage: IStorage = DiskStorage(directory)
-    private val indexes: ArrayList<IIndex> = arrayListOf()
+    private var storage = Js5DiskStorage(path)
+    private val indexes = arrayListOf<IIndex>()
 
     init {
         this.storage.init(this)

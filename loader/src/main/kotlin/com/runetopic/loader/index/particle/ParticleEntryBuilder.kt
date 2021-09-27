@@ -4,7 +4,7 @@ import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.extension.skip
 import com.runetopic.cache.extension.toBoolean
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -16,7 +16,7 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
     lateinit var particles: Set<ParticleEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         particles = buildSet {
             store.index(27).getGroup(0).getFiles().forEach {
                 add(read(ByteBuffer.wrap(it.getData()), ParticleEntryType(it.getId())))

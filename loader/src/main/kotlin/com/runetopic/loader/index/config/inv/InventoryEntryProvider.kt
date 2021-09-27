@@ -1,6 +1,6 @@
 package com.runetopic.loader.index.config.inv
 
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import com.runetopic.loader.IEntryProvider
 
 
@@ -11,7 +11,7 @@ class InventoryEntryProvider : IEntryProvider<InventoryEntryType> {
 
     private val builder = InventoryEntryBuilder()
 
-    override fun load(store: Store) {
+    override fun load(store: Js5Store) {
         builder.build(store)
     }
 

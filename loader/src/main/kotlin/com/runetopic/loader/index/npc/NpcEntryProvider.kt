@@ -1,6 +1,6 @@
 package com.runetopic.loader.index.npc
 
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import com.runetopic.loader.IEntryProvider
 
 /**
@@ -10,7 +10,7 @@ class NpcEntryProvider: IEntryProvider<NpcEntryType> {
 
     private val builder = NpcEntryBuilder()
 
-    override fun load(store: Store) {
+    override fun load(store: Js5Store) {
         builder.build(store)
     }
 

@@ -1,6 +1,6 @@
 package com.runetopic.loader.index.map
 
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import com.runetopic.loader.IEntryProvider
 
 
@@ -12,7 +12,7 @@ class MapLocationEntryProvider : IEntryProvider<MapLocationEntryType> {
 
     private val builder = MapLocationEntryBuilder()
 
-    override fun load(store: Store) {
+    override fun load(store: Js5Store) {
         builder.build(store)
     }
 

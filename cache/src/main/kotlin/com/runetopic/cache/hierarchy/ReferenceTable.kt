@@ -60,7 +60,7 @@ internal data class ReferenceTable(
     fun exists(): Boolean = (length != 0 && sector != 0)
 
     fun loadIndex(datFile: IDatFile, idxFile: IIdxFile, whirlpool: ByteArray, data: ByteArray): Js5Index {
-        val container = Compression.decompress(data, emptyArray())
+        val container = Compression.decompress(data)
         val buffer = ByteBuffer.wrap(container.data)
         val protocol = buffer.readUnsignedByte()
         var revision = 0
@@ -239,7 +239,7 @@ internal data class ReferenceTable(
         if (groupReferenceTableData.isEmpty()) return hashMapOf(Pair(0, Js5File.DEFAULT))
 
         val src: ByteArray = try {
-            Compression.decompress(groupReferenceTableData, emptyArray()).data
+            Compression.decompress(groupReferenceTableData).data
         } catch (exception: ZipException) {
             groupReferenceTableData
         }

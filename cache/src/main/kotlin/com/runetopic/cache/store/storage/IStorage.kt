@@ -2,7 +2,7 @@ package com.runetopic.cache.store.storage
 
 import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.hierarchy.index.IIndex
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import java.io.Closeable
 import java.io.Flushable
 
@@ -11,7 +11,7 @@ import java.io.Flushable
  * @email <xlitersps@gmail.com>
  */
 internal interface IStorage: Closeable, Flushable {
-    fun init(store: Store)
+    fun init(store: Js5Store)
     fun loadIndex(table: ReferenceTable, indexId: Int, whirlpool: ByteArray, referenceTable: ByteArray): IIndex
     fun loadReferenceTable(index: IIndex, groupId: Int): ByteArray
     fun loadMasterReferenceTable(groupId: Int): ByteArray

@@ -4,7 +4,7 @@ import com.runetopic.cache.extension.readMedium
 import com.runetopic.cache.extension.readString
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.toBoolean
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -17,7 +17,7 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
     lateinit var structTypes: Set<StructEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         structTypes = buildSet {
             store.index(2).getGroup(26).getFiles().forEach {
                 add(read(ByteBuffer.wrap(it.getData()), StructEntryType(it.getId())))

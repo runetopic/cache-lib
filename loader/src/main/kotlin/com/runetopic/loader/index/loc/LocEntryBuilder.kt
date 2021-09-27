@@ -1,7 +1,7 @@
 package com.runetopic.loader.index.loc
 
 import com.runetopic.cache.extension.*
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -14,7 +14,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
     lateinit var mapTypes: Set<LocEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         mapTypes = buildSet {
             store.index(16).use { index ->
                 (0 until index.expand()).forEach {

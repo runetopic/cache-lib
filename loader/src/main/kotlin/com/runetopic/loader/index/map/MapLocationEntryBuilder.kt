@@ -4,7 +4,7 @@ import com.runetopic.cache.compression.Compression
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedIntSmartShortCompat
 import com.runetopic.cache.extension.readUnsignedSmart
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 import java.util.zip.ZipException
@@ -18,7 +18,7 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
     lateinit var mapTypes: Set<MapLocationEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         mapTypes = buildSet {
             store.index(5).use {
                 (0..Short.MAX_VALUE).forEach { regionId ->
@@ -27,7 +27,7 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
                     it.getGroup("l${regionX}_${regionY}").getData().let { data ->
                         if (data.isEmpty()) return@forEach
                         try {
-                            val container = Compression.decompress(data, emptyArray())
+                            val container = Compression.decompress(data)
                             add(read(ByteBuffer.wrap(container.data), MapLocationEntryType(regionId, regionX, regionY)))
                         } catch (exception: ZipException) {
                             println("Couldn't decompress Region $regionId")

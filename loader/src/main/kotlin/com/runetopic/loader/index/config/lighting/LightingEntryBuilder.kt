@@ -2,7 +2,7 @@ package com.runetopic.loader.index.config.lighting
 
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.storage.js5.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -15,7 +15,7 @@ internal class LightingEntryBuilder : IEntryBuilder<LightingEntryType> {
     lateinit var lightings: Set<LightingEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         lightings = buildSet {
             store.index(2).getGroup(31).getFiles().forEach {
                 add(read(ByteBuffer.wrap(it.getData()), LightingEntryType(it.getId())))
