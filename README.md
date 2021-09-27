@@ -10,7 +10,6 @@ A thread-safe cache library written in Kotlin.
 - OSRS (1-current)
 
 # Features
-- Cache Reading
 - Thread-safe
   - Cache Loading
   - Definitions/Providers Loading
