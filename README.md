@@ -29,10 +29,12 @@ A cache library written in Kotlin.
 # Implementation
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.7-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.8-SNAPSHOT" }
 loader = { module = "com.runetopic.cache:loader", version.ref "647.6.1-SNAPSHOT" }
+```
 
-//For the SNAPSHOTS
+```
+//SNAPSHOTS
 maven {
   url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
