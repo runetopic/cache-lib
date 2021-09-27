@@ -4,7 +4,7 @@ package com.runetopic.cache.compression
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-data class Container(
+internal data class Container(
     val data: ByteArray,
     val compression: Int,
     val revision: Int,
