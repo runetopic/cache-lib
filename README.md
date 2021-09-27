@@ -12,8 +12,8 @@ A thread-safe cache library written in Kotlin.
 # Features
 - Cache Reading
 - Thread-safe
-  - Cache Building
-  - Definition/Loaders Building
+  - Cache Loading
+  - Definitions/Providers Loading
 - Fast
 
 # TODO
