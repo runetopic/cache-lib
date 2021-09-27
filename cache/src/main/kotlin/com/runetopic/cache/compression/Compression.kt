@@ -11,6 +11,8 @@ import java.util.zip.CRC32
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 object Compression {
 

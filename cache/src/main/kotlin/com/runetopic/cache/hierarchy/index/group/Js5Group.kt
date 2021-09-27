@@ -6,6 +6,8 @@ import com.runetopic.cache.hierarchy.index.group.file.Js5File
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 class Js5Group(
     private val id: Int,

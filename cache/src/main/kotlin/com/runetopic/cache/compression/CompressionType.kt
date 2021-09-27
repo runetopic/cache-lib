@@ -7,6 +7,8 @@ import com.runetopic.cache.compression.impl.NoFileCodec
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 internal sealed class CompressionType(
     val codec: IFileCodec

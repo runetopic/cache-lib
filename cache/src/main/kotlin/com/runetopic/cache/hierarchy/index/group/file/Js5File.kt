@@ -3,6 +3,8 @@ package com.runetopic.cache.hierarchy.index.group.file
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 class Js5File(
     private val groupId: Int,

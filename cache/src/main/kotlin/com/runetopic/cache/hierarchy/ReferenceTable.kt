@@ -19,6 +19,8 @@ import java.util.zip.ZipException
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 internal data class ReferenceTable(
     val idxFile: IdxFile,
