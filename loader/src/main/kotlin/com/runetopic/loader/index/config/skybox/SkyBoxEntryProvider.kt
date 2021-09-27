@@ -1,6 +1,6 @@
 package com.runetopic.loader.index.config.skybox
 
-import com.runetopic.cache.store.storage.js5.Js5Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryProvider
 
 

@@ -4,7 +4,7 @@ import com.runetopic.cache.extension.readMedium
 import com.runetopic.cache.extension.readString
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.toBoolean
-import com.runetopic.cache.store.storage.js5.Js5Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 

@@ -3,13 +3,12 @@ package com.runetopic.cache.store.storage.js5
 import com.github.michaelbull.logging.InlineLogger
 import com.runetopic.cache.extension.whirlpool
 import com.runetopic.cache.hierarchy.ReferenceTable
-import com.runetopic.cache.hierarchy.index.IIndex
+import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.hierarchy.index.Js5Index
 import com.runetopic.cache.store.Constants
-import com.runetopic.cache.store.js5.IDatFile
-import com.runetopic.cache.store.js5.IIdxFile
-import com.runetopic.cache.store.js5.impl.DatFile
-import com.runetopic.cache.store.js5.impl.IdxFile
+import com.runetopic.cache.store.Js5Store
+import com.runetopic.cache.store.storage.js5.impl.DatFile
+import com.runetopic.cache.store.storage.js5.impl.IdxFile
 import com.runetopic.cache.store.storage.IStorage
 import java.io.File
 import java.io.FileNotFoundException
@@ -91,11 +90,11 @@ internal class Js5DiskStorage(
         return datFile.readReferenceTable(Constants.MASTER_INDEX_ID, masterIdxFile.loadReferenceTable(groupId))
     }
 
-    override fun loadReferenceTable(index: IIndex, groupId: Int): ByteArray {
+    override fun loadReferenceTable(index: Index, groupId: Int): ByteArray {
         return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(groupId))
     }
 
-    override fun loadReferenceTable(index: IIndex, groupName: String): ByteArray {
+    override fun loadReferenceTable(index: Index, groupName: String): ByteArray {
         val group = index.getGroup(groupName)
         if (group.getData().isEmpty()) return group.getData()
         return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(group.getId()))

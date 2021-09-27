@@ -1,22 +1,22 @@
 package com.runetopic.cache.hierarchy.index.group
 
-import com.runetopic.cache.hierarchy.index.group.file.IFile
+import com.runetopic.cache.hierarchy.index.group.file.File
 
 /**
  * @author Jordan Abraham
  */
-interface IGroup: Comparable<IGroup> {
+interface Group: Comparable<Group> {
     fun getId(): Int
     fun getNameHash(): Int
     fun getCRC(): Int
     fun getWhirlpool(): ByteArray
     fun getRevision(): Int
     fun getKeys(): IntArray
-    fun getFiles(): Collection<IFile>
+    fun getFiles(): Collection<File>
     fun getData(): ByteArray
-    fun getFile(fileId: Int): IFile
+    fun getFile(fileId: Int): File
 
-    override fun compareTo(other: IGroup): Int {
+    override fun compareTo(other: Group): Int {
         return getId().compareTo(other.getId())
     }
 }
