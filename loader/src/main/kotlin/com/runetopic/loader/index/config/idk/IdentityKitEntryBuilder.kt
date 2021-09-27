@@ -19,7 +19,7 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
     override fun build(store: Store) {
         identityKitTypes = buildSet {
             store.index(2).getGroup(3).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.value.getData()), IdentityKitEntryType(it.value.getId())))
+                add(read(ByteBuffer.wrap(it.getData()), IdentityKitEntryType(it.getId())))
             }
         }
     }

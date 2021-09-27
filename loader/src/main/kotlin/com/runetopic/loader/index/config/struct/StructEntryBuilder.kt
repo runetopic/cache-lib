@@ -20,7 +20,7 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
     override fun build(store: Store) {
         structTypes = buildSet {
             store.index(2).getGroup(26).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.value.getData()), StructEntryType(it.value.getId())))
+                add(read(ByteBuffer.wrap(it.getData()), StructEntryType(it.getId())))
             }
         }
     }

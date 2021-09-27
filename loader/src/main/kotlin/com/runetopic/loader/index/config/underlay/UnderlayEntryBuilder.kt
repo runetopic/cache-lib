@@ -18,7 +18,7 @@ class UnderlayEntryBuilder: IEntryBuilder<UnderlayEntryType> {
     override fun build(store: Store) {
         underlays = buildSet {
             store.index(2).getGroup(1).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.value.getData()), UnderlayEntryType(it.value.getId())))
+                add(read(ByteBuffer.wrap(it.getData()), UnderlayEntryType(it.getId())))
             }
         }
     }

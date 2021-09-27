@@ -28,7 +28,7 @@ class Js5Index(
     override fun getRevision(): Int = revision
     override fun getIsNamed(): Boolean = isNamed
 
-    override fun getGroups(): Map<Int, Js5Group> = groups
+    override fun getGroups(): Collection<IGroup> = groups.values
     override fun getGroup(groupId: Int): IGroup = groups[groupId] ?: Js5Group.DEFAULT
     override fun getGroup(groupName: String): IGroup = groups.values.find { it.getNameHash() == groupName.nameHash() } ?: Js5Group.DEFAULT
     override fun expand(): Int = groups.values.last().getFiles().size + (groups.values.last().getId() shl 8)

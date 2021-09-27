@@ -18,7 +18,7 @@ class OverlayEntryBuilder: IEntryBuilder<OverlayEntryType> {
     override fun build(store: Store) {
         overlays = buildSet {
             store.index(2).getGroup(4).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.value.getData()), OverlayEntryType(it.value.getId())))
+                add(read(ByteBuffer.wrap(it.getData()), OverlayEntryType(it.getId())))
             }
         }
     }

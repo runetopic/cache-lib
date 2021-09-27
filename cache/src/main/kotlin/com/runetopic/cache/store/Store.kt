@@ -35,7 +35,7 @@ class Store(
     fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0
         index(indexId).use { index ->
-            index.getGroups().forEach { size += storage.loadReferenceTable(index, it.value.getId()).size }
+            index.getGroups().forEach { size += storage.loadReferenceTable(index, it.getId()).size }
         }
         return size
     }
