@@ -51,7 +51,7 @@ val group = index.getGroup(groupId = 360)
 ### Getting a group by group name
 ```
 val index = store.index(indexId = 5)
-val group = index.getGroup(groupName = "m${50}_${50}")
+val group = index.getGroup(groupName = "m$50_$50")
 ```
 
 ### Getting a file from a group by id
