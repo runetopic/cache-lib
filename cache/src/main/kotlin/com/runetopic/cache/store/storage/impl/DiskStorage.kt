@@ -15,6 +15,10 @@ import com.runetopic.cache.store.storage.IStorage
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Tyler Telis
@@ -47,20 +51,42 @@ internal class DiskStorage(
     }
 
     override fun init(store: Store) {
+        val cores = Runtime.getRuntime().availableProcessors()
+        var pool: ExecutorService? = null
+        if (cores > 2) {
+            pool = Executors.newFixedThreadPool(if (cores > 8) 4 else 2)
+        }
+        val latch = CountDownLatch(masterIdxFile.validIndexCount())
+
         (0 until masterIdxFile.validIndexCount()).forEach {
             val referenceTable = masterIdxFile.loadReferenceTable(it)
             indexReferenceTables.add(referenceTable)
             idxFiles.add(getIdxFile(it))
-            store.addIndex(loadIndex(it))
+
+            val indexTable = indexReferenceTables.find { id -> id.id == it }!!
+            if (indexTable.exists().not()) {
+                store.addIndex(Js5Index.default(it))
+                latch.countDown()
+                return@forEach
+            }
+            val datTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
+
+            pool?.let { service ->
+                service.execute {
+                    store.addIndex(loadIndex(indexTable, it, ByteBuffer.wrap(datTable).whirlpool(), datTable))
+                    latch.countDown()
+                }
+            } ?: run {
+                store.addIndex(loadIndex(indexTable, it, ByteBuffer.wrap(datTable).whirlpool(), datTable))
+                latch.countDown()
+            }
         }
+        latch.await(60, TimeUnit.SECONDS)
+        pool?.shutdown()
         logger.debug { "Loaded ${idxFiles.size} indices." }
     }
 
-    override fun loadIndex(indexId: Int): Js5Index {
-        val table = indexReferenceTables.find { it.id == indexId }!!
-        if (table.exists().not()) return Js5Index.default(indexId)
-        val referenceTable = datFile.readReferenceTable(masterIdxFile.id(), table)
-        val whirlpool = ByteBuffer.wrap(referenceTable).whirlpool()
+    override fun loadIndex(table: ReferenceTable, indexId: Int, whirlpool: ByteArray, referenceTable: ByteArray): Js5Index {
         return table.loadIndex(datFile, getIdxFile(indexId), whirlpool, referenceTable)
     }
 
