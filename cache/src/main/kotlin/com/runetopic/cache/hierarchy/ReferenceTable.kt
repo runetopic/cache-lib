@@ -1,7 +1,6 @@
 package com.runetopic.cache.hierarchy
 
 import com.runetopic.cache.compression.Compression
-import com.runetopic.cache.crypto.Whirlpool
 import com.runetopic.cache.exception.ProtocolException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
@@ -150,11 +149,11 @@ internal data class ReferenceTable(
         buffer: ByteBuffer,
         groupIds: IntArray,
     ): Array<ByteArray> {
-        val whirlpools = Array(largestGroupId) { ByteArray(Whirlpool.DIGESTBYTES) }
+        val whirlpools = Array(largestGroupId) { ByteArray(64) }
         if (usesWhirlpool.not()) return whirlpools
 
         (0 until count).forEach {
-            val whirlpool = ByteArray(Whirlpool.DIGESTBYTES)
+            val whirlpool = ByteArray(64)
             buffer.get(whirlpool)
             whirlpools[groupIds[it]] = whirlpool
         }

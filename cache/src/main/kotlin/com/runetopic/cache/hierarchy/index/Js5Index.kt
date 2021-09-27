@@ -32,4 +32,8 @@ class Js5Index(
     override fun getGroup(groupId: Int): IGroup = groups[groupId] ?: Js5Group.DEFAULT
     override fun getGroup(groupName: String): IGroup = groups.values.find { it.getNameHash() == groupName.nameHash() } ?: Js5Group.DEFAULT
     override fun expand(): Int = groups.values.last().getFiles().size + (groups.values.last().getId() shl 8)
+
+    internal companion object {
+        fun default(indexId: Int): Js5Index = Js5Index(indexId, 0, ByteArray(64), -1, -1, 0, false, hashMapOf())
+    }
 }

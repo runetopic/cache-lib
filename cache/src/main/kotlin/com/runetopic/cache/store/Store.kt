@@ -1,9 +1,9 @@
 package com.runetopic.cache.store
 
-import com.runetopic.cache.crypto.Whirlpool
 import com.runetopic.cache.hierarchy.index.IIndex
 import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.impl.DiskStorage
+import com.runetopic.cryptography.ext.toWhirlpool
 import java.io.Closeable
 import java.io.File
 import java.math.BigInteger
@@ -76,9 +76,9 @@ class Store(
         val headerPosition = header.position()
         val headerArray = header.array()
 
-        val whirlpool = ByteBuffer.allocate(Whirlpool.DIGESTBYTES + 1)
+        val whirlpool = ByteBuffer.allocate(64 + 1)
         whirlpool.put(1)
-        whirlpool.put(Whirlpool.digest(headerArray, 5, headerPosition - 5))
+        whirlpool.put(ByteBuffer.wrap(headerArray, 5, headerPosition - 5).array().toWhirlpool())
         val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
 
         val checksums = ByteBuffer.allocate(headerPosition.plus(rsa.size))

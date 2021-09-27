@@ -1,7 +1,6 @@
 package com.runetopic.cache.store.storage.impl
 
 import com.github.michaelbull.logging.InlineLogger
-import com.runetopic.cache.crypto.Whirlpool
 import com.runetopic.cache.extension.whirlpool
 import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.hierarchy.index.IIndex
@@ -59,9 +58,7 @@ internal class DiskStorage(
 
     override fun loadIndex(indexId: Int): Js5Index {
         val table = indexReferenceTables.find { it.id == indexId }!!
-        if (table.exists().not()) {
-            return Js5Index(indexId, 0, ByteArray(Whirlpool.DIGESTBYTES), -1, -1, 0, false, hashMapOf())
-        }
+        if (table.exists().not()) return Js5Index.default(indexId)
         val referenceTable = datFile.readReferenceTable(masterIdxFile.id(), table)
         val whirlpool = ByteBuffer.wrap(referenceTable).whirlpool()
         return table.loadIndex(datFile, getIdxFile(indexId), whirlpool, referenceTable)
