@@ -1,9 +1,12 @@
-# Xlite 2.0 Cache Library
+# RuneTopic Cache Library
 
 [![Discord](https://img.shields.io/discord/212385463418355713?color=%237289DA&logo=Discord&logoColor=%237289DA)](https://discord.gg/3scgBkrfMG)
 [![License](https://img.shields.io/github/license/xlite2/xlite)](#)
 
 A cache library written in Kotlin. 
+
+# Requirements
+- Java Version 16
 
 # Supported
 - RS2 (414-659)
@@ -13,7 +16,7 @@ A cache library written in Kotlin.
 - Thread-safe
   - Cache Loading
   - Definitions/Providers Loading
-- Fast
+- Fast (Limited by I/O)
 
 # TODO
 - Cache Writing
@@ -21,12 +24,18 @@ A cache library written in Kotlin.
 - Support for RS2 caches bigger than revision 659.
 - ~317 cache format support.
 - RS3 caches.
+- Testing
 
-# Gradle
+# Implementation
 Just use cache if you do not require any of the revision specific loaders.
 ```
 cache = { module = "com.runetopic.cache:cache", version.ref "1.4.7-SNAPSHOT" }
 loader = { module = "com.runetopic.cache:loader", version.ref "647.6.1-SNAPSHOT" }
+
+//For the SNAPSHOTS
+maven {
+  url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+}
 ```
 
 # Usage
@@ -51,7 +60,7 @@ val group = index.getGroup(groupId = 360)
 ### Getting a group by group name
 ```
 val index = store.index(indexId = 5)
-val group = index.getGroup(groupName = "m${50}_${50}")
+val group = index.getGroup(groupName = "m50_50")
 ```
 
 ### Getting a file from a group by id
