@@ -1,6 +1,6 @@
-package com.runetopic.cache.compression.impl
+package com.runetopic.cache.codec.impl
 
-import com.runetopic.cache.compression.IFileCodec
+import com.runetopic.cache.codec.IFileCodec
 import org.apache.commons.compress.utils.IOUtils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

@@ -1,6 +1,7 @@
 package com.runetopic.cache.hierarchy
 
-import com.runetopic.cache.compression.Compression
+import com.runetopic.cache.codec.ContainerCodec
+import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.exception.ProtocolException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
@@ -59,7 +60,7 @@ internal data class ReferenceTable(
     fun exists(): Boolean = (length != 0 && sector != 0)
 
     fun loadIndex(datFile: IDatFile, idxFile: IIdxFile, whirlpool: ByteArray, data: ByteArray): Js5Index {
-        val container = Compression.decompress(data)
+        val container = ContainerCodec.decompress(data)
         val buffer = ByteBuffer.wrap(container.data)
         val protocol = buffer.readUnsignedByte()
         var revision = 0
@@ -238,7 +239,7 @@ internal data class ReferenceTable(
         if (groupReferenceTableData.isEmpty()) return hashMapOf(Pair(0, Js5File.DEFAULT))
 
         val src: ByteArray = try {
-            Compression.decompress(groupReferenceTableData).data
+            groupReferenceTableData.decompress()
         } catch (exception: ZipException) {
             groupReferenceTableData
         }

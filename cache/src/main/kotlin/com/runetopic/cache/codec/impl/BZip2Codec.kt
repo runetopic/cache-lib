@@ -1,6 +1,6 @@
-package com.runetopic.cache.compression.impl
+package com.runetopic.cache.codec.impl
 
-import com.runetopic.cache.compression.IFileCodec
+import com.runetopic.cache.codec.IFileCodec
 import com.runetopic.cache.store.Constants.BZIP_HEADER
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream

@@ -1,6 +1,6 @@
-package com.runetopic.cache.compression.impl
+package com.runetopic.cache.codec.impl
 
-import com.runetopic.cache.compression.IFileCodec
+import com.runetopic.cache.codec.IFileCodec
 
 /**
  * @author Tyler Telis

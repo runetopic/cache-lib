@@ -1,6 +1,6 @@
 package com.runetopic.loader.index.map
 
-import com.runetopic.cache.extension.decompress
+import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedIntSmartShortCompat
 import com.runetopic.cache.extension.readUnsignedSmart

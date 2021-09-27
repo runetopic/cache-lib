@@ -1,4 +1,4 @@
-package com.runetopic.cache.compression
+package com.runetopic.cache.codec
 
 /**
  * @author Tyler Telis

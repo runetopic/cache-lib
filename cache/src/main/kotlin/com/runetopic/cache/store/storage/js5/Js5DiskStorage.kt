@@ -7,9 +7,9 @@ import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.hierarchy.index.Js5Index
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Js5Store
+import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.js5.impl.DatFile
 import com.runetopic.cache.store.storage.js5.impl.IdxFile
-import com.runetopic.cache.store.storage.IStorage
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
