@@ -21,6 +21,7 @@ A cache library written in Kotlin.
 - Support for RS2 caches bigger than revision 659.
 - ~317 cache format support.
 - RS3 caches.
+- Testing
 
 # Gradle
 Just use cache if you do not require any of the revision specific loaders.
