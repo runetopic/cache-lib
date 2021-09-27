@@ -6,6 +6,7 @@
 A cache library written in Kotlin. 
 
 # Requirements
+- Kotlin Version 1.5.21
 - Java Version 16
 
 # Supported
