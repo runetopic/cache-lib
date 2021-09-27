@@ -13,7 +13,7 @@ A cache library written in Kotlin.
 - Thread-safe
   - Cache Loading
   - Definitions/Providers Loading
-- Fast
+- Fast (Limited by I/O)
 
 # TODO
 - Cache Writing
