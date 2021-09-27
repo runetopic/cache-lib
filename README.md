@@ -1,4 +1,4 @@
-# Xlite 2.0 Cache Library
+# RuneTopic Cache Library
 
 [![Discord](https://img.shields.io/discord/212385463418355713?color=%237289DA&logo=Discord&logoColor=%237289DA)](https://discord.gg/3scgBkrfMG)
 [![License](https://img.shields.io/github/license/xlite2/xlite)](#)
