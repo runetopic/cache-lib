@@ -25,16 +25,16 @@ A cache library written in Kotlin.
 # Gradle
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.6-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.6.0-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.7-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.6.1-SNAPSHOT" }
 ```
 
 # Usage
 Index -> Group -> File
 
-### Creating a new store
+### Creating a new JS5 store
 ```
-val store = Store(File("/filepath/"))
+val store = Js5Store(Path.of("/path/"))
 ```
 
 ### Getting an index
