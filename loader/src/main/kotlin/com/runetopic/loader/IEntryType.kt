@@ -3,6 +3,6 @@ package com.runetopic.loader
 /**
  * @author Jordan Abraham
  */
-internal interface IEntryType {
+interface IEntryType {
     fun getId(): Int
 }

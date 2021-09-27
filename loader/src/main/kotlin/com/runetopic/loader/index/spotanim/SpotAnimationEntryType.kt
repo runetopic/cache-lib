@@ -1,4 +1,4 @@
-package com.runetopic.loader.index.config.spotanim
+package com.runetopic.loader.index.spotanim
 
 import com.runetopic.loader.IEntryType
 

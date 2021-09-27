@@ -18,6 +18,7 @@ internal class DatFile(
 ): IDatFile  {
     private val datFile: RandomAccessFile = RandomAccessFile(file, "rw")
 
+    @Synchronized
     override fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray {
         var sector = referenceTable.sector
         val length = referenceTable.length

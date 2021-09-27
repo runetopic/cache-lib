@@ -17,10 +17,8 @@ class OverlayEntryBuilder: IEntryBuilder<OverlayEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         overlays = buildSet {
-            store.index(2).use { index ->
-                index.getFiles(4).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), OverlayEntryType(it.id)))
-                }
+            store.index(2).getGroup(4).getFiles().forEach {
+                add(read(ByteBuffer.wrap(it.value.getData()), OverlayEntryType(it.value.getId())))
             }
         }
     }

@@ -3,33 +3,21 @@ package com.runetopic.cache.hierarchy.index.group.file
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
-data class Js5File(
-    val groupId: Int = -1,
-    val id: Int = -1,
-    internal val nameHash: Int = -1,
-    var data: ByteArray? = null
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+class Js5File(
+    private val groupId: Int,
+    private val id: Int,
+    private val nameHash: Int,
+    private val data: ByteArray
+): IFile {
+    override fun getId(): Int = id
+    override fun getGroupId(): Int = groupId
+    override fun getNameHash(): Int = nameHash
+    override fun getData(): ByteArray = data
 
-        other as Js5File
-
-        if (id != other.id) return false
-        if (nameHash != other.nameHash) return false
-        if (data != null) {
-            if (other.data == null) return false
-            if (!data.contentEquals(other.data)) return false
-        } else if (other.data != null) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + nameHash
-        result = 31 * result + (data?.contentHashCode() ?: 0)
-        return result
+    internal companion object {
+        val DEFAULT = Js5File(-1, -1, -1, byteArrayOf(0))
     }
 }

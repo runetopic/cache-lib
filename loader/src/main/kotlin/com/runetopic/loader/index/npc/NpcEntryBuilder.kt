@@ -16,8 +16,8 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
     override fun build(store: Store) {
         npcs = buildSet {
             store.index(18).use { index ->
-                (0..index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it ushr 8, it and 0xFF).data), NpcEntryType(it)))
+                (0 until index.expand()).forEach {
+                    add(read(ByteBuffer.wrap(index.getGroup(it ushr 8).getFile(it and 0xFF).getData()), NpcEntryType(it)))
                 }
             }
         }

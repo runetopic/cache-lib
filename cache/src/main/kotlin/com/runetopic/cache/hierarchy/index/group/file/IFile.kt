@@ -8,5 +8,8 @@ interface IFile: Comparable<IFile> {
     fun getGroupId(): Int
     fun getNameHash(): Int
     fun getData(): ByteArray
-    fun setData(data: ByteArray)
+
+    override fun compareTo(other: IFile): Int {
+        return getId().compareTo(other.getId())
+    }
 }

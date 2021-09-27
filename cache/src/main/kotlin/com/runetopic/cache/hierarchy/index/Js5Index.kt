@@ -1,12 +1,14 @@
 package com.runetopic.cache.hierarchy.index
 
 import com.runetopic.cache.extension.nameHash
+import com.runetopic.cache.hierarchy.index.group.IGroup
 import com.runetopic.cache.hierarchy.index.group.Js5Group
-import com.runetopic.cache.hierarchy.index.group.file.Js5File
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 class Js5Index(
     private val id: Int,
@@ -25,12 +27,13 @@ class Js5Index(
     override fun getProtocol(): Int = protocol
     override fun getRevision(): Int = revision
     override fun getIsNamed(): Boolean = isNamed
+
     override fun getGroups(): Map<Int, Js5Group> = groups
-    override fun getFiles(groupId: Int): Array<Js5File> = groups[groupId]?.getFiles()!!
+    override fun getGroup(groupId: Int): IGroup = groups[groupId] ?: Js5Group.DEFAULT
+    override fun getGroup(groupName: String): IGroup = groups.values.find { it.getNameHash() == groupName.nameHash() } ?: Js5Group.DEFAULT
     override fun expand(): Int = groups.values.last().getFiles().size + (groups.values.last().getId() shl 8)
 
-    internal fun getGroup(groupId: Int): Js5Group? = groups[groupId]
-    internal fun getGroup(groupName: String): Js5Group? = groups.values.find { it.getNameHash() == groupName.nameHash() }
-
-    fun use(block: (Js5Index) -> Unit) = block.invoke(this)
+    internal companion object {
+        fun default(indexId: Int): Js5Index = Js5Index(indexId, 0, ByteArray(64), -1, -1, 0, false, hashMapOf())
+    }
 }

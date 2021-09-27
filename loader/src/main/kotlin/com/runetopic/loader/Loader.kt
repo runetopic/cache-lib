@@ -7,7 +7,6 @@ import com.runetopic.loader.index.config.mouseicon.MouseIconEntryProvider
 import com.runetopic.loader.index.config.overlay.OverlayEntryProvider
 import com.runetopic.loader.index.config.param.ParamEntryProvider
 import com.runetopic.loader.index.config.skybox.SkyBoxEntryProvider
-import com.runetopic.loader.index.config.spotanim.SpotAnimationEntryProvider
 import com.runetopic.loader.index.config.struct.StructEntryProvider
 import com.runetopic.loader.index.config.underlay.UnderlayEntryProvider
 import com.runetopic.loader.index.loc.LocEntryProvider
@@ -16,6 +15,7 @@ import com.runetopic.loader.index.map.MapLocationEntryProvider
 import com.runetopic.loader.index.npc.NpcEntryProvider
 import com.runetopic.loader.index.obj.ObjEntryProvider
 import com.runetopic.loader.index.particle.ParticleEntryProvider
+import com.runetopic.loader.index.spotanim.SpotAnimationEntryProvider
 
 /**
  * @author Jordan Abraham

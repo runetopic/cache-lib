@@ -18,10 +18,8 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         identityKitTypes = buildSet {
-            store.index(2).use { index ->
-                index.getFiles(3).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.groupId, it.id).data), IdentityKitEntryType(it.id)))
-                }
+            store.index(2).getGroup(3).getFiles().forEach {
+                add(read(ByteBuffer.wrap(it.value.getData()), IdentityKitEntryType(it.value.getId())))
             }
         }
     }

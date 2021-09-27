@@ -1,6 +1,6 @@
 package com.runetopic.cache.hierarchy.index.group
 
-import com.runetopic.cache.hierarchy.index.group.file.Js5File
+import com.runetopic.cache.hierarchy.index.group.file.IFile
 
 /**
  * @author Jordan Abraham
@@ -12,8 +12,9 @@ interface IGroup: Comparable<IGroup> {
     fun getWhirlpool(): ByteArray
     fun getRevision(): Int
     fun getKeys(): IntArray
-    fun getFiles(): Array<Js5File>
+    fun getFiles(): Map<Int, IFile>
     fun getData(): ByteArray
+    fun getFile(fileId: Int): IFile
 
     override fun compareTo(other: IGroup): Int {
         return getId().compareTo(other.getId())

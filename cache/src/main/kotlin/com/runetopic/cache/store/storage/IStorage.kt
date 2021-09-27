@@ -1,8 +1,7 @@
 package com.runetopic.cache.store.storage
 
-import com.runetopic.cache.hierarchy.index.Js5Index
-import com.runetopic.cache.hierarchy.index.group.Js5Group
-import com.runetopic.cache.hierarchy.index.group.file.Js5File
+import com.runetopic.cache.hierarchy.ReferenceTable
+import com.runetopic.cache.hierarchy.index.IIndex
 import com.runetopic.cache.store.Store
 import java.io.Closeable
 import java.io.Flushable
@@ -13,11 +12,8 @@ import java.io.Flushable
  */
 internal interface IStorage: Closeable, Flushable {
     fun init(store: Store)
-    fun loadIndex(indexId: Int): Js5Index
-    fun loadGroup(index: Js5Index, groupName: String): Js5Group?
-    fun loadGroup(index: Js5Index, groupId: Int): Js5Group?
-    fun loadFile(index: Js5Index, groupId: Int, fileId: Int): Js5File
-    fun loadReferenceTable(index: Js5Index, groupId: Int): ByteArray
+    fun loadIndex(table: ReferenceTable, indexId: Int, whirlpool: ByteArray, referenceTable: ByteArray): IIndex
+    fun loadReferenceTable(index: IIndex, groupId: Int): ByteArray
     fun loadMasterReferenceTable(groupId: Int): ByteArray
-    fun loadReferenceTable(index: Js5Index, groupName: String): ByteArray
+    fun loadReferenceTable(index: IIndex, groupName: String): ByteArray
 }

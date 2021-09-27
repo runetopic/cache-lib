@@ -3,14 +3,17 @@
 [![Discord](https://img.shields.io/discord/212385463418355713?color=%237289DA&logo=Discord&logoColor=%237289DA)](https://discord.gg/3scgBkrfMG)
 [![License](https://img.shields.io/github/license/xlite2/xlite)](#)
 
-This library is still a work in progress, and is currently built around RS2 Caches. It currently only supports reading from the cache as of now.
+A thread-safe cache library written in Kotlin. 
 
 # Supported
 - RS2 (414-659)
 - OSRS (1-current)
 
 # Features
-- Cache Reading
+- Thread-safe
+  - Cache Loading
+  - Definitions/Providers Loading
+- Fast
 
 # TODO
 - Cache Writing
@@ -22,43 +25,53 @@ This library is still a work in progress, and is currently built around RS2 Cach
 # Gradle
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.3-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.3.0-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.5-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.5.0-SNAPSHOT" }
 ```
 
 # Usage
 Index -> Group -> File
 
+### Creating a new store
+```
+val store = Store(File("/filepath/"))
+```
+
 ### Getting an index
-```val index = store.index(indexId = 5)```
+```
+val index = store.index(indexId = 5)
+```
 
 ### Getting a group by group id
-```val group = store.group(indexId = 5, groupId = 360)```
-
-```val group = store.group(index = store.index(5), groupId = 360)```
+```
+val index = store.index(indexId = 5)
+val group = index.getGroup(groupId = 360)
+```
 
 ### Getting a group by group name
-```val group = store.group(indexId = 5, groupName = "m${50}_${50}")```
-
-```val group = store.group(index = store.index(5), groupName = "m${50}_${50}")```
+```
+val index = store.index(indexId = 5)
+val group = index.getGroup(groupName = "m${50}_${50}")
+```
 
 ### Getting a file from a group by id
-```val file = store.file(indexId = 2, groupId = 26, fileId = 1000)```
-
-```val file = store.file(index = store.index(2), groupId = 26, fileId = 1000)```
+```
+val index = store.index(indexId = 2)
+val group = index.getGroup(groupId = 26)
+val file = group.getFile(fileId = 1000)
+```
 
 ### Looping multiple groups from an index
-    store.index(indexId = 21).use { index ->
-        (0..index.expand()).forEach {
-            val data = store.file(index = index, groupId = it ushr 8, fileId = it and 0xFF).data
+    store.index(indexId = 19).use { index ->
+        (0 until index.expand()).forEach { id ->
+            val data = index.getGroup(id ushr 8).getFile(id and 0xFF).getData()
         }
     }
 
 ### Looping multiple files from a group
-    store.index(indexId = 2).use { index ->
-        index.files(groupId = 26).forEach {
-            val data = store.file(index = index, groupId = it.groupId, fileId = it.id).data
-        }
+    store.index(indexId = 2).getGroup(groupId = 26).getFiles().forEach { fileEntry ->
+        val id = fileEntry.value.getId()
+        val data = fileEntry.value.getData()
     }
 
 ### Getting the reference table of an index and group by id.
@@ -74,13 +87,37 @@ Index -> Group -> File
 ```store.groupReferenceTableSize(indexId = 30, groupId = 6)```
 
 ### Getting 255, 255 checksums with RSA/Whirlpool
-```
-val checksums = store.checksumsWithRSA(exponent = BigInteger(""), modulus = BigInteger(""))
-```
+```val checksums = store.checksumsWithRSA(exponent = BigInteger(""), modulus = BigInteger(""))```
 
 ### Getting 255, 255 checksums without RSA/Whirlpool
+```val checksums = store.checksumsWithoutRSA()```
+
+### An example of a single thread loading providers
 ```
-val checksums = store.checksumsWithoutRSA()
+objs().load(store)
+npcs().load(store)
+locs().load(store)
+particles().load(store)
+```
+
+### An example of multiple threads parallel loading providers
+```
+val pool = Executors.newFixedThreadPool(4)
+val providers = listOf(
+    objs(),
+    npcs(),
+    locs(),
+    particles()
+)
+val latch = CountDownLatch(providers.size)
+providers.forEach {
+    pool.execute {
+        it.load(store)
+        latch.countDown()
+    }
+}
+latch.await()
+pool.shutdown()
 ```
 
 ## Contributing

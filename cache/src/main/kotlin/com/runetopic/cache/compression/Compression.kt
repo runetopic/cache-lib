@@ -2,15 +2,17 @@ package com.runetopic.cache.compression
 
 import com.runetopic.cache.compression.CompressionType.*
 import com.runetopic.cache.exception.CompressionException
-import com.runetopic.cache.extension.decipherXTEA
 import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.extension.remainingBytes
+import com.runetopic.cryptography.ext.fromXTEA
 import java.nio.ByteBuffer
 import java.util.zip.CRC32
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 object Compression {
 
@@ -33,17 +35,17 @@ object Compression {
                 val encrypted = ByteArray(length)
                 buffer.get(encrypted, 0, length)
                 crc32.update(encrypted, 0, length)
-                val decrypted = encrypted.decipherXTEA(keys)
+                val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys.toIntArray())
 
                 val revision = -1 /*buffer.short.toInt() and 0xFFFF*/
 
                 Container(decrypted, compression, revision, crc32.value.toInt())
             }
             GZipCompression, BZipCompression-> {
-                val encryptedData = ByteArray(length + 4)
-                buffer.get(encryptedData)
-                crc32.update(encryptedData, 0, encryptedData.size)
-                val decryptedData = encryptedData.decipherXTEA(keys)
+                val encrypted = ByteArray(length + 4)
+                buffer.get(encrypted)
+                crc32.update(encrypted, 0, encrypted.size)
+                val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys.toIntArray())
 
                 var revision = -1
 
@@ -51,7 +53,7 @@ object Compression {
                     revision = buffer.readUnsignedShort()
                 }
 
-                val byteBuffer = ByteBuffer.wrap(decryptedData)
+                val byteBuffer = ByteBuffer.wrap(decrypted)
                 val decompressedLength = byteBuffer.int
                 val decompressedData = type.codec.decompress(byteBuffer.remainingBytes(), length, keys)
 
