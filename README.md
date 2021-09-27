@@ -26,11 +26,16 @@ A cache library written in Kotlin.
 - RS3 caches.
 - Testing
 
-# Gradle
+# Implementation
 Just use cache if you do not require any of the revision specific loaders.
 ```
 cache = { module = "com.runetopic.cache:cache", version.ref "1.4.6-SNAPSHOT" }
 loader = { module = "com.runetopic.cache:loader", version.ref "647.6.0-SNAPSHOT" }
+
+//For the SNAPSHOTS
+maven {
+  url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+}
 ```
 
 # Usage
