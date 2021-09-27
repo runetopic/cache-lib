@@ -5,6 +5,9 @@
 
 A cache library written in Kotlin. 
 
+# Requirements
+- Java Version 16
+
 # Supported
 - RS2 (414-659)
 - OSRS (1-current)
