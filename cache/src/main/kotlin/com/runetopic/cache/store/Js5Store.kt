@@ -1,13 +1,12 @@
 package com.runetopic.cache.store
 
-import com.runetopic.cache.hierarchy.index.IIndex
-import com.runetopic.cache.store.storage.IStorage
-import com.runetopic.cache.store.storage.impl.DiskStorage
+import com.runetopic.cache.hierarchy.index.Index
+import com.runetopic.cache.store.storage.js5.Js5DiskStorage
 import com.runetopic.cryptography.ext.toWhirlpool
 import java.io.Closeable
-import java.io.File
 import java.math.BigInteger
 import java.nio.ByteBuffer
+import java.nio.file.Path
 
 /**
  * @author Tyler Telis
@@ -15,22 +14,22 @@ import java.nio.ByteBuffer
  *
  * @author Jordan Abraham
  */
-class Store(
-    directory: File
+class Js5Store(
+    path: Path
 ) : Closeable {
-    private var storage: IStorage = DiskStorage(directory)
-    private val indexes: ArrayList<IIndex> = arrayListOf()
+    private var storage = Js5DiskStorage(path)
+    private val indexes = arrayListOf<Index>()
 
     init {
         this.storage.init(this)
     }
 
-    internal fun addIndex(index: IIndex) {
+    internal fun addIndex(index: Index) {
         indexes.forEach { i -> require(index.getId() != i.getId()) { "Index with Id={${index.getId()}} already exists." } }
         this.indexes.add(index)
     }
 
-    fun index(indexId: Int): IIndex = this.indexes.find { it.getId() == indexId }!!
+    fun index(indexId: Int): Index = this.indexes.find { it.getId() == indexId }!!
 
     fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0

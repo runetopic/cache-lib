@@ -1,7 +1,7 @@
 package com.runetopic.cache.hierarchy.index
 
 import com.runetopic.cache.extension.nameHash
-import com.runetopic.cache.hierarchy.index.group.IGroup
+import com.runetopic.cache.hierarchy.index.group.Group
 import com.runetopic.cache.hierarchy.index.group.Js5Group
 
 /**
@@ -19,7 +19,7 @@ class Js5Index(
     private val revision: Int,
     private val isNamed: Boolean,
     private val groups: Map<Int, Js5Group>
-): IIndex {
+): Index {
     override fun getId(): Int = id
     override fun getCRC(): Int = crc
     override fun getWhirlpool(): ByteArray = whirlpool
@@ -28,9 +28,9 @@ class Js5Index(
     override fun getRevision(): Int = revision
     override fun getIsNamed(): Boolean = isNamed
 
-    override fun getGroups(): Collection<IGroup> = groups.values
-    override fun getGroup(groupId: Int): IGroup = groups[groupId] ?: Js5Group.DEFAULT
-    override fun getGroup(groupName: String): IGroup = groups.values.find { it.getNameHash() == groupName.nameHash() } ?: Js5Group.DEFAULT
+    override fun getGroups(): Collection<Group> = groups.values
+    override fun getGroup(groupId: Int): Group = groups[groupId] ?: Js5Group.DEFAULT
+    override fun getGroup(groupName: String): Group = groups.values.find { it.getNameHash() == groupName.nameHash() } ?: Js5Group.DEFAULT
     override fun expand(): Int = groups.values.last().getFiles().size + (groups.values.last().getId() shl 8)
 
     internal companion object {

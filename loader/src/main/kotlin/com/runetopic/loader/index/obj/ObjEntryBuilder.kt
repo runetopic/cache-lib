@@ -1,7 +1,7 @@
 package com.runetopic.loader.index.obj
 
 import com.runetopic.cache.extension.*
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -13,7 +13,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
     lateinit var objs: Set<ObjEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         objs = buildSet {
             store.index(19).use { index ->
                 (0 until index.expand()).forEach {

@@ -1,10 +1,10 @@
 package com.runetopic.loader.index.map
 
-import com.runetopic.cache.compression.Compression
+import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.extension.skip
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import com.runetopic.loader.util.vector.Vector3f
 import java.nio.ByteBuffer
@@ -18,7 +18,7 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
     lateinit var mapTypes: Set<MapEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         mapTypes = buildSet {
             store.index(5).use {
                 (0..Short.MAX_VALUE).forEach { regionId ->
@@ -26,8 +26,7 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
                     val regionY: Int = regionId and 0xFF
                     it.getGroup("m${regionX}_${regionY}").getData().let { data ->
                         if (data.isEmpty()) return@forEach
-                        val container = Compression.decompress(data, emptyArray())
-                        add(read(ByteBuffer.wrap(container.data), MapEntryType(regionId, regionX, regionY)))
+                        add(read(ByteBuffer.wrap(data.decompress()), MapEntryType(regionId, regionX, regionY)))
                     }
                 }
             }

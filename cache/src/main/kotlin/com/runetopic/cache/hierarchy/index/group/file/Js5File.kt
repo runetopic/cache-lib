@@ -10,7 +10,7 @@ class Js5File(
     private val id: Int,
     private val nameHash: Int,
     private val data: ByteArray
-): IFile {
+): File {
     override fun getId(): Int = id
     override fun getNameHash(): Int = nameHash
     override fun getData(): ByteArray = data

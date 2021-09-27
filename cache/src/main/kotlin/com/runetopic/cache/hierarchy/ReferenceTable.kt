@@ -1,16 +1,16 @@
 package com.runetopic.cache.hierarchy
 
-import com.runetopic.cache.compression.Compression
+import com.runetopic.cache.codec.ContainerCodec
+import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.exception.ProtocolException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.hierarchy.index.Js5Index
 import com.runetopic.cache.hierarchy.index.group.Js5Group
-import com.runetopic.cache.hierarchy.index.group.file.IFile
+import com.runetopic.cache.hierarchy.index.group.file.File
 import com.runetopic.cache.hierarchy.index.group.file.Js5File
-import com.runetopic.cache.store.js5.IDatFile
-import com.runetopic.cache.store.js5.IIdxFile
-import com.runetopic.cache.store.js5.impl.IdxFile
+import com.runetopic.cache.store.storage.js5.IDatFile
+import com.runetopic.cache.store.storage.js5.IIdxFile
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.zip.ZipException
@@ -22,7 +22,7 @@ import java.util.zip.ZipException
  * @author Jordan Abraham
  */
 internal data class ReferenceTable(
-    val idxFile: IdxFile,
+    val idxFile: IIdxFile,
     val id: Int,
     val sector: Int,
     val length: Int,
@@ -60,7 +60,7 @@ internal data class ReferenceTable(
     fun exists(): Boolean = (length != 0 && sector != 0)
 
     fun loadIndex(datFile: IDatFile, idxFile: IIdxFile, whirlpool: ByteArray, data: ByteArray): Js5Index {
-        val container = Compression.decompress(data, emptyArray())
+        val container = ContainerCodec.decompress(data)
         val buffer = ByteBuffer.wrap(container.data)
         val protocol = buffer.readUnsignedByte()
         var revision = 0
@@ -235,11 +235,11 @@ internal data class ReferenceTable(
         groupReferenceTableData: ByteArray,
         count: Int,
         groupId: Int
-    ): Map<Int, IFile> {
+    ): Map<Int, File> {
         if (groupReferenceTableData.isEmpty()) return hashMapOf(Pair(0, Js5File.DEFAULT))
 
         val src: ByteArray = try {
-            Compression.decompress(groupReferenceTableData, emptyArray()).data
+            groupReferenceTableData.decompress()
         } catch (exception: ZipException) {
             groupReferenceTableData
         }

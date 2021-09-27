@@ -2,7 +2,7 @@ package com.runetopic.loader.index.spotanim
 
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -14,7 +14,7 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
     lateinit var spotAnimations: Set<SpotAnimationEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         spotAnimations = buildSet {
             store.index(21).use { index ->
                 (0 until index.expand()).forEach {

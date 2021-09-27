@@ -3,7 +3,7 @@ package com.runetopic.loader.index.config.param
 import com.runetopic.cache.extension.readCp1252Char
 import com.runetopic.cache.extension.readString
 import com.runetopic.cache.extension.readUnsignedByte
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -16,7 +16,7 @@ internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
     lateinit var paramTypes: Set<ParamEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         paramTypes = buildSet {
             store.index(2).getGroup(11).getFiles().forEach {
                 add(read(ByteBuffer.wrap(it.getData()), ParamEntryType(it.getId())))

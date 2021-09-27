@@ -2,7 +2,7 @@ package com.runetopic.loader.index.config.inv
 
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -14,7 +14,7 @@ internal class InventoryEntryBuilder: IEntryBuilder<InventoryEntryType> {
     lateinit var inventoryTypes: Set<InventoryEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         inventoryTypes = buildSet {
             store.index(2).getGroup(5).getFiles().forEach {
                 add(read(ByteBuffer.wrap(it.getData()), InventoryEntryType(it.getId())))

@@ -2,7 +2,7 @@ package com.runetopic.loader.index.config.skybox
 
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import java.nio.ByteBuffer
 
@@ -14,7 +14,7 @@ internal class SkyBoxEntryBuilder: IEntryBuilder<SkyBoxEntryType> {
     lateinit var skyBoxTypes: Set<SkyBoxEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun build(store: Store) {
+    override fun build(store: Js5Store) {
         skyBoxTypes = buildSet {
             store.index(2).getGroup(29).getFiles().forEach {
                 add(read(ByteBuffer.wrap(it.getData()), SkyBoxEntryType(it.getId())))

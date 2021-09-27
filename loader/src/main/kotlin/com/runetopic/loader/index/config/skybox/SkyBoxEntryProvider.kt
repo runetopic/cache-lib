@@ -1,6 +1,6 @@
 package com.runetopic.loader.index.config.skybox
 
-import com.runetopic.cache.store.Store
+import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryProvider
 
 
@@ -11,7 +11,7 @@ class SkyBoxEntryProvider : IEntryProvider<SkyBoxEntryType> {
 
     private val builder = SkyBoxEntryBuilder()
 
-    override fun load(store: Store) {
+    override fun load(store: Js5Store) {
         builder.build(store)
     }
 

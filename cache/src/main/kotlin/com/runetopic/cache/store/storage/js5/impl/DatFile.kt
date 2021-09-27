@@ -1,10 +1,10 @@
-package com.runetopic.cache.store.js5.impl
+package com.runetopic.cache.store.storage.js5.impl
 
 import com.runetopic.cache.exception.DatFileException
 import com.runetopic.cache.exception.EndOfDatFileException
 import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.store.Constants.SECTOR_SIZE
-import com.runetopic.cache.store.js5.IDatFile
+import com.runetopic.cache.store.storage.js5.IDatFile
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
@@ -15,7 +15,7 @@ import java.nio.ByteBuffer
  */
 internal class DatFile(
     file: File
-): IDatFile  {
+): IDatFile {
     private val datFile: RandomAccessFile = RandomAccessFile(file, "rw")
 
     @Synchronized
@@ -24,7 +24,7 @@ internal class DatFile(
         val length = referenceTable.length
         val referenceTableId = referenceTable.id
 
-        if (validateSector(sector, length).not()) return byteArrayOf()
+        if (validateSector(sector).not()) return byteArrayOf()
 
         val buffer = ByteBuffer.allocate(length)
         val readBuffer = ByteBuffer.wrap(ByteArray(SECTOR_SIZE))
@@ -129,11 +129,8 @@ internal class DatFile(
         }
     }
 
-    private fun validateSector(sector: Int, length: Int): Boolean {
-        if (sector <= 0L || datFile.length() / SECTOR_SIZE < sector) {
-            return false//throw DatFileException("Could not read $length for sector $sector")
-        }
-        return true
+    private fun validateSector(sector: Int): Boolean {
+        return !(sector <= 0L || datFile.length() / SECTOR_SIZE < sector)
     }
 
     override fun close() = datFile.close()
