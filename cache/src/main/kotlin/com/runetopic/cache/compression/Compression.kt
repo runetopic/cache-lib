@@ -16,7 +16,7 @@ import java.util.zip.CRC32
  */
 object Compression {
 
-    fun decompress(data: ByteArray, keys: Array<Int>): Container {
+    fun decompress(data: ByteArray, keys: IntArray = intArrayOf()): Container {
         val buffer = ByteBuffer.wrap(data)
 
         val compression = buffer.get().toInt() and 0xFF
@@ -35,7 +35,7 @@ object Compression {
                 val encrypted = ByteArray(length)
                 buffer.get(encrypted, 0, length)
                 crc32.update(encrypted, 0, length)
-                val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys.toIntArray())
+                val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys)
 
                 val revision = -1 /*buffer.short.toInt() and 0xFFFF*/
 
@@ -45,7 +45,7 @@ object Compression {
                 val encrypted = ByteArray(length + 4)
                 buffer.get(encrypted)
                 crc32.update(encrypted, 0, encrypted.size)
-                val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys.toIntArray())
+                val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys)
 
                 var revision = -1
 

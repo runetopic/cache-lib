@@ -5,6 +5,6 @@ package com.runetopic.cache.compression
  * @email <xlitersps@gmail.com>
  */
 internal interface IFileCodec {
-    fun compress(data: ByteArray, length: Int, keys: Array<Int>): ByteArray
-    fun decompress(data: ByteArray, length: Int, keys: Array<Int>): ByteArray
+    fun compress(data: ByteArray, length: Int, keys: IntArray): ByteArray
+    fun decompress(data: ByteArray, length: Int, keys: IntArray): ByteArray
 }
