@@ -4,9 +4,8 @@ import com.github.michaelbull.logging.InlineLogger
 import com.runetopic.cache.crypto.Whirlpool
 import com.runetopic.cache.extension.whirlpool
 import com.runetopic.cache.hierarchy.ReferenceTable
+import com.runetopic.cache.hierarchy.index.IIndex
 import com.runetopic.cache.hierarchy.index.Js5Index
-import com.runetopic.cache.hierarchy.index.group.Js5Group
-import com.runetopic.cache.hierarchy.index.group.file.Js5File
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Store
 import com.runetopic.cache.store.js5.IDatFile
@@ -68,32 +67,17 @@ internal class DiskStorage(
         return table.loadIndex(datFile, getIdxFile(indexId), whirlpool, referenceTable)
     }
 
-    override fun loadGroup(index: Js5Index, groupName: String): Js5Group? {
-        return index.getGroup(groupName)
-    }
-
-    override fun loadGroup(index: Js5Index, groupId: Int): Js5Group? {
-        return index.getGroup(groupId)
-    }
-
-    override fun loadFile(index: Js5Index, groupId: Int, fileId: Int): Js5File {
-        val group = loadGroup(index, groupId)!!
-        val file = group.getFiles().find { it.getId() == fileId } ?: Js5File(groupId, fileId, -1, byteArrayOf(0))
-        //a file not found with have data != null with a byte of 0 which will auto break a loader at opcode 0.
-        file.getData() ?: group.loadFiles(file)
-        return file
-    }
-
     override fun loadMasterReferenceTable(groupId: Int): ByteArray {
         return datFile.readReferenceTable(Constants.MASTER_INDEX_ID, masterIdxFile.loadReferenceTable(groupId))
     }
 
-    override fun loadReferenceTable(index: Js5Index, groupId: Int): ByteArray {
+    override fun loadReferenceTable(index: IIndex, groupId: Int): ByteArray {
         return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(groupId))
     }
 
-    override fun loadReferenceTable(index: Js5Index, groupName: String): ByteArray {
-        val group = index.getGroup(groupName) ?: return byteArrayOf()
+    override fun loadReferenceTable(index: IIndex, groupName: String): ByteArray {
+        val group = index.getGroup(groupName)
+        if (group.getData().isEmpty()) return group.getData()
         return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(group.getId()))
     }
 

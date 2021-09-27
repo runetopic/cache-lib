@@ -22,43 +22,48 @@ This library is still a work in progress, and is currently built around RS2 Cach
 # Gradle
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.3-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.3.0-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.4-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.4.0-SNAPSHOT" }
 ```
 
 # Usage
 Index -> Group -> File
 
 ### Getting an index
-```val index = store.index(indexId = 5)```
+```
+val index = store.index(indexId = 5)
+```
 
 ### Getting a group by group id
-```val group = store.group(indexId = 5, groupId = 360)```
-
-```val group = store.group(index = store.index(5), groupId = 360)```
+```
+val index = store.index(indexId = 5)
+val group = index.getGroup(groupId = 360)
+```
 
 ### Getting a group by group name
-```val group = store.group(indexId = 5, groupName = "m${50}_${50}")```
-
-```val group = store.group(index = store.index(5), groupName = "m${50}_${50}")```
+```
+val index = store.index(indexId = 5)
+val group = index.getGroup(groupName = "m${50}_${50}")
+```
 
 ### Getting a file from a group by id
-```val file = store.file(indexId = 2, groupId = 26, fileId = 1000)```
-
-```val file = store.file(index = store.index(2), groupId = 26, fileId = 1000)```
+```
+val index = store.index(indexId = 2)
+val group = index.getGroup(groupId = 26)
+val file = group.getFile(fileId = 1000)
+```
 
 ### Looping multiple groups from an index
-    store.index(indexId = 21).use { index ->
-        (0..index.expand()).forEach {
-            val data = store.file(index = index, groupId = it ushr 8, fileId = it and 0xFF).data
+    store.index(indexId = 19).use { index ->
+        (0 until index.expand()).forEach { id ->
+            val data = index.getGroup(id ushr 8).getFile(id and 0xFF).getData()
         }
     }
 
 ### Looping multiple files from a group
-    store.index(indexId = 2).use { index ->
-        index.files(groupId = 26).forEach {
-            val data = store.file(index = index, groupId = it.groupId, fileId = it.id).data
-        }
+    store.index(indexId = 2).getGroup(groupId = 26).getFiles().forEach { fileEntry ->
+        val id = fileEntry.value.getId()
+        val data = fileEntry.value.getData()
     }
 
 ### Getting the reference table of an index and group by id.

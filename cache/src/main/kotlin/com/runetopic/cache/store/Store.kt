@@ -1,9 +1,7 @@
 package com.runetopic.cache.store
 
 import com.runetopic.cache.crypto.Whirlpool
-import com.runetopic.cache.hierarchy.index.Js5Index
-import com.runetopic.cache.hierarchy.index.group.Js5Group
-import com.runetopic.cache.hierarchy.index.group.file.Js5File
+import com.runetopic.cache.hierarchy.index.IIndex
 import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.impl.DiskStorage
 import java.io.Closeable
@@ -19,41 +17,23 @@ class Store(
     directory: File
 ) : Closeable {
     private var storage: IStorage = DiskStorage(directory)
-    private val indexes: ArrayList<Js5Index> = arrayListOf()
+    private val indexes: ArrayList<IIndex> = arrayListOf()
 
     init {
         this.storage.init(this)
     }
 
-    /*constructor(directory: File) {
-        this.storage = DiskStorage(directory)
-        this.storage.init(this)
-    }*/
-
-    /*constructor(storage: IStorage) {
-        this.storage = storage
-        this.storage.init(this)
-    }*/
-
-    fun addIndex(index: Js5Index) {
+    internal fun addIndex(index: IIndex) {
         indexes.forEach { i -> require(index.getId() != i.getId()) { "Index with Id={${index.getId()}} already exists." } }
         this.indexes.add(index)
     }
 
-    fun index(indexId: Int): Js5Index = this.indexes.find { it.getId() == indexId }!!
-    fun group(index: Js5Index, groupName: String): Js5Group? = storage.loadGroup(index, groupName)
-    fun group(indexId: Int, groupName: String): Js5Group? = storage.loadGroup(index(indexId), groupName)
-    fun group(index: Js5Index, groupId: Int): Js5Group? = storage.loadGroup(index, groupId)
-    fun group(indexId: Int, groupId: Int): Js5Group? = storage.loadGroup(index(indexId), groupId)
-    fun file(index: Js5Index, groupId: Int, fileId: Int): Js5File = storage.loadFile(index, groupId, fileId)
-    fun file(indexId: Int, groupId: Int, fileId: Int): Js5File = storage.loadFile(index(indexId), groupId, fileId)
+    fun index(indexId: Int): IIndex = this.indexes.find { it.getId() == indexId }!!
 
     fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0
         index(indexId).use { index ->
-            index.getGroups().forEach {
-                size += storage.loadReferenceTable(index, it.value.getId()).size
-            }
+            index.getGroups().forEach { size += storage.loadReferenceTable(index, it.value.getId()).size }
         }
         return size
     }

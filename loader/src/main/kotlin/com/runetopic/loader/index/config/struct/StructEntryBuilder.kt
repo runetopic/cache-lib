@@ -19,10 +19,8 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Store) {
         structTypes = buildSet {
-            store.index(2).use { index ->
-                index.getFiles(26).forEach {
-                    add(read(ByteBuffer.wrap(store.file(index, it.getGroupId(), it.getId()).getData()), StructEntryType(it.getId())))
-                }
+            store.index(2).getGroup(26).getFiles().forEach {
+                add(read(ByteBuffer.wrap(it.value.getData()), StructEntryType(it.value.getId())))
             }
         }
     }
