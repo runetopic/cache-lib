@@ -25,8 +25,8 @@ A thread-safe cache library written in Kotlin.
 # Gradle
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.5-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.5.0-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.6-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.6.0-SNAPSHOT" }
 ```
 
 # Usage
@@ -63,15 +63,15 @@ val file = group.getFile(fileId = 1000)
 
 ### Looping multiple groups from an index
     store.index(indexId = 19).use { index ->
-        (0 until index.expand()).forEach { id ->
-            val data = index.getGroup(id ushr 8).getFile(id and 0xFF).getData()
+        (0 until index.expand()).forEach {
+            val data = index.getGroup(it ushr 8).getFile(it and 0xFF).getData()
         }
     }
 
 ### Looping multiple files from a group
-    store.index(indexId = 2).getGroup(groupId = 26).getFiles().forEach { fileEntry ->
-        val id = fileEntry.value.getId()
-        val data = fileEntry.value.getData()
+    store.index(indexId = 2).getGroup(groupId = 26).getFiles().forEach {
+        val id = it.getId()
+        val data = it.getData()
     }
 
 ### Getting the reference table of an index and group by id.
