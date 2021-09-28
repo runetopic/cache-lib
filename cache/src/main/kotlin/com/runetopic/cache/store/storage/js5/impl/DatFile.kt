@@ -5,18 +5,18 @@ import com.runetopic.cache.exception.EndOfDatFileException
 import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.store.Constants.SECTOR_SIZE
 import com.runetopic.cache.store.storage.js5.IDatFile
-import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
+import java.nio.file.Path
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
 internal class DatFile(
-    file: File
+    path: Path
 ): IDatFile {
-    private val datFile: RandomAccessFile = RandomAccessFile(file, "rw")
+    private val datFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
 
     @Synchronized
     override fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray {
@@ -107,7 +107,7 @@ internal class DatFile(
         currentId: Int,
     ) {
         if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentId) {
-           throw DatFileException("DataFile mismatch Id={${currentId}} != {${id}}, ReferenceTableId={${currentReferenceTableId}} != {${referenceTableId}}, CurrentPart={${currentPart}} != {${part}}")
+            throw DatFileException("DataFile mismatch Id={${currentId}} != {${id}}, ReferenceTableId={${currentReferenceTableId}} != {${referenceTableId}}, CurrentPart={${currentPart}} != {${part}}")
         }
     }
 

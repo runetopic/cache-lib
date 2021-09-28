@@ -1,6 +1,7 @@
 package com.runetopic.cache.store
 
 import com.runetopic.cache.hierarchy.index.Index
+import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.storage.js5.Js5DiskStorage
 import com.runetopic.cryptography.ext.toWhirlpool
 import java.io.Closeable

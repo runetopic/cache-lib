@@ -1,8 +1,8 @@
 package com.runetopic.cache.store.storage.js5
 
 import com.github.michaelbull.logging.InlineLogger
+import com.runetopic.cache.codec.ContainerCodec
 import com.runetopic.cache.extension.whirlpool
-import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.hierarchy.index.Js5Index
 import com.runetopic.cache.store.Constants
@@ -10,7 +10,6 @@ import com.runetopic.cache.store.Js5Store
 import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.js5.impl.DatFile
 import com.runetopic.cache.store.storage.js5.impl.IdxFile
-import java.io.File
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -18,11 +17,14 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.exists
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
+@OptIn(ExperimentalPathApi::class)
 internal class Js5DiskStorage(
     private val path: Path
 ) : IStorage {
@@ -32,13 +34,13 @@ internal class Js5DiskStorage(
     private val logger = InlineLogger()
 
     init {
-        val masterIndexFile = File("${path}/${Constants.MAIN_FILE_255}")
+        val masterIndexFile = Path.of("${path}/${Constants.MAIN_FILE_255}")
 
         if (masterIndexFile.exists().not()) {
             throw FileNotFoundException("Missing ${Constants.MAIN_FILE_255} in directory ${path}/${Constants.MAIN_FILE_255}")
         }
 
-        val datFile = File("${path}/${Constants.MAIN_FILE_DAT}")
+        val datFile = Path.of("${path}/${Constants.MAIN_FILE_DAT}")
 
         if (datFile.exists().not()) {
             throw FileNotFoundException("Missing ${Constants.MAIN_FILE_DAT} in directory ${path}/${Constants.MAIN_FILE_DAT}")
@@ -56,34 +58,29 @@ internal class Js5DiskStorage(
         }
         val latch = CountDownLatch(masterIdxFile.validIndexCount())
 
-        (0 until masterIdxFile.validIndexCount()).forEach {
-            val referenceTable = masterIdxFile.loadReferenceTable(it)
-            idxFiles.add(getIdxFile(it))
-
-            if (referenceTable.exists().not()) {
-                store.addIndex(Js5Index.default(it))
-                latch.countDown()
-                return@forEach
-            }
-            val datTable = datFile.readReferenceTable(masterIdxFile.id(), referenceTable)
-
-            pool?.let { service ->
-                service.execute {
-                    store.addIndex(loadIndex(referenceTable, it, ByteBuffer.wrap(datTable).whirlpool(), datTable))
-                    latch.countDown()
-                }
-            } ?: run {
-                store.addIndex(loadIndex(referenceTable, it, ByteBuffer.wrap(datTable).whirlpool(), datTable))
-                latch.countDown()
-            }
+        (0 until masterIdxFile.validIndexCount()).forEach { indexId ->
+            pool?.let { it.execute { store(indexId, store, latch) } }
+                ?: run { store(indexId, store, latch) }
         }
+
         latch.await(60, TimeUnit.SECONDS)
         pool?.shutdown()
-        logger.debug { "Loaded ${idxFiles.size} indices." }
+        logger.debug { "Loaded ${idxFiles.size} indexes." }
     }
 
-    override fun loadIndex(table: ReferenceTable, indexId: Int, whirlpool: ByteArray, referenceTable: ByteArray): Js5Index {
-        return table.loadIndex(datFile, getIdxFile(indexId), whirlpool, referenceTable)
+    override fun store(indexId: Int, store: Js5Store, latch: CountDownLatch) {
+        val indexTable = masterIdxFile.loadReferenceTable(indexId)
+        idxFiles.add(getIdxFile(indexId))
+
+        if (indexTable.exists().not()) {
+            store.addIndex(Js5Index.default(indexId))
+            latch.countDown()
+            return
+        }
+
+        val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
+        store.addIndex(indexTable.loadIndex(datFile, getIdxFile(indexId), ByteBuffer.wrap(indexDatTable).whirlpool(), ContainerCodec.decompress(indexDatTable)))
+        latch.countDown()
     }
 
     override fun loadMasterReferenceTable(groupId: Int): ByteArray {
@@ -102,7 +99,7 @@ internal class Js5DiskStorage(
 
     private fun getIdxFile(id: Int): IdxFile {
         idxFiles.find { it.id() == id }?.let { return it }
-        return IdxFile(id, File("$path/${Constants.MAIN_FILE_IDX}${id}"))
+        return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}${id}"))
     }
 
     override fun close() {

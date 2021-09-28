@@ -3,8 +3,10 @@ package com.runetopic.cache.store.storage.js5.impl
 import com.runetopic.cache.exception.IdxFileException
 import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.store.storage.js5.IIdxFile
-import java.io.File
 import java.io.RandomAccessFile
+import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.fileSize
 
 /**
  * @author Tyler Telis
@@ -12,9 +14,9 @@ import java.io.RandomAccessFile
  */
 internal class IdxFile(
     private val id: Int,
-    private val file: File
+    private val path: Path
 ) : IIdxFile {
-    private val idxFile: RandomAccessFile = RandomAccessFile(file, "rw")
+    private val idxFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
     private val readBuffer = ByteArray(ENTRY_LIMIT)
 
     @Synchronized
@@ -44,7 +46,8 @@ internal class IdxFile(
         }
     }
 
-    override fun validIndexCount(): Int = file.length().toInt() / ENTRY_LIMIT
+    @OptIn(ExperimentalPathApi::class)
+    override fun validIndexCount(): Int = path.fileSize().toInt() / ENTRY_LIMIT
     override fun id(): Int = id
     override fun close() = idxFile.close()
 
