@@ -22,16 +22,16 @@ class Js5Store(
     private val indexes = arrayListOf<Index>()
 
     init {
-        this.storage.init(this)
+        storage.init(this)
+        indexes.sortWith(compareBy { it.getId() })
     }
 
     internal fun addIndex(index: Index) {
         indexes.forEach { i -> require(index.getId() != i.getId()) { "Index with Id={${index.getId()}} already exists." } }
         indexes.add(index)
-        indexes.sortWith(compareBy { it.getId() })
     }
 
-    fun index(indexId: Int): Index = this.indexes.find { it.getId() == indexId }!!
+    fun index(indexId: Int): Index = indexes.find { it.getId() == indexId }!!
 
     fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0
