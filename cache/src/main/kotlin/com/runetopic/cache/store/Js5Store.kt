@@ -79,9 +79,7 @@ class Js5Store(
 
         val whirlpool = ByteBuffer.allocate(64 + 1)
         whirlpool.put(1)
-        val whirlpoolArray = ByteArray(headerPosition - 5)
-        arraycopy(headerArray, 5, whirlpoolArray, 0, headerPosition - 5)
-        whirlpool.put(whirlpoolArray.toWhirlpool())
+        whirlpool.put(headerArray.copyInto(ByteArray(headerPosition - 5), 0, 5, headerPosition).toWhirlpool())
 
         val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
         val checksums = ByteBuffer.allocate(headerPosition + rsa.size)
