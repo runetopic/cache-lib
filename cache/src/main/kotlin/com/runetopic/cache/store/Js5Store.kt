@@ -1,10 +1,10 @@
 package com.runetopic.cache.store
 
 import com.runetopic.cache.hierarchy.index.Index
-import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.storage.js5.Js5DiskStorage
 import com.runetopic.cryptography.ext.toWhirlpool
 import java.io.Closeable
+import java.lang.System.arraycopy
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -27,7 +27,8 @@ class Js5Store(
 
     internal fun addIndex(index: Index) {
         indexes.forEach { i -> require(index.getId() != i.getId()) { "Index with Id={${index.getId()}} already exists." } }
-        this.indexes.add(index)
+        indexes.add(index)
+        indexes.sortWith(compareBy { it.getId() })
     }
 
     fun index(indexId: Int): Index = this.indexes.find { it.getId() == indexId }!!
@@ -78,12 +79,14 @@ class Js5Store(
 
         val whirlpool = ByteBuffer.allocate(64 + 1)
         whirlpool.put(1)
-        whirlpool.put(ByteBuffer.wrap(headerArray, 5, headerPosition - 5).array().toWhirlpool())
-        val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
+        val whirlpoolArray = ByteArray(headerPosition - 5)
+        arraycopy(headerArray, 5, whirlpoolArray, 0, headerPosition - 5)
+        whirlpool.put(whirlpoolArray.toWhirlpool())
 
-        val checksums = ByteBuffer.allocate(headerPosition.plus(rsa.size))
+        val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
+        val checksums = ByteBuffer.allocate(headerPosition + rsa.size)
         checksums.put(0)
-        checksums.putInt((headerPosition.plus(rsa.size)) - 5)
+        checksums.putInt((headerPosition + rsa.size) - 5)
         checksums.put(headerArray, 5, headerPosition - 5)
         checksums.put(rsa)
         return checksums.array()
