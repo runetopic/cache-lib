@@ -2,7 +2,7 @@ package com.runetopic.cache.store
 
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.storage.js5.Js5DiskStorage
-import com.runetopic.cryptography.ext.toWhirlpool
+import com.runetopic.cryptography.toWhirlpool
 import java.io.Closeable
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -21,15 +21,17 @@ class Js5Store(
     private val indexes = arrayListOf<Index>()
 
     init {
-        this.storage.init(this)
+        storage.init(this)
+        indexes.sortWith(compareBy { it.getId() })
     }
 
+    @Synchronized
     internal fun addIndex(index: Index) {
         indexes.forEach { i -> require(index.getId() != i.getId()) { "Index with Id={${index.getId()}} already exists." } }
-        this.indexes.add(index)
+        indexes.add(index)
     }
 
-    fun index(indexId: Int): Index = this.indexes.find { it.getId() == indexId }!!
+    fun index(indexId: Int): Index = indexes.find { it.getId() == indexId }!!
 
     fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0
@@ -77,12 +79,12 @@ class Js5Store(
 
         val whirlpool = ByteBuffer.allocate(64 + 1)
         whirlpool.put(1)
-        whirlpool.put(ByteBuffer.wrap(headerArray, 5, headerPosition - 5).array().toWhirlpool())
-        val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
+        whirlpool.put(headerArray.copyInto(ByteArray(headerPosition - 5), 0, 5, headerPosition).toWhirlpool())
 
-        val checksums = ByteBuffer.allocate(headerPosition.plus(rsa.size))
+        val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
+        val checksums = ByteBuffer.allocate(headerPosition + rsa.size)
         checksums.put(0)
-        checksums.putInt((headerPosition.plus(rsa.size)) - 5)
+        checksums.putInt((headerPosition + rsa.size) - 5)
         checksums.put(headerArray, 5, headerPosition - 5)
         checksums.put(rsa)
         return checksums.array()

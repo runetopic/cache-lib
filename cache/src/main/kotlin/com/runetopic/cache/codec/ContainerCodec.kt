@@ -4,7 +4,7 @@ import com.runetopic.cache.codec.CodecType.*
 import com.runetopic.cache.exception.CompressionException
 import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.extension.remainingBytes
-import com.runetopic.cryptography.ext.fromXTEA
+import com.runetopic.cryptography.fromXTEA
 import java.nio.ByteBuffer
 import java.util.zip.CRC32
 

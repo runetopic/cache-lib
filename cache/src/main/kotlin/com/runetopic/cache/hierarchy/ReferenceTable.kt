@@ -1,6 +1,6 @@
 package com.runetopic.cache.hierarchy
 
-import com.runetopic.cache.codec.ContainerCodec
+import com.runetopic.cache.codec.Container
 import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.exception.ProtocolException
 import com.runetopic.cache.extension.readUnsignedByte
@@ -59,31 +59,49 @@ internal data class ReferenceTable(
 
     fun exists(): Boolean = (length != 0 && sector != 0)
 
-    fun loadIndex(datFile: IDatFile, idxFile: IIdxFile, whirlpool: ByteArray, data: ByteArray): Js5Index {
-        val container = ContainerCodec.decompress(data)
-        val buffer = ByteBuffer.wrap(container.data)
+    fun loadIndex(
+        datFile: IDatFile,
+        idxFile: IIdxFile,
+        whirlpool: ByteArray,
+        decompressed: Container
+    ): Js5Index {
+        val buffer = ByteBuffer.wrap(decompressed.data)
+        val crc = decompressed.crc
+        val compressionType = decompressed.compression
         val protocol = buffer.readUnsignedByte()
-        var revision = 0
-
-        if (protocol < 5 || protocol > 6) {
-            throw ProtocolException("Unhandled protocol $protocol when reading index $this")
+        val revision = when {
+            protocol < 5 || protocol > 6 -> throw ProtocolException("Unhandled protocol $protocol when reading index $this")
+            protocol == 6 -> buffer.int
+            else -> 0
         }
-
-        if (protocol >= 6) {
-            revision = buffer.int
-        }
-
         val hash = buffer.readUnsignedByte()
+        val count = buffer.readUnsignedShort()
+        val groupTables = mutableListOf<ByteArray>()
+        (0 until count).forEach {
+            groupTables.add(datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(it)))
+        }
+        return loadIndexContents(idxFile.id(), buffer, crc, compressionType, revision, protocol, hash, count, whirlpool, groupTables)
+    }
+
+    private fun loadIndexContents(
+        indexId: Int,
+        buffer: ByteBuffer,
+        crc: Int,
+        compressionType: Int,
+        revision: Int,
+        protocol: Int,
+        hash: Int,
+        count: Int,
+        whirlpool: ByteArray,
+        groupTables: List<ByteArray>
+    ): Js5Index {
+        val groupIds = IntArray(count)
+
         val isNamed = (0x1 and hash) != 0
         val isUsingWhirlPool = (0x2 and hash) != 0
 
-        val count = buffer.readUnsignedShort()
-
         var lastGroupId = 0
         var biggest = -1
-
-        val groupIds = IntArray(count)
-
         (0 until count).forEach {
             groupIds[it] = buffer.readUnsignedShort().let { id -> lastGroupId += id; lastGroupId }
             if (groupIds[it] > biggest) biggest = groupIds[it]
@@ -101,7 +119,6 @@ internal data class ReferenceTable(
         val groups = hashMapOf<Int, Js5Group>()
         (0 until count).forEach {
             val groupId = groupIds[it]
-            val groupReferenceTable = datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(it))
             groups[it] = (Js5Group(
                 id = groupId,
                 nameHash = groupNameHashes[groupId],
@@ -109,11 +126,11 @@ internal data class ReferenceTable(
                 whirlpool = groupWhirlpools[groupId],
                 revision = groupRevisions[groupId],
                 keys = intArrayOf(),
-                files = files(fileIds, fileNameHashes, groupReferenceTable, groupFileIds[it], it),
-                data = groupReferenceTable
+                files = files(fileIds, fileNameHashes, groupTables[it], groupFileIds[it], it),
+                data = groupTables[it]
             ))
         }
-        return Js5Index(idxFile.id(), container.crc, whirlpool, container.compression, protocol, revision, isNamed, groups)
+        return Js5Index(indexId, crc, whirlpool, compressionType, protocol, revision, isNamed, groups)
     }
 
     private fun groupFileIds(
@@ -195,8 +212,8 @@ internal data class ReferenceTable(
         count: Int,
         groupIds: IntArray,
         buffer: ByteBuffer
-    ): Array<Array<Int>> {
-        val fileIds = Array(largestGroupId) { Array(validFileIds[it]) { -1 } }
+    ): Array<IntArray> {
+        val fileIds = Array(largestGroupId) { IntArray(validFileIds[it]) }
         (0 until count).forEach {
             val groupId = groupIds[it]
             var currentFileId = 0
@@ -216,8 +233,8 @@ internal data class ReferenceTable(
         groupIds: IntArray,
         buffer: ByteBuffer,
         isNamed: Boolean
-    ): Array<Array<Int>> {
-        val fileNameHashes = Array(largestGroupId) { Array(validFileIds[it]) { -1 } }
+    ): Array<IntArray> {
+        val fileNameHashes = Array(largestGroupId) { IntArray(validFileIds[it]) }
         if (isNamed) {
             (0 until count).forEach {
                 val groupId = groupIds[it]
@@ -230,8 +247,8 @@ internal data class ReferenceTable(
     }
 
     private fun files(
-        fileIds: Array<Array<Int>>,
-        fileNameHashes: Array<Array<Int>>,
+        fileIds: Array<IntArray>,
+        fileNameHashes: Array<IntArray>,
         groupReferenceTableData: ByteArray,
         count: Int,
         groupId: Int
@@ -249,7 +266,7 @@ internal data class ReferenceTable(
         }
 
         var position = src.size
-        val chunks: Int = src[--position].toInt() and 0xFF
+        val chunks = src[--position].toInt() and 0xFF
         position -= chunks * (count * 4)
         val buffer = ByteBuffer.wrap(src)
         buffer.position(position)
