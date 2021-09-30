@@ -2,9 +2,8 @@ package com.runetopic.cache.store
 
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.storage.js5.Js5DiskStorage
-import com.runetopic.cryptography.ext.toWhirlpool
+import com.runetopic.cryptography.toWhirlpool
 import java.io.Closeable
-import java.lang.System.arraycopy
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -26,6 +25,7 @@ class Js5Store(
         indexes.sortWith(compareBy { it.getId() })
     }
 
+    @Synchronized
     internal fun addIndex(index: Index) {
         indexes.forEach { i -> require(index.getId() != i.getId()) { "Index with Id={${index.getId()}} already exists." } }
         indexes.add(index)

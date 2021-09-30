@@ -1,7 +1,7 @@
 package com.runetopic.cache.extension
 
 import com.runetopic.cache.store.Constants.cp1252Identifiers
-import com.runetopic.cryptography.ext.toWhirlpool
+import com.runetopic.cryptography.toWhirlpool
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
