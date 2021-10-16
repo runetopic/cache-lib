@@ -5,6 +5,7 @@ import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.exception.ProtocolException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
+import com.runetopic.cache.extension.readUnsignedSmartShort
 import com.runetopic.cache.hierarchy.index.Js5Index
 import com.runetopic.cache.hierarchy.index.group.Js5Group
 import com.runetopic.cache.hierarchy.index.group.file.File
@@ -70,12 +71,12 @@ internal data class ReferenceTable(
         val compressionType = decompressed.compression
         val protocol = buffer.readUnsignedByte()
         val revision = when {
-            protocol < 5 || protocol > 6 -> throw ProtocolException("Unhandled protocol $protocol when reading index $this")
-            protocol == 6 -> buffer.int
+            protocol < 5 || protocol > 7 -> throw ProtocolException("Unhandled protocol $protocol when reading index $this")
+            protocol >= 6 -> buffer.int
             else -> 0
         }
         val hash = buffer.readUnsignedByte()
-        val count = buffer.readUnsignedShort()
+        val count = if (protocol >= 7) buffer.readUnsignedSmartShort() else buffer.readUnsignedShort()
         val groupTables = mutableListOf<ByteArray>()
         (0 until count).forEach {
             groupTables.add(datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(it)))
@@ -103,7 +104,8 @@ internal data class ReferenceTable(
         var lastGroupId = 0
         var biggest = -1
         (0 until count).forEach {
-            groupIds[it] = buffer.readUnsignedShort().let { id -> lastGroupId += id; lastGroupId }
+            groupIds[it] = if (protocol >= 7) { buffer.readUnsignedSmartShort() } else { buffer.readUnsignedShort() }
+                .let { id -> lastGroupId += id; lastGroupId }
             if (groupIds[it] > biggest) biggest = groupIds[it]
         }
 
@@ -112,8 +114,8 @@ internal data class ReferenceTable(
         val groupCrcs = groupCrcs(largestGroupId, count, groupIds, buffer)
         val groupWhirlpools = groupWhirlpools(largestGroupId, isUsingWhirlPool, count, buffer, groupIds)
         val groupRevisions = groupRevisions(largestGroupId, count, groupIds, buffer)
-        val groupFileIds = groupFileIds(largestGroupId, count, groupIds, buffer)
-        val fileIds = fileIds(largestGroupId, groupFileIds, count, groupIds, buffer)
+        val groupFileIds = groupFileIds(largestGroupId, count, groupIds, buffer, protocol)
+        val fileIds = fileIds(largestGroupId, groupFileIds, count, groupIds, buffer, protocol)
         val fileNameHashes = fileNameHashes(largestGroupId, groupFileIds, count, groupIds, buffer, isNamed)
 
         val groups = hashMapOf<Int, Js5Group>()
@@ -138,10 +140,11 @@ internal data class ReferenceTable(
         count: Int,
         groupIds: IntArray,
         buffer: ByteBuffer,
+        protocol: Int
     ): IntArray {
         val groupFileIds = IntArray(largestGroupId)
         (0 until count).forEach {
-            groupFileIds[groupIds[it]] = buffer.readUnsignedShort()
+            groupFileIds[groupIds[it]] = if (protocol >= 7) buffer.readUnsignedSmartShort() else buffer.readUnsignedShort()
         }
         return groupFileIds
     }
@@ -211,15 +214,16 @@ internal data class ReferenceTable(
         validFileIds: IntArray,
         count: Int,
         groupIds: IntArray,
-        buffer: ByteBuffer
+        buffer: ByteBuffer,
+        protocol: Int
     ): Array<IntArray> {
         val fileIds = Array(largestGroupId) { IntArray(validFileIds[it]) }
         (0 until count).forEach {
             val groupId = groupIds[it]
             var currentFileId = 0
             (0 until validFileIds[groupId]).forEach { fileId ->
-                buffer.readUnsignedShort()
-                    .let { id -> currentFileId += id; currentFileId }
+                if (protocol >= 7) { buffer.readUnsignedSmartShort() } else { buffer.readUnsignedShort() }
+                    .let { i -> currentFileId += i; currentFileId }
                     .also { fileIds[groupId][fileId] = currentFileId }
             }
         }
