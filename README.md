@@ -9,7 +9,7 @@ A cache library written in Kotlin.
 - Java Version 16
 
 # Supported
-- RS2 (414-659)
+- RS2 (414-742)
 - OSRS (1-current)
 
 # Features
@@ -21,7 +21,7 @@ A cache library written in Kotlin.
 # TODO
 - Cache Writing
 - Flat file system for unpacking the cache files into a raw format that can be git versioned.
-- Support for RS2 caches bigger than revision 659.
+- Support for RS2 caches revision 743+.
 - ~317 cache format support.
 - RS3 caches.
 - Testing
@@ -29,7 +29,7 @@ A cache library written in Kotlin.
 # Implementation
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.10-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.11-SNAPSHOT" }
 loader = { module = "com.runetopic.cache:loader", version.ref "647.6.1-SNAPSHOT" }
 ```
 
