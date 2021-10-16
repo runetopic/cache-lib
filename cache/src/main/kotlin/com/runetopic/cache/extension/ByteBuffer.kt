@@ -17,8 +17,12 @@ fun ByteBuffer.readCp1252Char(): Char {
 }
 
 fun ByteBuffer.readUnsignedSmart(): Int {
-    val peek: Int = get(position()).toInt() and 0xFF
+    val peek = get(position()).toInt() and 0xFF
     return if (peek < 128) readUnsignedByte() else (readUnsignedShort()) - 0x8000
+}
+
+fun ByteBuffer.readUnsignedSmartShort(): Int {
+    return if (get(position()).toInt() < 0) int and Int.MAX_VALUE else readUnsignedShort()
 }
 
 fun ByteBuffer.readUnsignedByte(): Int = get().toInt() and 0xFF
@@ -27,14 +31,14 @@ fun ByteBuffer.readMedium(): Int = (get().toInt() and 0xFF) shl 16 or (get().toI
 fun ByteBuffer.skip(amount: Int): ByteBuffer = position(position() + amount)
 
 fun ByteBuffer.readUnsignedIntSmartShortCompat(): Int {
-    var i = 0
-    var i2: Int = readUnsignedSmart()
-    while (i2 == 32767) {
-        i2 = readUnsignedSmart()
-        i += 32767
+    var value = 0
+    var i = readUnsignedSmart()
+    while (i == 32767) {
+        i = readUnsignedSmart()
+        value += 32767
     }
-    i += i2
-    return i
+    value += i
+    return value
 }
 
 fun ByteBuffer.whirlpool(): ByteArray {
