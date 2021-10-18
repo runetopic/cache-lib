@@ -1,11 +1,11 @@
 package com.runetopic.loader.index.config.struct
 
-import com.runetopic.cache.extension.readMedium
-import com.runetopic.cache.extension.readString
-import com.runetopic.cache.extension.readUnsignedByte
-import com.runetopic.cache.extension.toBoolean
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.readMedium
+import com.runetopic.loader.extension.readString
+import com.runetopic.loader.extension.readUnsignedByte
+import com.runetopic.loader.extension.toBoolean
 import java.nio.ByteBuffer
 
 /**

@@ -4,7 +4,6 @@ import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.Js5Store
 import java.io.Closeable
 import java.io.Flushable
-import java.util.concurrent.CountDownLatch
 
 /**
  * @author Tyler Telis
@@ -12,7 +11,7 @@ import java.util.concurrent.CountDownLatch
  */
 internal interface IStorage: Closeable, Flushable {
     fun init(store: Js5Store)
-    fun store(indexId: Int, store: Js5Store, latch: CountDownLatch)
+    fun open(indexId: Int, store: Js5Store)
     fun loadReferenceTable(index: Index, groupId: Int): ByteArray
     fun loadMasterReferenceTable(groupId: Int): ByteArray
     fun loadReferenceTable(index: Index, groupName: String): ByteArray

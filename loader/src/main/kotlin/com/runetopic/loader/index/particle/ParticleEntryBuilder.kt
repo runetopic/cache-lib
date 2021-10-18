@@ -1,11 +1,11 @@
 package com.runetopic.loader.index.particle
 
-import com.runetopic.cache.extension.readUnsignedByte
-import com.runetopic.cache.extension.readUnsignedShort
-import com.runetopic.cache.extension.skip
-import com.runetopic.cache.extension.toBoolean
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.readUnsignedByte
+import com.runetopic.loader.extension.readUnsignedShort
+import com.runetopic.loader.extension.skip
+import com.runetopic.loader.extension.toBoolean
 import java.nio.ByteBuffer
 
 /**

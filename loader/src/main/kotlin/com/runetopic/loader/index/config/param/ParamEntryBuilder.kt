@@ -1,10 +1,10 @@
 package com.runetopic.loader.index.config.param
 
-import com.runetopic.cache.extension.readCp1252Char
-import com.runetopic.cache.extension.readString
-import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.readCp1252Char
+import com.runetopic.loader.extension.readString
+import com.runetopic.loader.extension.readUnsignedByte
 import java.nio.ByteBuffer
 
 /**

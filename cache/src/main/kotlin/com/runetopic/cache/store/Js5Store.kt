@@ -15,9 +15,10 @@ import java.nio.file.Path
  * @author Jordan Abraham
  */
 class Js5Store(
-    path: Path
+    path: Path,
+    parallel: Boolean = false
 ) : Closeable {
-    private var storage = Js5DiskStorage(path)
+    private var storage = Js5DiskStorage(path, parallel)
     private val indexes = arrayListOf<Index>()
 
     init {

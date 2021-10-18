@@ -1,8 +1,8 @@
 package com.runetopic.loader.index.loc
 
-import com.runetopic.cache.extension.*
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.*
 import java.nio.ByteBuffer
 
 /**

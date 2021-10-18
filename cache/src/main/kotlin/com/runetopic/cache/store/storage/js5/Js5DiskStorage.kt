@@ -2,7 +2,6 @@ package com.runetopic.cache.store.storage.js5
 
 import com.github.michaelbull.logging.InlineLogger
 import com.runetopic.cache.codec.ContainerCodec
-import com.runetopic.cache.extension.whirlpool
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.hierarchy.index.Js5Index
 import com.runetopic.cache.store.Constants
@@ -10,23 +9,24 @@ import com.runetopic.cache.store.Js5Store
 import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.js5.impl.DatFile
 import com.runetopic.cache.store.storage.js5.impl.IdxFile
+import com.runetopic.cryptography.toWhirlpool
 import java.io.FileNotFoundException
-import java.nio.ByteBuffer
 import java.nio.file.Path
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.exists
 
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 @OptIn(ExperimentalPathApi::class)
 internal class Js5DiskStorage(
-    private val path: Path
+    private val path: Path,
+    private val parallel: Boolean
 ) : IStorage {
     private var masterIdxFile: IIdxFile
     private var datFile: IDatFile
@@ -51,36 +51,36 @@ internal class Js5DiskStorage(
     }
 
     override fun init(store: Js5Store) {
-        val cores = Runtime.getRuntime().availableProcessors()
-        var pool: ExecutorService? = null
-        if (cores > 4) {
-            pool = Executors.newFixedThreadPool(if (cores > 8) 4 else 2)
-        }
-        val latch = CountDownLatch(masterIdxFile.validIndexCount())
+        logger.debug { "Opening $path for js5 indexes." }
 
-        (0 until masterIdxFile.validIndexCount()).forEach { indexId ->
-            pool?.let { it.execute { store(indexId, store, latch) } }
-                ?: run { store(indexId, store, latch) }
+        if (parallel) {
+            val latch = CountDownLatch(masterIdxFile.validIndexCount())
+            val threads = Runtime.getRuntime().availableProcessors()
+            val pool = Executors.newFixedThreadPool(if (threads >= 16) 8 else if (threads >= 8) 4 else 2)
+            (0 until masterIdxFile.validIndexCount()).forEach {
+                pool.execute {
+                    open(it, store)
+                    latch.countDown()
+                }
+            }
+            latch.await()
+            pool.shutdown()
+        } else {
+            (0 until masterIdxFile.validIndexCount()).forEach { open(it, store) }
         }
-
-        latch.await(60, TimeUnit.SECONDS)
-        pool?.shutdown()
-        logger.debug { "Loaded ${idxFiles.size} indexes." }
+        logger.debug { "Opened ${idxFiles.size} js5 indexes." }
     }
 
-    override fun store(indexId: Int, store: Js5Store, latch: CountDownLatch) {
+    override fun open(indexId: Int, store: Js5Store) {
         val indexTable = masterIdxFile.loadReferenceTable(indexId)
         idxFiles.add(getIdxFile(indexId))
 
         if (indexTable.exists().not()) {
             store.addIndex(Js5Index.default(indexId))
-            latch.countDown()
             return
         }
-
         val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
-        store.addIndex(indexTable.loadIndex(datFile, getIdxFile(indexId), ByteBuffer.wrap(indexDatTable).whirlpool(), ContainerCodec.decompress(indexDatTable)))
-        latch.countDown()
+        store.addIndex(indexTable.loadIndex(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable)))
     }
 
     override fun loadMasterReferenceTable(groupId: Int): ByteArray {
@@ -97,6 +97,7 @@ internal class Js5DiskStorage(
         return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(group.getId()))
     }
 
+    @Synchronized
     private fun getIdxFile(id: Int): IdxFile {
         idxFiles.find { it.id() == id }?.let { return it }
         return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}${id}"))
