@@ -28,7 +28,7 @@ A cache library written in Kotlin.
 # Implementation
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.12-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.13-SNAPSHOT" }
 loader = { module = "com.runetopic.cache:loader", version.ref "647.6.2-SNAPSHOT" }
 ```
 
