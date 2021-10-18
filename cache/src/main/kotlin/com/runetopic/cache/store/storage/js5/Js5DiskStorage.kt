@@ -4,6 +4,8 @@ import com.github.michaelbull.logging.InlineLogger
 import com.runetopic.cache.codec.ContainerCodec
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.hierarchy.index.Js5Index
+import com.runetopic.cache.hierarchy.index.group.Js5Group
+import com.runetopic.cache.hierarchy.index.group.file.groupFiles
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.cache.store.storage.IStorage
@@ -80,7 +82,43 @@ internal class Js5DiskStorage(
             return
         }
         val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
-        store.addIndex(indexTable.loadIndex(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable)))
+
+        val rawIndex = indexTable.loadIndex(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable))
+        val rawReferenceTable = rawIndex.referenceTable
+
+        val groups = hashMapOf<Int, Js5Group>()
+        (0 until rawReferenceTable.count).forEach {
+            val groupId = rawReferenceTable.groupIds[it]
+            groups[it] = (Js5Group(
+                groupId,
+                rawReferenceTable.groupNameHashes[groupId],
+                rawReferenceTable.groupCrcs[groupId],
+                rawReferenceTable.groupWhirlpools[groupId],
+                rawReferenceTable.groupRevisions[groupId],
+                intArrayOf(),//TODO
+                groupFiles(
+                    rawReferenceTable.fileIds,
+                    rawReferenceTable.fileNameHashes,
+                    rawReferenceTable.groupTables[it],
+                    rawReferenceTable.groupFileIds[it],
+                    it
+                ),
+                rawReferenceTable.groupTables[it]
+            ))
+        }
+
+        store.addIndex(
+            Js5Index(
+                indexId,
+                rawIndex.getCRC(),
+                rawIndex.getWhirlpool(),
+                rawIndex.getCompression(),
+                rawIndex.getProtocol(),
+                rawIndex.getRevision(),
+                rawIndex.getIsNamed(),
+                groups
+            )
+        )
     }
 
     override fun loadMasterReferenceTable(groupId: Int): ByteArray {

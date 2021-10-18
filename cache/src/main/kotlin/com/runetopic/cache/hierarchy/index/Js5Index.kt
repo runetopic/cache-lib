@@ -18,7 +18,7 @@ class Js5Index(
     private val protocol: Int,
     private val revision: Int,
     private val isNamed: Boolean,
-    private val groups: Map<Int, Js5Group>
+    private val groups: Map<Int, Group>
 ): Index {
     override fun getId(): Int = id
     override fun getCRC(): Int = crc
