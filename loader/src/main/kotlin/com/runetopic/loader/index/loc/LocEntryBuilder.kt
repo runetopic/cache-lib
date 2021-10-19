@@ -18,7 +18,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
         mapTypes = buildSet {
             store.index(16).use { index ->
                 (0 until index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(index.getGroup(it ushr 8).getFile(it and 0xFF).getData()), LocEntryType(it)))
+                    add(read(ByteBuffer.wrap(index.group(it ushr 8).file(it and 0xFF).data), LocEntryType(it)))
                 }
             }
         }

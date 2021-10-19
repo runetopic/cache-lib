@@ -18,8 +18,8 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         identityKitTypes = buildSet {
-            store.index(2).getGroup(3).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.getData()), IdentityKitEntryType(it.getId())))
+            store.index(2).group(3).files().forEach {
+                add(read(ByteBuffer.wrap(it.data), IdentityKitEntryType(it.id)))
             }
         }
     }

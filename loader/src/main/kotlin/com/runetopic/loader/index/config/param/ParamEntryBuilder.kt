@@ -18,8 +18,8 @@ internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         paramTypes = buildSet {
-            store.index(2).getGroup(11).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.getData()), ParamEntryType(it.getId())))
+            store.index(2).group(11).files().forEach {
+                add(read(ByteBuffer.wrap(it.data), ParamEntryType(it.id)))
             }
         }
     }

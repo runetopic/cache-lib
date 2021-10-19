@@ -18,8 +18,8 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         particles = buildSet {
-            store.index(27).getGroup(0).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.getData()), ParticleEntryType(it.getId())))
+            store.index(27).group(0).files().forEach {
+                add(read(ByteBuffer.wrap(it.data), ParticleEntryType(it.id)))
             }
         }
     }

@@ -3,9 +3,6 @@ package com.runetopic.cache.store.storage.js5
 import com.github.michaelbull.logging.InlineLogger
 import com.runetopic.cache.codec.ContainerCodec
 import com.runetopic.cache.hierarchy.index.Index
-import com.runetopic.cache.hierarchy.index.Js5Index
-import com.runetopic.cache.hierarchy.index.group.Js5Group
-import com.runetopic.cache.hierarchy.index.group.file.groupFiles
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.cache.store.storage.IStorage
@@ -78,47 +75,11 @@ internal class Js5DiskStorage(
         idxFiles.add(getIdxFile(indexId))
 
         if (indexTable.exists().not()) {
-            store.addIndex(Js5Index.default(indexId))
+            store.addIndex(Index.default(indexId))
             return
         }
         val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
-
-        val rawIndex = indexTable.loadIndex(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable))
-        val rawReferenceTable = rawIndex.referenceTable
-
-        val groups = hashMapOf<Int, Js5Group>()
-        (0 until rawReferenceTable.count).forEach {
-            val groupId = rawReferenceTable.groupIds[it]
-            groups[it] = (Js5Group(
-                groupId,
-                rawReferenceTable.groupNameHashes[groupId],
-                rawReferenceTable.groupCrcs[groupId],
-                rawReferenceTable.groupWhirlpools[groupId],
-                rawReferenceTable.groupRevisions[groupId],
-                intArrayOf(),//TODO
-                groupFiles(
-                    rawReferenceTable.fileIds,
-                    rawReferenceTable.fileNameHashes,
-                    rawReferenceTable.groupTables[it],
-                    rawReferenceTable.groupFileIds[it],
-                    it
-                ),
-                rawReferenceTable.groupTables[it]
-            ))
-        }
-
-        store.addIndex(
-            Js5Index(
-                indexId,
-                rawIndex.getCRC(),
-                rawIndex.getWhirlpool(),
-                rawIndex.getCompression(),
-                rawIndex.getProtocol(),
-                rawIndex.getRevision(),
-                rawIndex.getIsNamed(),
-                groups
-            )
-        )
+        store.addIndex(loadIndex(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable)))
     }
 
     override fun loadMasterReferenceTable(groupId: Int): ByteArray {
@@ -126,13 +87,13 @@ internal class Js5DiskStorage(
     }
 
     override fun loadReferenceTable(index: Index, groupId: Int): ByteArray {
-        return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(groupId))
+        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(groupId))
     }
 
     override fun loadReferenceTable(index: Index, groupName: String): ByteArray {
-        val group = index.getGroup(groupName)
-        if (group.getData().isEmpty()) return group.getData()
-        return datFile.readReferenceTable(index.getId(), getIdxFile(index.getId()).loadReferenceTable(group.getId()))
+        val group = index.group(groupName)
+        if (group.data.isEmpty()) return group.data
+        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(group.id))
     }
 
     @Synchronized

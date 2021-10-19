@@ -16,8 +16,8 @@ internal class SkyBoxEntryBuilder: IEntryBuilder<SkyBoxEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         skyBoxTypes = buildSet {
-            store.index(2).getGroup(29).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.getData()), SkyBoxEntryType(it.getId())))
+            store.index(2).group(29).files().forEach {
+                add(read(ByteBuffer.wrap(it.data), SkyBoxEntryType(it.id)))
             }
         }
     }

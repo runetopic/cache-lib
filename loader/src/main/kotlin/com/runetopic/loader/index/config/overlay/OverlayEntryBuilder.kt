@@ -17,8 +17,8 @@ class OverlayEntryBuilder: IEntryBuilder<OverlayEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         overlays = buildSet {
-            store.index(2).getGroup(4).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.getData()), OverlayEntryType(it.getId())))
+            store.index(2).group(4).files().forEach {
+                add(read(ByteBuffer.wrap(it.data), OverlayEntryType(it.id)))
             }
         }
     }
