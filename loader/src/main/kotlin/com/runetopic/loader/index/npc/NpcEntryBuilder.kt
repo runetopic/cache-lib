@@ -1,8 +1,8 @@
 package com.runetopic.loader.index.npc
 
-import com.runetopic.cache.extension.*
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.*
 import java.nio.ByteBuffer
 
 /**
@@ -17,7 +17,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
         npcs = buildSet {
             store.index(18).use { index ->
                 (0 until index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(index.getGroup(it ushr 8).getFile(it and 0xFF).getData()), NpcEntryType(it)))
+                    add(read(ByteBuffer.wrap(index.group(it ushr 8).file(it and 0xFF).data), NpcEntryType(it)))
                 }
             }
         }

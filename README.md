@@ -9,28 +9,27 @@ A cache library written in Kotlin.
 - Java Version 16
 
 # Supported
-- RS2 (414-742)
+- RS2 (414-772)
+- RS3 (773-~788)  
 - OSRS (1-current)
 
 # Features
-- Thread-safe
-  - Cache Loading
-  - Definitions/Providers Loading
+- Cache Reading
+- Definitions/Providers Loading
 - Fast (Limited by I/O)
 
 # TODO
 - Cache Writing
-- Flat file system for unpacking the cache files into a raw format that can be git versioned.
-- Support for RS2 caches revision 743+.
-- ~317 cache format support.
-- RS3 caches.
-- Testing
+- Flat File System
+- Ondemand Data Caching
+- 317 and older support
+- Tests
 
 # Implementation
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.11-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.6.1-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.15-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.6.3-SNAPSHOT" }
 ```
 
 ```
@@ -45,7 +44,7 @@ Index -> Group -> File
 
 ### Creating a new JS5 store
 ```
-val store = Js5Store(Path.of("/path/"))
+val store = Js5Store(path = Path.of("/path/"), parallel = true)
 ```
 
 ### Getting an index

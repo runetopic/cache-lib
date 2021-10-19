@@ -1,9 +1,9 @@
 package com.runetopic.loader.index.spotanim
 
-import com.runetopic.cache.extension.readUnsignedByte
-import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.readUnsignedByte
+import com.runetopic.loader.extension.readUnsignedShort
 import java.nio.ByteBuffer
 
 /**
@@ -18,7 +18,7 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
         spotAnimations = buildSet {
             store.index(21).use { index ->
                 (0 until index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(index.getGroup(it ushr 8).getFile(it and 0xFF).getData()), SpotAnimationEntryType(it)))
+                    add(read(ByteBuffer.wrap(index.group(it ushr 8).file(it and 0xFF).data), SpotAnimationEntryType(it)))
                 }
             }
         }

@@ -15,28 +15,29 @@ import java.nio.file.Path
  * @author Jordan Abraham
  */
 class Js5Store(
-    path: Path
+    path: Path,
+    parallel: Boolean = false
 ) : Closeable {
-    private var storage = Js5DiskStorage(path)
+    private var storage = Js5DiskStorage(path, parallel)
     private val indexes = arrayListOf<Index>()
 
     init {
         storage.init(this)
-        indexes.sortWith(compareBy { it.getId() })
+        indexes.sortWith(compareBy { it.id })
     }
 
     @Synchronized
     internal fun addIndex(index: Index) {
-        indexes.forEach { i -> require(index.getId() != i.getId()) { "Index with Id={${index.getId()}} already exists." } }
+        indexes.forEach { i -> require(index.id != i.id) { "Index with Id={${index.id}} already exists." } }
         indexes.add(index)
     }
 
-    fun index(indexId: Int): Index = indexes.find { it.getId() == indexId }!!
+    fun index(indexId: Int): Index = indexes.find { it.id == indexId }!!
 
     fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0
         index(indexId).use { index ->
-            index.getGroups().forEach { size += storage.loadReferenceTable(index, it.getId()).size }
+            index.groups().forEach { size += storage.loadReferenceTable(index, it.id).size }
         }
         return size
     }
@@ -59,8 +60,8 @@ class Js5Store(
     fun checksumsWithoutRSA(): ByteArray {
         val header = ByteBuffer.allocate(indexes.size * 8)
         indexes.forEach {
-            header.putInt(it.getCRC())
-            header.putInt(it.getRevision())
+            header.putInt(it.crc)
+            header.putInt(it.revision)
         }
         return header.array()
     }
@@ -70,9 +71,9 @@ class Js5Store(
         header.position(5)
         header.put(indexes.size.toByte())
         indexes.forEach {
-            header.putInt(it.getCRC())
-            header.putInt(it.getRevision())
-            header.put(it.getWhirlpool())
+            header.putInt(it.crc)
+            header.putInt(it.revision)
+            header.put(it.whirlpool)
         }
         val headerPosition = header.position()
         val headerArray = header.array()

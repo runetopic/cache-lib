@@ -1,10 +1,10 @@
 package com.runetopic.loader.index.config.idk
 
-import com.runetopic.cache.extension.readUnsignedByte
-import com.runetopic.cache.extension.readUnsignedShort
-import com.runetopic.cache.extension.skip
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.readUnsignedByte
+import com.runetopic.loader.extension.readUnsignedShort
+import com.runetopic.loader.extension.skip
 import java.nio.ByteBuffer
 
 /**
@@ -18,8 +18,8 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         identityKitTypes = buildSet {
-            store.index(2).getGroup(3).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.getData()), IdentityKitEntryType(it.getId())))
+            store.index(2).group(3).files().forEach {
+                add(read(ByteBuffer.wrap(it.data), IdentityKitEntryType(it.id)))
             }
         }
     }

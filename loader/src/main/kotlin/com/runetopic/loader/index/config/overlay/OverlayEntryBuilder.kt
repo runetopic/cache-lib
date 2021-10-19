@@ -1,10 +1,10 @@
 package com.runetopic.loader.index.config.overlay
 
-import com.runetopic.cache.extension.readMedium
-import com.runetopic.cache.extension.readUnsignedByte
-import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.readMedium
+import com.runetopic.loader.extension.readUnsignedByte
+import com.runetopic.loader.extension.readUnsignedShort
 import java.nio.ByteBuffer
 
 /**
@@ -17,8 +17,8 @@ class OverlayEntryBuilder: IEntryBuilder<OverlayEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         overlays = buildSet {
-            store.index(2).getGroup(4).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.getData()), OverlayEntryType(it.getId())))
+            store.index(2).group(4).files().forEach {
+                add(read(ByteBuffer.wrap(it.data), OverlayEntryType(it.id)))
             }
         }
     }

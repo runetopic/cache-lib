@@ -1,9 +1,9 @@
 package com.runetopic.loader.index.config.mouseicon
 
-import com.runetopic.cache.extension.readUnsignedByte
-import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
+import com.runetopic.loader.extension.readUnsignedByte
+import com.runetopic.loader.extension.readUnsignedShort
 import java.nio.ByteBuffer
 
 /**
@@ -16,8 +16,8 @@ internal class MouseIconEntryBuilder: IEntryBuilder<MouseIconEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         mouseIconTypes = buildSet {
-            store.index(2).getGroup(33).getFiles().forEach {
-                add(read(ByteBuffer.wrap(it.getData()), MouseIconEntryType(it.getId())))
+            store.index(2).group(33).files().forEach {
+                add(read(ByteBuffer.wrap(it.data), MouseIconEntryType(it.id)))
             }
         }
     }
