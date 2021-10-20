@@ -11,6 +11,7 @@ import com.runetopic.cache.store.storage.js5.impl.IdxFile
 import com.runetopic.cryptography.toWhirlpool
 import java.io.FileNotFoundException
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import kotlin.io.path.ExperimentalPathApi
@@ -29,7 +30,7 @@ internal class Js5DiskStorage(
 ) : IStorage {
     private var masterIdxFile: IIdxFile
     private var datFile: IDatFile
-    private var idxFiles: ArrayList<IdxFile> = arrayListOf()
+    private var idxFiles = Collections.synchronizedList<IdxFile>(mutableListOf())
     private val logger = InlineLogger()
 
     init {
@@ -96,7 +97,6 @@ internal class Js5DiskStorage(
         return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(group.id))
     }
 
-    @Synchronized
     private fun getIdxFile(id: Int): IdxFile {
         idxFiles.find { it.id() == id }?.let { return it }
         return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}${id}"))

@@ -7,6 +7,7 @@ import java.io.Closeable
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.file.Path
+import java.util.*
 
 /**
  * @author Tyler Telis
@@ -19,14 +20,13 @@ class Js5Store(
     parallel: Boolean = false
 ) : Closeable {
     private var storage = Js5DiskStorage(path, parallel)
-    private val indexes = arrayListOf<Index>()
+    private val indexes = Collections.synchronizedList<Index>(mutableListOf())
 
     init {
         storage.init(this)
         indexes.sortWith(compareBy { it.id })
     }
 
-    @Synchronized
     internal fun addIndex(index: Index) {
         indexes.forEach { i -> require(index.id != i.id) { "Index with Id={${index.id}} already exists." } }
         indexes.add(index)
