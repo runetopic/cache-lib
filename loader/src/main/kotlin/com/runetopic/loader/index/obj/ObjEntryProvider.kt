@@ -10,19 +10,8 @@ class ObjEntryProvider : IEntryProvider<ObjEntryType> {
 
     private val builder = ObjEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): ObjEntryType {
-        return builder.objs.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.objs.size
-    }
-
-    override fun collect(): Set<ObjEntryType> {
-        return builder.objs
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): ObjEntryType = builder.objs.elementAt(id)
+    override fun size(): Int = builder.objs.size
+    override fun collect(): Set<ObjEntryType> = builder.objs
 }

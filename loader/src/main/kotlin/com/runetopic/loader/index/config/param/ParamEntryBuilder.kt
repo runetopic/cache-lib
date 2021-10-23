@@ -5,6 +5,7 @@ import com.runetopic.loader.IEntryBuilder
 import com.runetopic.loader.extension.readCp1252Char
 import com.runetopic.loader.extension.readString
 import com.runetopic.loader.extension.readUnsignedByte
+import com.runetopic.loader.extension.toByteBuffer
 import java.nio.ByteBuffer
 
 /**
@@ -19,7 +20,7 @@ internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
     override fun build(store: Js5Store) {
         paramTypes = buildSet {
             store.index(2).group(11).files().forEach {
-                add(read(ByteBuffer.wrap(it.data), ParamEntryType(it.id)))
+                add(read(it.data.toByteBuffer(), ParamEntryType(it.id)))
             }
         }
     }

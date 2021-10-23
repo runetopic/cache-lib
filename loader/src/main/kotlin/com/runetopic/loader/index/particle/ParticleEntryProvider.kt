@@ -10,19 +10,8 @@ class ParticleEntryProvider : IEntryProvider<ParticleEntryType> {
 
     private val builder = ParticleEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): ParticleEntryType {
-        return builder.particles.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.particles.size
-    }
-
-    override fun collect(): Set<ParticleEntryType> {
-        return builder.particles
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): ParticleEntryType = builder.particles.elementAt(id)
+    override fun size(): Int = builder.particles.size
+    override fun collect(): Set<ParticleEntryType> = builder.particles
 }

@@ -91,7 +91,5 @@ class Js5Store(
         return checksums.array()
     }
 
-    override fun close() {
-        storage.close()
-    }
+    override fun close() = storage.close()
 }

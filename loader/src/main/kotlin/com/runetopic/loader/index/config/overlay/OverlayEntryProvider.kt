@@ -10,19 +10,8 @@ class OverlayEntryProvider: IEntryProvider<OverlayEntryType> {
 
     private val builder = OverlayEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): OverlayEntryType {
-        return builder.overlays.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.overlays.size
-    }
-
-    override fun collect(): Set<OverlayEntryType> {
-        return builder.overlays
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): OverlayEntryType = builder.overlays.elementAt(id)
+    override fun size(): Int = builder.overlays.size
+    override fun collect(): Set<OverlayEntryType> = builder.overlays
 }

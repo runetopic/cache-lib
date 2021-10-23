@@ -11,19 +11,8 @@ class SpotAnimationEntryProvider : IEntryProvider<SpotAnimationEntryType> {
 
     private val builder = SpotAnimationEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): SpotAnimationEntryType {
-        return builder.spotAnimations.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.spotAnimations.size
-    }
-
-    override fun collect(): Set<SpotAnimationEntryType> {
-        return builder.spotAnimations
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): SpotAnimationEntryType = builder.spotAnimations.elementAt(id)
+    override fun size(): Int = builder.spotAnimations.size
+    override fun collect(): Set<SpotAnimationEntryType> = builder.spotAnimations
 }

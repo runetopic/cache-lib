@@ -12,19 +12,8 @@ class LightingEntryProvider : IEntryProvider<LightingEntryType> {
 
     private val builder = LightingEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): LightingEntryType {
-        return builder.lightings.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.lightings.size
-    }
-
-    override fun collect(): Set<LightingEntryType> {
-        return builder.lightings
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): LightingEntryType = builder.lightings.elementAt(id)
+    override fun size(): Int = builder.lightings.size
+    override fun collect(): Set<LightingEntryType> = builder.lightings
 }

@@ -1,13 +1,12 @@
 package com.runetopic.loader.index.map
 
-import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import com.runetopic.loader.extension.readUnsignedByte
 import com.runetopic.loader.extension.readUnsignedIntSmartShortCompat
 import com.runetopic.loader.extension.readUnsignedSmart
+import com.runetopic.loader.extension.toByteBuffer
 import java.nio.ByteBuffer
-import java.util.zip.ZipException
 
 /**
  * @author Tyler Telis
@@ -26,11 +25,7 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
                     val regionY: Int = regionId and 0xFF
                     it.group("l${regionX}_${regionY}").data.let { data ->
                         if (data.isEmpty()) return@forEach
-                        try {
-                            add(read(ByteBuffer.wrap(data.decompress()), MapLocationEntryType(regionId, regionX, regionY)))
-                        } catch (exception: ZipException) {
-                            println("Couldn't decompress Region $regionId")
-                        }
+                        add(read(data.toByteBuffer(), MapLocationEntryType(regionId, regionX, regionY)))
                     }
                 }
             }

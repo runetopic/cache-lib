@@ -17,7 +17,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
         npcs = buildSet {
             store.index(18).use { index ->
                 (0 until index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(index.group(it ushr 8).file(it and 0xFF).data), NpcEntryType(it)))
+                    add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), NpcEntryType(it)))
                 }
             }
         }
@@ -204,7 +204,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
                 val length = buffer.readUnsignedByte()
                 (0 until length).forEach { _ ->
                     val string = buffer.readUnsignedByte().toBoolean()
-                    type.params[buffer.readMedium()] = if (string) buffer.readString() else buffer.int
+                    type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
         } while (true)

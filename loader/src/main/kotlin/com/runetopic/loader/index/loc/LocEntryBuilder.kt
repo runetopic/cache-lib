@@ -18,7 +18,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
         mapTypes = buildSet {
             store.index(16).use { index ->
                 (0 until index.expand()).forEach {
-                    add(read(ByteBuffer.wrap(index.group(it ushr 8).file(it and 0xFF).data), LocEntryType(it)))
+                    add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), LocEntryType(it)))
                 }
             }
         }
@@ -244,7 +244,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                 val length = buffer.readUnsignedByte()
                 (0 until length).forEach { _ ->
                     val string = buffer.readUnsignedByte().toBoolean()
-                    type.params[buffer.readMedium()] = if (string) buffer.readString() else buffer.int
+                    type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
             else -> throw Exception("Read unused opcode with id: ${opcode}.")

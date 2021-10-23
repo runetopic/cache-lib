@@ -4,6 +4,7 @@ import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import com.runetopic.loader.extension.readUnsignedByte
 import com.runetopic.loader.extension.readUnsignedShort
+import com.runetopic.loader.extension.toByteBuffer
 import java.nio.ByteBuffer
 
 /**
@@ -18,7 +19,7 @@ internal class LightingEntryBuilder : IEntryBuilder<LightingEntryType> {
     override fun build(store: Js5Store) {
         lightings = buildSet {
             store.index(2).group(31).files().forEach {
-                add(read(ByteBuffer.wrap(it.data), LightingEntryType(it.id)))
+                add(read(it.data.toByteBuffer(), LightingEntryType(it.id)))
             }
         }
     }

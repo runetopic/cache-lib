@@ -7,11 +7,6 @@ import com.runetopic.cache.codec.IFileCodec
  * @email <xlitersps@gmail.com>
  */
 internal class NoFileCodec: IFileCodec {
-    override fun compress(data: ByteArray, length: Int, keys: IntArray): ByteArray {
-        throw NotImplementedError("No codec provided.")
-    }
-
-    override fun decompress(data: ByteArray, length: Int, keys: IntArray): ByteArray {
-        throw NotImplementedError("No codec provided.")
-    }
+    override fun compress(data: ByteArray, length: Int, keys: IntArray): ByteArray = throw NotImplementedError("No codec provided.")
+    override fun decompress(data: ByteArray, length: Int, keys: IntArray): ByteArray = throw NotImplementedError("No codec provided.")
 }

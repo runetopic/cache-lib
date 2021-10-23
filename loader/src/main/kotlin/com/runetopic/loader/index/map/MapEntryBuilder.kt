@@ -1,11 +1,11 @@
 package com.runetopic.loader.index.map
 
-import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import com.runetopic.loader.extension.readUnsignedByte
 import com.runetopic.loader.extension.readUnsignedShort
 import com.runetopic.loader.extension.skip
+import com.runetopic.loader.extension.toByteBuffer
 import com.runetopic.loader.util.vector.Vector3f
 import java.nio.ByteBuffer
 
@@ -26,7 +26,7 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
                     val regionY: Int = regionId and 0xFF
                     it.group("m${regionX}_${regionY}").data.let { data ->
                         if (data.isEmpty()) return@forEach
-                        add(read(ByteBuffer.wrap(data.decompress()), MapEntryType(regionId, regionX, regionY)))
+                        add(read(data.toByteBuffer(), MapEntryType(regionId, regionX, regionY)))
                     }
                 }
             }
