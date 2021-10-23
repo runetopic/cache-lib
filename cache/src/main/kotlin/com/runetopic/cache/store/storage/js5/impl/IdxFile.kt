@@ -35,7 +35,7 @@ internal class IdxFile(
         if (length < 0) {
             throw IdxFileException("Invalid length for sector Length=$length Sector=$sector")
         }
-        return ReferenceTable(this, id, sector, length)
+        return ReferenceTable(id, sector, length)
     }
 
     @OptIn(ExperimentalPathApi::class)
