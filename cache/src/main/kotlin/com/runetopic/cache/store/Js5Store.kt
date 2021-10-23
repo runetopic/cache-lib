@@ -7,7 +7,7 @@ import java.io.Closeable
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.file.Path
-import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * @author Tyler Telis
@@ -20,7 +20,7 @@ class Js5Store(
     parallel: Boolean = false
 ) : Closeable {
     private var storage = Js5DiskStorage(path, parallel)
-    private val indexes = Collections.synchronizedList<Index>(mutableListOf())
+    private val indexes = CopyOnWriteArrayList<Index>()
 
     init {
         storage.init(this)

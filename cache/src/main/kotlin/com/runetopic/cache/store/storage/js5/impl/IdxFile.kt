@@ -1,9 +1,11 @@
 package com.runetopic.cache.store.storage.js5.impl
 
 import com.runetopic.cache.exception.IdxFileException
+import com.runetopic.cache.extension.readUnsignedMedium
 import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.store.storage.js5.IIdxFile
 import java.io.RandomAccessFile
+import java.nio.ByteBuffer
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.fileSize
@@ -11,39 +13,29 @@ import kotlin.io.path.fileSize
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
+ *
+ * @author Jordan Abraham
  */
 internal class IdxFile(
     private val id: Int,
     private val path: Path
 ) : IIdxFile {
     private val idxFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
-    private val readBuffer = ByteArray(ENTRY_LIMIT)
+    private val idxBuffer = ByteArray(idxFile.length().toInt())
 
-    @Synchronized
-    override fun loadReferenceTable(id: Int): ReferenceTable {
-        idxFile.seek((id * ENTRY_LIMIT).toLong())
-        validateHeader()
-        val length = (readBuffer[0].toInt() and 0xFF shl 16
-                or (readBuffer[1].toInt() and 0xFF shl 8)
-                or (readBuffer[2].toInt() and 0xFF))
-
-        val sector = (readBuffer[3].toInt() and 0xFF shl 16
-                or (readBuffer[4].toInt() and 0xFF shl 8)
-                or (readBuffer[5].toInt() and 0xFF))
-        validateLengthAtSector(length, sector)
-        return ReferenceTable(this, id, sector, length)
+    init {
+        idxFile.readFully(idxBuffer)
     }
 
-    private fun validateLengthAtSector(length: Int, sector: Int) {
+    override fun loadReferenceTable(id: Int): ReferenceTable {
+        val offset = id * ENTRY_LIMIT
+        val buffer = ByteBuffer.wrap(idxBuffer.copyOfRange(offset, offset + 6))
+        val length = buffer.readUnsignedMedium()
+        val sector = buffer.readUnsignedMedium()
         if (length < 0) {
             throw IdxFileException("Invalid length for sector Length=$length Sector=$sector")
         }
-    }
-
-    private fun validateHeader() {
-        if (idxFile.read(readBuffer) != ENTRY_LIMIT) {
-            throw IdxFileException("Header does not match Entry limit = $ENTRY_LIMIT")
-        }
+        return ReferenceTable(this, id, sector, length)
     }
 
     @OptIn(ExperimentalPathApi::class)

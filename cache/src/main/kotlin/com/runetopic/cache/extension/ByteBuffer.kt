@@ -4,6 +4,7 @@ import java.nio.ByteBuffer
 
 internal fun ByteBuffer.readUnsignedByte(): Int = get().toInt() and 0xFF
 internal fun ByteBuffer.readUnsignedShort(): Int = short.toInt() and 0xFFFF
+internal fun ByteBuffer.readUnsignedMedium(): Int = ((get().toInt() and 0xFF shl 16) or (get().toInt() and 0xFF shl 8) or (get().toInt() and 0xFF))
 internal fun ByteBuffer.readUnsignedIntShortSmart(): Int = if (get(position()).toInt() < 0) int and Int.MAX_VALUE else readUnsignedShort()
 
 internal fun ByteBuffer.remainingBytes(): ByteArray {
