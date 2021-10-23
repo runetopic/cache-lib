@@ -2,6 +2,7 @@ package com.runetopic.cache.codec
 
 import com.runetopic.cache.codec.CodecType.*
 import com.runetopic.cache.exception.CompressionException
+import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.extension.remainingBytes
 import com.runetopic.cryptography.fromXTEA
@@ -19,7 +20,7 @@ internal object ContainerCodec {
     fun decompress(data: ByteArray, keys: IntArray = intArrayOf()): Container {
         val buffer = ByteBuffer.wrap(data)
 
-        val compression = buffer.get().toInt() and 0xFF
+        val compression = buffer.readUnsignedByte()
         val length = buffer.int
 
         if (length < 0 || length > 2000000) {

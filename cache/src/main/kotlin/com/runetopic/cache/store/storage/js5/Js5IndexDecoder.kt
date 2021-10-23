@@ -15,15 +15,13 @@ import java.util.zip.ZipException
 /**
  * @author Jordan Abraham
  */
-internal fun loadIndex(
+internal fun decode(
     datFile: IDatFile,
     idxFile: IIdxFile,
     whirlpool: ByteArray,
     decompressed: Container
 ): Index {
     val buffer = ByteBuffer.wrap(decompressed.data)
-    val crc = decompressed.crc
-    val compression = decompressed.compression
     val protocol = buffer.readUnsignedByte()
     val revision = when {
         protocol < 5 || protocol > 7 -> throw ProtocolException("Unhandled protocol $protocol")
@@ -41,23 +39,15 @@ internal fun loadIndex(
     val isNamed = (0x1 and hash) != 0
     val isUsingWhirlpool = (0x2 and hash) != 0
 
-    val groupIds = IntArray(count)
-    var lastGroupId = 0
-    var biggest = -1
-    (0 until count).forEach {
-        groupIds[it] = if (protocol >= 7) { buffer.readUnsignedIntShortSmart() } else { buffer.readUnsignedShort() }
-            .let { id -> lastGroupId += id; lastGroupId }
-        if (groupIds[it] > biggest) biggest = groupIds[it]
-    }
-
-    val largestGroupId = biggest + 1
-    val groupNameHashes = groupNameHashes(largestGroupId, count, isNamed, groupIds, buffer)
-    val groupCrcs = groupCrcs(largestGroupId, count, groupIds, buffer)
-    val groupWhirlpools = groupWhirlpools(largestGroupId, isUsingWhirlpool, count, buffer, groupIds)
-    val groupRevisions = groupRevisions(largestGroupId, count, groupIds, buffer)
-    val groupFileIds = groupFileIds(largestGroupId, count, groupIds, buffer, protocol)
-    val fileIds = fileIds(largestGroupId, groupFileIds, count, groupIds, buffer, protocol)
-    val fileNameHashes = fileNameHashes(largestGroupId, groupFileIds, count, groupIds, buffer, isNamed)
+    val groupIds = decodeGroupIds(count, buffer, protocol)
+    val maxGroupId = (groupIds.maxOrNull() ?: -1) + 1
+    val groupNameHashes = decodeGroupNameHashes(maxGroupId, count, isNamed, groupIds, buffer)
+    val groupCrcs = decodeGroupCrcs(maxGroupId, count, groupIds, buffer)
+    val groupWhirlpools = decodeGroupWhirlpools(maxGroupId, isUsingWhirlpool, count, buffer, groupIds)
+    val groupRevisions = decodeGroupRevisions(maxGroupId, count, groupIds, buffer)
+    val groupFileIds = decodeGroupFileIds(maxGroupId, count, groupIds, buffer, protocol)
+    val fileIds = decodeFileIds(maxGroupId, groupFileIds, count, groupIds, buffer, protocol)
+    val fileNameHashes = decodeFileNameHashes(maxGroupId, groupFileIds, count, groupIds, buffer, isNamed)
 
     val groups = hashMapOf<Int, Group>()
     (0 until count).forEach {
@@ -69,48 +59,62 @@ internal fun loadIndex(
             groupWhirlpools[groupId],
             groupRevisions[groupId],
             intArrayOf(),//TODO
-            groupFiles(fileIds, fileNameHashes, groupTables[it], groupFileIds[it], it),
+            decodeFiles(fileIds, fileNameHashes, groupTables[it], groupFileIds[it], it),
             groupTables[it]
         ))
     }
-    return Index(idxFile.id(), crc, whirlpool, compression, protocol, revision, isNamed, groups)
+    return Index(idxFile.id(), decompressed.crc, whirlpool, decompressed.compression, protocol, revision, isNamed, groups)
 }
 
-private fun groupFileIds(
-    largestGroupId: Int,
+private fun decodeGroupIds(
+    count: Int,
+    buffer: ByteBuffer,
+    protocol: Int
+): IntArray {
+    val groupIds = IntArray(count)
+    var offset = 0
+    (0 until count).forEach {
+        groupIds[it] = if (protocol >= 7) { buffer.readUnsignedIntShortSmart() } else { buffer.readUnsignedShort() }
+            .let { id -> offset += id; offset }
+    }
+    return groupIds
+}
+
+private fun decodeGroupFileIds(
+    maxGroupId: Int,
     count: Int,
     groupIds: IntArray,
     buffer: ByteBuffer,
     protocol: Int
 ): IntArray {
-    val groupFileIds = IntArray(largestGroupId)
+    val groupFileIds = IntArray(maxGroupId)
     (0 until count).forEach {
         groupFileIds[groupIds[it]] = if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()
     }
     return groupFileIds
 }
 
-private fun groupRevisions(
-    largestGroupId: Int,
+private fun decodeGroupRevisions(
+    maxGroupId: Int,
     count: Int,
     groupIds: IntArray,
     buffer: ByteBuffer
 ): IntArray {
-    val revisions = IntArray(largestGroupId)
+    val revisions = IntArray(maxGroupId)
     (0 until count).forEach {
         revisions[groupIds[it]] = buffer.int
     }
     return revisions
 }
 
-private fun groupWhirlpools(
-    largestGroupId: Int,
+private fun decodeGroupWhirlpools(
+    maxGroupId: Int,
     usesWhirlpool: Boolean,
     count: Int,
     buffer: ByteBuffer,
     groupIds: IntArray
 ): Array<ByteArray> {
-    val whirlpools = Array(largestGroupId) { ByteArray(64) }
+    val whirlpools = Array(maxGroupId) { ByteArray(64) }
     if (usesWhirlpool.not()) return whirlpools
 
     (0 until count).forEach {
@@ -121,27 +125,27 @@ private fun groupWhirlpools(
     return whirlpools
 }
 
-private fun groupCrcs(
-    largestGroupId: Int,
+private fun decodeGroupCrcs(
+    maxGroupId: Int,
     count: Int,
     groupIds: IntArray,
     buffer: ByteBuffer
 ): IntArray {
-    val crcs = IntArray(largestGroupId)
+    val crcs = IntArray(maxGroupId)
     (0 until count).forEach {
         crcs[groupIds[it]] = buffer.int
     }
     return crcs
 }
 
-private fun groupNameHashes(
-    largestGroupId: Int,
+private fun decodeGroupNameHashes(
+    maxGroupId: Int,
     count: Int,
     isNamed: Boolean,
     groupIds: IntArray,
     buffer: ByteBuffer
 ): IntArray {
-    val nameHashes = IntArray(largestGroupId) { -1 }
+    val nameHashes = IntArray(maxGroupId) { -1 }
     if (isNamed.not()) return nameHashes
 
     (0 until count).forEach {
@@ -150,36 +154,36 @@ private fun groupNameHashes(
     return nameHashes
 }
 
-private fun fileIds(
-    largestGroupId: Int,
+private fun decodeFileIds(
+    maxGroupId: Int,
     validFileIds: IntArray,
     count: Int,
     groupIds: IntArray,
     buffer: ByteBuffer,
     protocol: Int
 ): Array<IntArray> {
-    val fileIds = Array(largestGroupId) { IntArray(validFileIds[it]) }
+    val fileIds = Array(maxGroupId) { IntArray(validFileIds[it]) }
     (0 until count).forEach {
         val groupId = groupIds[it]
-        var currentFileId = 0
+        var offset = 0
         (0 until validFileIds[groupId]).forEach { fileId ->
             if (protocol >= 7) { buffer.readUnsignedIntShortSmart() } else { buffer.readUnsignedShort() }
-                .let { i -> currentFileId += i; currentFileId }
-                .also { fileIds[groupId][fileId] = currentFileId }
+                .let { i -> offset += i; offset }
+                .also { fileIds[groupId][fileId] = offset }
         }
     }
     return fileIds
 }
 
-private fun fileNameHashes(
-    largestGroupId: Int,
+private fun decodeFileNameHashes(
+    maxGroupId: Int,
     validFileIds: IntArray,
     count: Int,
     groupIds: IntArray,
     buffer: ByteBuffer,
     isNamed: Boolean
 ): Array<IntArray> {
-    val fileNameHashes = Array(largestGroupId) { IntArray(validFileIds[it]) }
+    val fileNameHashes = Array(maxGroupId) { IntArray(validFileIds[it]) }
     if (isNamed) {
         (0 until count).forEach {
             val groupId = groupIds[it]
@@ -191,7 +195,7 @@ private fun fileNameHashes(
     return fileNameHashes
 }
 
-internal fun groupFiles(
+internal fun decodeFiles(
     fileIds: Array<IntArray>,
     fileNameHashes: Array<IntArray>,
     groupReferenceTableData: ByteArray,
