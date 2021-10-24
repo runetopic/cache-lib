@@ -5,6 +5,7 @@ import com.runetopic.loader.IEntryBuilder
 import com.runetopic.loader.extension.readUnsignedByte
 import com.runetopic.loader.extension.readUnsignedShort
 import com.runetopic.loader.extension.skip
+import com.runetopic.loader.extension.toByteBuffer
 import java.nio.ByteBuffer
 
 /**
@@ -19,7 +20,7 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
     override fun build(store: Js5Store) {
         identityKitTypes = buildSet {
             store.index(2).group(3).files().forEach {
-                add(read(ByteBuffer.wrap(it.data), IdentityKitEntryType(it.id)))
+                add(read(it.data.toByteBuffer(), IdentityKitEntryType(it.id)))
             }
         }
     }

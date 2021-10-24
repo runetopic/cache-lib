@@ -68,7 +68,7 @@ internal class Js5DiskStorage(
         } else {
             (0 until masterIdxFile.validIndexCount()).forEach { open(it, store) }
         }
-        logger.debug { "Opened ${idxFiles.size} js5 indexes." }
+        logger.debug { "Opened ${idxFiles.size} js5 indexes. (Allocated ${((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024)}MB)." }
     }
 
     override fun open(indexId: Int, store: Js5Store) {

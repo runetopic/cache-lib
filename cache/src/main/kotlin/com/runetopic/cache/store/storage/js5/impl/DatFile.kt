@@ -5,8 +5,9 @@ import com.runetopic.cache.exception.EndOfDatFileException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedMedium
 import com.runetopic.cache.extension.readUnsignedShort
+import com.runetopic.cache.extension.toByteBuffer
 import com.runetopic.cache.hierarchy.ReferenceTable
-import com.runetopic.cache.store.Constants.SECTOR_SIZE
+import com.runetopic.cache.store.Constants.DAT_SIZE
 import com.runetopic.cache.store.storage.js5.IDatFile
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
@@ -47,11 +48,11 @@ internal class DatFile(
                 throw EndOfDatFileException("Unexpected end of file. Id=[$id} Length=[$length]")
             }
 
-            val offset = SECTOR_SIZE * sector
+            val offset = DAT_SIZE * sector
             val large = referenceTableId > 0xFFFF
             val headerSize = if (large) 10 else 8
             val blockSize = adjustBlockLength(length - bytes, headerSize)
-            val header = ByteBuffer.wrap(datBuffer.copyOfRange(offset, offset + headerSize + blockSize))
+            val header = datBuffer.copyOfRange(offset, offset + headerSize + blockSize).toByteBuffer()
 
             val currentReferenceTableId = if (large) header.int else header.readUnsignedShort()
             val currentPart = header.readUnsignedShort()
@@ -61,7 +62,7 @@ internal class DatFile(
             if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentIndex) {
                 throw DatFileException("DatFile mismatch Id={${currentIndex}} != {${id}}, ReferenceTableId={${currentReferenceTableId}} != {${referenceTableId}}, CurrentPart={${currentPart}} != {${part}}")
             }
-            if (nextSector < 0 || datFile.length() / SECTOR_SIZE < nextSector) {
+            if (nextSector < 0 || datFile.length() / DAT_SIZE < nextSector) {
                 throw DatFileException("Invalid next sector $nextSector")
             }
 
@@ -79,10 +80,10 @@ internal class DatFile(
         blockLength: Int,
         headerLength: Int
     ): Int {
-        return if (blockLength <= SECTOR_SIZE - headerLength) blockLength else SECTOR_SIZE - headerLength
+        return if (blockLength <= DAT_SIZE - headerLength) blockLength else DAT_SIZE - headerLength
     }
 
-    private fun validateSector(sector: Int): Boolean = (sector <= 0L || datFile.length() / SECTOR_SIZE < sector)
+    private fun validateSector(sector: Int): Boolean = (sector <= 0L || datFile.length() / DAT_SIZE < sector)
 
     override fun close() = datFile.close()
 }

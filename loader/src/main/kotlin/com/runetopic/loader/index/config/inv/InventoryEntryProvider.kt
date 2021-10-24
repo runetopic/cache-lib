@@ -11,19 +11,8 @@ class InventoryEntryProvider : IEntryProvider<InventoryEntryType> {
 
     private val builder = InventoryEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): InventoryEntryType {
-        return builder.inventoryTypes.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.inventoryTypes.size
-    }
-
-    override fun collect(): Set<InventoryEntryType> {
-        return builder.inventoryTypes
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): InventoryEntryType = builder.inventoryTypes.elementAt(id)
+    override fun size(): Int = builder.inventoryTypes.size
+    override fun collect(): Set<InventoryEntryType> = builder.inventoryTypes
 }

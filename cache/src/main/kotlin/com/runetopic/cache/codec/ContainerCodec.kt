@@ -5,8 +5,8 @@ import com.runetopic.cache.exception.CompressionException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.extension.remainingBytes
+import com.runetopic.cache.extension.toByteBuffer
 import com.runetopic.cryptography.fromXTEA
-import java.nio.ByteBuffer
 import java.util.zip.CRC32
 
 /**
@@ -18,8 +18,7 @@ import java.util.zip.CRC32
 internal object ContainerCodec {
 
     fun decompress(data: ByteArray, keys: IntArray = intArrayOf()): Container {
-        val buffer = ByteBuffer.wrap(data)
-
+        val buffer = data.toByteBuffer()
         val compression = buffer.readUnsignedByte()
         val length = buffer.int
 
@@ -54,7 +53,7 @@ internal object ContainerCodec {
                     revision = buffer.readUnsignedShort()
                 }
 
-                val byteBuffer = ByteBuffer.wrap(decrypted)
+                val byteBuffer = decrypted.toByteBuffer()
                 val decompressedLength = byteBuffer.int
                 val decompressedData = type.codec.decompress(byteBuffer.remainingBytes(), length, keys)
 

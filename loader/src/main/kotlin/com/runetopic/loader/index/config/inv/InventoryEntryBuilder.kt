@@ -4,6 +4,7 @@ import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import com.runetopic.loader.extension.readUnsignedByte
 import com.runetopic.loader.extension.readUnsignedShort
+import com.runetopic.loader.extension.toByteBuffer
 import java.nio.ByteBuffer
 
 /**
@@ -17,7 +18,7 @@ internal class InventoryEntryBuilder: IEntryBuilder<InventoryEntryType> {
     override fun build(store: Js5Store) {
         inventoryTypes = buildSet {
             store.index(2).group(5).files().forEach {
-                add(read(ByteBuffer.wrap(it.data), InventoryEntryType(it.id)))
+                add(read(it.data.toByteBuffer(), InventoryEntryType(it.id)))
             }
         }
     }

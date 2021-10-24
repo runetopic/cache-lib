@@ -11,19 +11,8 @@ class IdentityKitEntryProvider : IEntryProvider<IdentityKitEntryType> {
 
     private val builder = IdentityKitEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): IdentityKitEntryType {
-        return builder.identityKitTypes.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.identityKitTypes.size
-    }
-
-    override fun collect(): Set<IdentityKitEntryType> {
-        return builder.identityKitTypes
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): IdentityKitEntryType = builder.identityKitTypes.elementAt(id)
+    override fun size(): Int = builder.identityKitTypes.size
+    override fun collect(): Set<IdentityKitEntryType> = builder.identityKitTypes
 }

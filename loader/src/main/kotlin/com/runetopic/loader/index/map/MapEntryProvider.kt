@@ -12,19 +12,8 @@ class MapEntryProvider : IEntryProvider<MapEntryType> {
 
     private val builder = MapEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): MapEntryType {
-        return builder.mapTypes.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.mapTypes.size
-    }
-
-    override fun collect(): Set<MapEntryType> {
-        return builder.mapTypes
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): MapEntryType = builder.mapTypes.elementAt(id)
+    override fun size(): Int = builder.mapTypes.size
+    override fun collect(): Set<MapEntryType> = builder.mapTypes
 }

@@ -6,6 +6,7 @@ import com.runetopic.cache.exception.ProtocolException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedIntShortSmart
 import com.runetopic.cache.extension.readUnsignedShort
+import com.runetopic.cache.extension.toByteBuffer
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.hierarchy.index.group.Group
 import com.runetopic.cache.hierarchy.index.group.file.File
@@ -21,7 +22,7 @@ internal fun decode(
     whirlpool: ByteArray,
     decompressed: Container
 ): Index {
-    val buffer = ByteBuffer.wrap(decompressed.data)
+    val buffer = decompressed.data.toByteBuffer()
     val protocol = buffer.readUnsignedByte()
     val revision = when {
         protocol < 5 || protocol > 7 -> throw ProtocolException("Unhandled protocol $protocol")
@@ -30,11 +31,6 @@ internal fun decode(
     }
     val hash = buffer.readUnsignedByte()
     val count = if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()
-
-    val groupTables = mutableListOf<ByteArray>()
-    (0 until count).forEach {
-        groupTables.add(datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(it)))
-    }
 
     val isNamed = (0x1 and hash) != 0
     val isUsingWhirlpool = (0x2 and hash) != 0
@@ -51,6 +47,13 @@ internal fun decode(
 
     val groups = hashMapOf<Int, Group>()
     (0 until count).forEach {
+        val groupReferenceTableData = datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(it))
+        val data = if (groupReferenceTableData.isEmpty()) byteArrayOf() else try {
+            groupReferenceTableData.decompress()
+        } catch (exception: ZipException) {
+            groupReferenceTableData
+        }
+
         val groupId = groupIds[it]
         groups[it] = (Group(
             groupId,
@@ -59,8 +62,8 @@ internal fun decode(
             groupWhirlpools[groupId],
             groupRevisions[groupId],
             intArrayOf(),//TODO
-            decodeFiles(fileIds, fileNameHashes, groupTables[it], groupFileIds[it], it),
-            groupTables[it]
+            decodeFiles(fileIds, fileNameHashes, data, groupFileIds[it], it),
+            data
         ))
     }
     return Index(idxFile.id(), decompressed.crc, whirlpool, decompressed.compression, protocol, revision, isNamed, groups)
@@ -198,26 +201,17 @@ private fun decodeFileNameHashes(
 internal fun decodeFiles(
     fileIds: Array<IntArray>,
     fileNameHashes: Array<IntArray>,
-    groupReferenceTableData: ByteArray,
+    data: ByteArray,
     count: Int,
     groupId: Int
 ): Map<Int, File> {
-    if (groupReferenceTableData.isEmpty()) return hashMapOf(Pair(0, File.DEFAULT))
+    if (data.isEmpty()) return hashMapOf(Pair(0, File.DEFAULT))
+    if (count == 1) return hashMapOf(Pair(0, File(fileIds[groupId][0], fileNameHashes[groupId][0], data)))
 
-    val src: ByteArray = try {
-        groupReferenceTableData.decompress()
-    } catch (exception: ZipException) {
-        groupReferenceTableData
-    }
-
-    if (count == 1) {
-        return hashMapOf(Pair(0, File(fileIds[groupId][0], fileNameHashes[groupId][0], src)))
-    }
-
-    var position = src.size
-    val chunks = src[--position].toInt() and 0xFF
+    var position = data.size
+    val chunks = data[--position].toInt() and 0xFF
     position -= chunks * (count * 4)
-    val buffer = ByteBuffer.wrap(src)
+    val buffer = data.toByteBuffer()
     buffer.position(position)
     val filesSizes = IntArray(count)
     (0 until chunks).forEach { _ ->
@@ -238,7 +232,7 @@ internal fun decodeFiles(
         var read = 0
         (0 until count).forEach {
             read += buffer.int
-            System.arraycopy(src, offset, filesDatas[it], filesSizes[it], read)
+            System.arraycopy(data, offset, filesDatas[it], filesSizes[it], read)
             offset += read
             filesSizes[it] += read
         }

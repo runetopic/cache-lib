@@ -37,11 +37,7 @@ internal class BZip2Codec: IFileCodec {
         System.arraycopy(data, 0, buffer, BZIP_HEADER.size, length)
 
         val stream = ByteArrayOutputStream()
-
-        BZip2CompressorInputStream(ByteArrayInputStream(buffer)).use {
-            IOUtils.copy(it, stream)
-        }
-
+        BZip2CompressorInputStream(ByteArrayInputStream(buffer)).use { IOUtils.copy(it, stream) }
         return stream.toByteArray()
     }
 }

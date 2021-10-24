@@ -2,10 +2,7 @@ package com.runetopic.loader.index.config.struct
 
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
-import com.runetopic.loader.extension.readMedium
-import com.runetopic.loader.extension.readString
-import com.runetopic.loader.extension.readUnsignedByte
-import com.runetopic.loader.extension.toBoolean
+import com.runetopic.loader.extension.*
 import java.nio.ByteBuffer
 
 /**
@@ -20,7 +17,7 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
     override fun build(store: Js5Store) {
         structTypes = buildSet {
             store.index(2).group(26).files().forEach {
-                add(read(ByteBuffer.wrap(it.data), StructEntryType(it.id)))
+                add(read(it.data.toByteBuffer(), StructEntryType(it.id)))
             }
         }
     }
@@ -32,7 +29,7 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
                 val size = buffer.readUnsignedByte()
                 (0 until size).forEach { _ ->
                     val string = buffer.readUnsignedByte().toBoolean()
-                    type.params[buffer.readMedium()] = if (string) buffer.readString() else buffer.int
+                    type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
             else -> throw Exception("Read unused opcode with id: ${opcode}.")

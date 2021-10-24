@@ -11,19 +11,8 @@ class MouseIconEntryProvider : IEntryProvider<MouseIconEntryType> {
 
     private val builder = MouseIconEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): MouseIconEntryType {
-        return builder.mouseIconTypes.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.mouseIconTypes.size
-    }
-
-    override fun collect(): Set<MouseIconEntryType> {
-        return builder.mouseIconTypes
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): MouseIconEntryType = builder.mouseIconTypes.elementAt(id)
+    override fun size(): Int = builder.mouseIconTypes.size
+    override fun collect(): Set<MouseIconEntryType> = builder.mouseIconTypes
 }

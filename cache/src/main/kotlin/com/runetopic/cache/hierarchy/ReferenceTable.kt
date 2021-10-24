@@ -1,8 +1,5 @@
 package com.runetopic.cache.hierarchy
 
-import com.runetopic.cache.store.storage.js5.IIdxFile
-import java.util.*
-
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
@@ -10,38 +7,29 @@ import java.util.*
  * @author Jordan Abraham
  */
 internal data class ReferenceTable(
-    val idxFile: IIdxFile,
     val id: Int,
     val sector: Int,
     val length: Int
 ) {
     fun exists(): Boolean = (length != 0 && sector != 0)
 
-    override fun hashCode(): Int {
-        var hash = 7
-        hash = 19 * hash + Objects.hashCode(this.idxFile)
-        hash = 19 * hash + this.id
-        hash = 19 * hash + this.sector
-        hash = 19 * hash + this.length
-        return hash
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ReferenceTable
+
+        if (id != other.id) return false
+        if (sector != other.sector) return false
+        if (length != other.length) return false
+
+        return true
     }
 
-    override fun equals(other: Any?): Boolean {
-        when (other) {
-            null -> return false
-            else -> return when {
-                javaClass != other.javaClass -> false
-                else -> {
-                    val referenceTable: ReferenceTable = other as ReferenceTable
-                    when {
-                        idxFile != referenceTable.idxFile -> false
-                        id != referenceTable.id -> false
-                        sector != referenceTable.sector -> false
-                        length != referenceTable.length -> false
-                        else -> true
-                    }
-                }
-            }
-        }
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + sector
+        result = 31 * result + length
+        return result
     }
 }

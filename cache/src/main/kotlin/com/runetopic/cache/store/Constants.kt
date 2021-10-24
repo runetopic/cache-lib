@@ -10,11 +10,9 @@ internal object Constants {
     const val MAIN_FILE_DAT = "$PREFIX.dat2"
     const val MAIN_FILE_255 = "$PREFIX.idx255"
 
-    const val SECTOR_SIZE = 520
+    const val IDX_SIZE = 6
+    const val DAT_SIZE = 520
     const val MASTER_INDEX_ID = 255
-
-
-
 
     val BZIP_HEADER = byteArrayOf(
         'B'.code.toByte(),

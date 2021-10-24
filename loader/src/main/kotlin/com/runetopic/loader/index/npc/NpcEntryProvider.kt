@@ -10,19 +10,8 @@ class NpcEntryProvider: IEntryProvider<NpcEntryType> {
 
     private val builder = NpcEntryBuilder()
 
-    override fun load(store: Js5Store) {
-        builder.build(store)
-    }
-
-    override fun lookup(id: Int): NpcEntryType {
-        return builder.npcs.elementAt(id)
-    }
-
-    override fun size(): Int {
-        return builder.npcs.size
-    }
-
-    override fun collect(): Set<NpcEntryType> {
-        return builder.npcs
-    }
+    override fun load(store: Js5Store) = builder.build(store)
+    override fun lookup(id: Int): NpcEntryType = builder.npcs.elementAt(id)
+    override fun size(): Int = builder.npcs.size
+    override fun collect(): Set<NpcEntryType> = builder.npcs
 }

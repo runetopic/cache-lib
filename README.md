@@ -16,7 +16,7 @@ A cache library written in Kotlin.
 # Features
 - Cache Reading
 - Definitions/Providers Loading
-- Fast (Limited by I/O)
+- Very Fast (Limited by I/O)
 
 # TODO
 - Cache Writing
@@ -28,8 +28,8 @@ A cache library written in Kotlin.
 # Implementation
 Just use cache if you do not require any of the revision specific loaders.
 ```
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.16-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.6.3-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "1.4.18-SNAPSHOT" }
+loader = { module = "com.runetopic.cache:loader", version.ref "647.6.4-SNAPSHOT" }
 ```
 
 ```
@@ -55,33 +55,33 @@ val index = store.index(indexId = 5)
 ### Getting a group by group id
 ```
 val index = store.index(indexId = 5)
-val group = index.getGroup(groupId = 360)
+val group = index.group(groupId = 360)
 ```
 
 ### Getting a group by group name
 ```
 val index = store.index(indexId = 5)
-val group = index.getGroup(groupName = "m50_50")
+val group = index.group(groupName = "m50_50")
 ```
 
 ### Getting a file from a group by id
 ```
 val index = store.index(indexId = 2)
-val group = index.getGroup(groupId = 26)
-val file = group.getFile(fileId = 1000)
+val group = index.group(groupId = 26)
+val file = group.file(fileId = 1000)
 ```
 
 ### Looping multiple groups from an index
     store.index(indexId = 19).use { index ->
         (0 until index.expand()).forEach {
-            val data = index.getGroup(it ushr 8).getFile(it and 0xFF).getData()
+            val data = index.group(it ushr 8).file(it and 0xFF).data
         }
     }
 
 ### Looping multiple files from a group
-    store.index(indexId = 2).getGroup(groupId = 26).getFiles().forEach {
-        val id = it.getId()
-        val data = it.getData()
+    store.index(indexId = 2).group(groupId = 26).files().forEach {
+        val id = it.id
+        val data = it.data
     }
 
 ### Getting the reference table of an index and group by id.
@@ -101,13 +101,6 @@ val file = group.getFile(fileId = 1000)
 
 ### Getting 255, 255 checksums without RSA/Whirlpool
 ```val checksums = store.checksumsWithoutRSA()```
-
-### Decompressing a group
-```
-val index = store.index(indexId = 5)
-val group = index.getGroup(groupName = "m50_50")
-val decompressed = group.getData().decompress()
-```
 
 ### An example of a single thread loading providers
 ```
