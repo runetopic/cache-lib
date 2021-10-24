@@ -52,7 +52,7 @@ internal class DatFile(
             val large = referenceTableId > 0xFFFF
             val headerSize = if (large) 10 else 8
             val blockSize = adjustBlockLength(length - bytes, headerSize)
-            val header = datBuffer.copyOfRange(offset, offset + DAT_SIZE).toByteBuffer()
+            val header = datBuffer.copyOfRange(offset, offset + headerSize + blockSize).toByteBuffer()
 
             val currentReferenceTableId = if (large) header.int else header.readUnsignedShort()
             val currentPart = header.readUnsignedShort()
