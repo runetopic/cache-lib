@@ -17,6 +17,7 @@ data class Index(
     val protocol: Int,
     val revision: Int,
     val isNamed: Boolean,
+    val isUsingWhirlpool: Boolean,
     private val groups: Map<Int, Group>
 ): Comparable<Index> {
 
@@ -64,6 +65,6 @@ data class Index(
     }
 
     internal companion object {
-        fun default(indexId: Int): Index = Index(indexId, 0, ByteArray(64), -1, -1, 0, false, hashMapOf())
+        fun default(indexId: Int): Index = Index(indexId, 0, ByteArray(64), -1, -1, 0, false, false, hashMapOf())
     }
 }

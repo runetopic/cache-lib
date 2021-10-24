@@ -78,4 +78,7 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:1.7.32")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.+")
     implementation("com.runetopic.cryptography:cryptography:1.0.6-SNAPSHOT")
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("io.mockk:mockk:1.12.0")
 }

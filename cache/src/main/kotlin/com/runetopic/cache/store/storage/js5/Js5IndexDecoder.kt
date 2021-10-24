@@ -3,10 +3,10 @@ package com.runetopic.cache.store.storage.js5
 import com.runetopic.cache.codec.Container
 import com.runetopic.cache.codec.decompress
 import com.runetopic.cache.exception.ProtocolException
+import com.runetopic.cache.extension.*
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedIntShortSmart
 import com.runetopic.cache.extension.readUnsignedShort
-import com.runetopic.cache.extension.toByteBuffer
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.hierarchy.index.group.Group
 import com.runetopic.cache.hierarchy.index.group.file.File
@@ -29,11 +29,11 @@ internal fun decode(
         protocol >= 6 -> buffer.int
         else -> 0
     }
-    val hash = buffer.readUnsignedByte()
+    val mask = buffer.readUnsignedByte()
     val count = if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()
 
-    val isNamed = (0x1 and hash) != 0
-    val isUsingWhirlpool = (0x2 and hash) != 0
+    val isNamed = (0x1 and mask) != 0
+    val isUsingWhirlpool = (0x2 and mask) != 0
 
     val groupIds = decodeGroupIds(count, buffer, protocol)
     val maxGroupId = (groupIds.maxOrNull() ?: -1) + 1
@@ -66,7 +66,7 @@ internal fun decode(
             data
         ))
     }
-    return Index(idxFile.id(), decompressed.crc, whirlpool, decompressed.compression, protocol, revision, isNamed, groups)
+    return Index(idxFile.id(), decompressed.crc, whirlpool, decompressed.compression, protocol, revision, isNamed, isUsingWhirlpool, groups)
 }
 
 private fun decodeGroupIds(
@@ -83,7 +83,7 @@ private fun decodeGroupIds(
     return groupIds
 }
 
-private fun decodeGroupFileIds(
+fun decodeGroupFileIds(
     maxGroupId: Int,
     count: Int,
     groupIds: IntArray,
@@ -97,7 +97,7 @@ private fun decodeGroupFileIds(
     return groupFileIds
 }
 
-private fun decodeGroupRevisions(
+fun decodeGroupRevisions(
     maxGroupId: Int,
     count: Int,
     groupIds: IntArray,
@@ -110,7 +110,7 @@ private fun decodeGroupRevisions(
     return revisions
 }
 
-private fun decodeGroupWhirlpools(
+fun decodeGroupWhirlpools(
     maxGroupId: Int,
     usesWhirlpool: Boolean,
     count: Int,
@@ -128,7 +128,7 @@ private fun decodeGroupWhirlpools(
     return whirlpools
 }
 
-private fun decodeGroupCrcs(
+fun decodeGroupCrcs(
     maxGroupId: Int,
     count: Int,
     groupIds: IntArray,
@@ -141,7 +141,7 @@ private fun decodeGroupCrcs(
     return crcs
 }
 
-private fun decodeGroupNameHashes(
+fun decodeGroupNameHashes(
     maxGroupId: Int,
     count: Int,
     isNamed: Boolean,
@@ -187,12 +187,12 @@ private fun decodeFileNameHashes(
     isNamed: Boolean
 ): Array<IntArray> {
     val fileNameHashes = Array(maxGroupId) { IntArray(validFileIds[it]) }
-    if (isNamed) {
-        (0 until count).forEach {
-            val groupId = groupIds[it]
-            (0 until validFileIds[groupId]).forEach { fileId ->
-                fileNameHashes[groupId][fileId] = buffer.int
-            }
+    if (isNamed.not()) return fileNameHashes
+
+    (0 until count).forEach {
+        val groupId = groupIds[it]
+        (0 until validFileIds[groupId]).forEach { fileId ->
+            fileNameHashes[groupId][fileId] = buffer.int
         }
     }
     return fileNameHashes
