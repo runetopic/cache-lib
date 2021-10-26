@@ -47,22 +47,23 @@ internal fun decode(
 
     val groups = hashMapOf<Int, Group>()
     (0 until count).forEach {
-        val groupReferenceTableData = datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(it))
+        val groupId = groupIds[it]
+
+        val groupReferenceTableData = datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(groupId))
         val data = if (groupReferenceTableData.isEmpty()) byteArrayOf() else try {
             groupReferenceTableData.decompress()
         } catch (exception: ZipException) {
             groupReferenceTableData
         }
 
-        val groupId = groupIds[it]
-        groups[it] = (Group(
+        groups[groupId] = (Group(
             groupId,
             groupNameHashes[groupId],
             groupCrcs[groupId],
             groupWhirlpools[groupId],
             groupRevisions[groupId],
             intArrayOf(),//TODO
-            decodeFiles(fileIds, fileNameHashes, data, groupFileIds[it], it),
+            decodeFiles(fileIds, fileNameHashes, data, groupFileIds[groupId], groupId),
             data
         ))
     }
@@ -206,7 +207,7 @@ internal fun decodeFiles(
     groupId: Int
 ): Map<Int, File> {
     if (data.isEmpty()) return hashMapOf(Pair(0, File.DEFAULT))
-    if (count == 1) return hashMapOf(Pair(0, File(fileIds[groupId][0], fileNameHashes[groupId][0], data)))
+    if (count <= 1) return hashMapOf(Pair(0, File(fileIds[groupId][0], fileNameHashes[groupId][0], data)))
 
     var position = data.size
     val chunks = data[--position].toInt() and 0xFF
