@@ -190,7 +190,7 @@ internal data class DatIndexSector(
         return buffer
     }
 
-    private fun decodeGroupWhirlpools(
+    fun decodeGroupWhirlpools(
         maxGroupId: Int,
         usesWhirlpool: Boolean,
         count: Int,
@@ -208,7 +208,7 @@ internal data class DatIndexSector(
         return whirlpools
     }
 
-    private fun encodeGroupWhirlpools(
+    fun encodeGroupWhirlpools(
         count: Int,
         groupIds: IntArray,
         usesWhirlpool: Boolean,
@@ -223,7 +223,7 @@ internal data class DatIndexSector(
         return buffer
     }
 
-    private fun decodeGroupCrcs(
+    fun decodeGroupCrcs(
         maxGroupId: Int,
         count: Int,
         groupIds: IntArray,
@@ -236,7 +236,7 @@ internal data class DatIndexSector(
         return crcs
     }
 
-    private fun encodeGroupCrcs(
+    fun encodeGroupCrcs(
         count: Int,
         groupIds: IntArray,
         crcs: IntArray
@@ -248,7 +248,7 @@ internal data class DatIndexSector(
         return buffer
     }
 
-    private fun decodeGroupNameHashes(
+    fun decodeGroupNameHashes(
         maxGroupId: Int,
         count: Int,
         isNamed: Boolean,
@@ -264,7 +264,7 @@ internal data class DatIndexSector(
         return nameHashes
     }
 
-    private fun encodeGroupNameHashes(
+    fun encodeGroupNameHashes(
         count: Int,
         isNamed: Boolean,
         groupIds: IntArray,
