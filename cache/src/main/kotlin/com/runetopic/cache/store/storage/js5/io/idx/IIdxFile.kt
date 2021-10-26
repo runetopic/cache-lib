@@ -1,4 +1,4 @@
-package com.runetopic.cache.store.storage.js5
+package com.runetopic.cache.store.storage.js5.io.idx
 
 import com.runetopic.cache.hierarchy.ReferenceTable
 import java.io.Closeable
@@ -8,7 +8,7 @@ import java.io.Closeable
  * @email <xlitersps@gmail.com>
  */
 internal interface IIdxFile: Closeable {
-    fun loadReferenceTable(id: Int): ReferenceTable
+    fun decode(id: Int): ReferenceTable
     fun validIndexCount(): Int
     fun id(): Int
 }

@@ -1,4 +1,4 @@
-package com.runetopic.cache.store.storage.js5.impl
+package com.runetopic.cache.store.storage.js5.io.dat
 
 import com.runetopic.cache.exception.DatFileException
 import com.runetopic.cache.exception.EndOfDatFileException
@@ -8,7 +8,6 @@ import com.runetopic.cache.extension.readUnsignedShort
 import com.runetopic.cache.extension.toByteBuffer
 import com.runetopic.cache.hierarchy.ReferenceTable
 import com.runetopic.cache.store.Constants.DAT_SIZE
-import com.runetopic.cache.store.storage.js5.IDatFile
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -29,7 +28,7 @@ internal class DatFile(
         datFile.readFully(datBuffer)
     }
 
-    override fun readReferenceTable(
+    override fun decode(
         id: Int,
         referenceTable: ReferenceTable
     ): ByteArray {

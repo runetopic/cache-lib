@@ -1,14 +1,15 @@
 package com.runetopic.cache.store.storage.js5
 
 import com.github.michaelbull.logging.InlineLogger
-import com.runetopic.cache.codec.ContainerCodec
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.cache.store.storage.IStorage
-import com.runetopic.cache.store.storage.js5.impl.DatFile
-import com.runetopic.cache.store.storage.js5.impl.IdxFile
-import com.runetopic.cryptography.toWhirlpool
+import com.runetopic.cache.store.storage.js5.io.dat.DatFile
+import com.runetopic.cache.store.storage.js5.io.idx.IdxFile
+import com.runetopic.cache.store.storage.js5.io.dat.IDatFile
+import com.runetopic.cache.store.storage.js5.io.dat.sector.DatIndexSector
+import com.runetopic.cache.store.storage.js5.io.idx.IIdxFile
 import java.io.FileNotFoundException
 import java.nio.file.Path
 import java.util.concurrent.CopyOnWriteArrayList
@@ -72,29 +73,29 @@ internal class Js5DiskStorage(
     }
 
     override fun open(indexId: Int, store: Js5Store) {
-        val indexTable = masterIdxFile.loadReferenceTable(indexId)
+        val indexReferenceTable = masterIdxFile.decode(indexId)
         idxFiles.add(getIdxFile(indexId))
 
-        if (indexTable.exists().not()) {
+        if (indexReferenceTable.exists().not()) {
             store.addIndex(Index.default(indexId))
             return
         }
-        val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
-        store.addIndex(decode(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable)))
+        val data = datFile.decode(masterIdxFile.id(), indexReferenceTable)
+        store.addIndex(DatIndexSector(datFile, getIdxFile(indexId), data).decode())
     }
 
     override fun loadMasterReferenceTable(groupId: Int): ByteArray {
-        return datFile.readReferenceTable(Constants.MASTER_INDEX_ID, masterIdxFile.loadReferenceTable(groupId))
+        return datFile.decode(Constants.MASTER_INDEX_ID, masterIdxFile.decode(groupId))
     }
 
     override fun loadReferenceTable(index: Index, groupId: Int): ByteArray {
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(groupId))
+        return datFile.decode(index.id, getIdxFile(index.id).decode(groupId))
     }
 
     override fun loadReferenceTable(index: Index, groupName: String): ByteArray {
         val group = index.group(groupName)
         if (group.data.isEmpty()) return group.data
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(group.id))
+        return datFile.decode(index.id, getIdxFile(index.id).decode(group.id))
     }
 
     private fun getIdxFile(id: Int): IdxFile {

@@ -1,12 +1,10 @@
-package com.runetopic.cache.store.storage.js5.impl
+package com.runetopic.cache.store.storage.js5.io.idx
 
 import com.runetopic.cache.exception.IdxFileException
 import com.runetopic.cache.extension.readUnsignedMedium
 import com.runetopic.cache.extension.toByteBuffer
 import com.runetopic.cache.hierarchy.ReferenceTable
-import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Constants.IDX_SIZE
-import com.runetopic.cache.store.storage.js5.IIdxFile
 import java.io.RandomAccessFile
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -29,7 +27,7 @@ internal class IdxFile(
         idxFile.readFully(idxBuffer)
     }
 
-    override fun loadReferenceTable(id: Int): ReferenceTable {
+    override fun decode(id: Int): ReferenceTable {
         val offset = id * IDX_SIZE
         val buffer = idxBuffer.copyOfRange(offset, offset + IDX_SIZE).toByteBuffer()
         val length = buffer.readUnsignedMedium()
