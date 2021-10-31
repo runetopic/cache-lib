@@ -43,9 +43,9 @@ internal data class DatIndexSector(
         val groupCrcs = decodeGroupCrcs(maxGroupId, count, groupIds, buffer)
         val groupWhirlpools = decodeGroupWhirlpools(maxGroupId, isUsingWhirlpool, count, buffer, groupIds)
         val groupRevisions = decodeGroupRevisions(maxGroupId, count, groupIds, buffer)
-        val fileSizes = decodeGroupFileSizes(maxGroupId, count, groupIds, buffer, protocol)
-        val fileIds = decodeFileIds(maxGroupId, fileSizes, count, groupIds, buffer, protocol)
-        val fileNameHashes = decodeFileNameHashes(maxGroupId, fileSizes, count, groupIds, buffer, isNamed)
+        val groupFileSizes = decodeGroupFileSizes(maxGroupId, count, groupIds, buffer, protocol)
+        val groupFileIds = decodeGroupFileIds(maxGroupId, groupFileSizes, count, groupIds, buffer, protocol)
+        val fileNameHashes = decodeFileNameHashes(maxGroupId, groupFileSizes, count, groupIds, buffer, isNamed)
 
         val groups = hashMapOf<Int, Group>()
         (0 until count).forEach {
@@ -59,10 +59,10 @@ internal data class DatIndexSector(
             }
 
             val groupSector = DatGroupSector(
-                fileIds,
+                groupFileIds,
                 fileNameHashes,
                 data,
-                fileSizes[groupId],
+                groupFileSizes[groupId],
                 groupId
             )
 
@@ -77,7 +77,17 @@ internal data class DatIndexSector(
                 data
             ))
         }
-        return Index(idxFile.id(), decompressed.crc, data.toWhirlpool(), decompressed.compression, protocol, revision, isNamed, isUsingWhirlpool, groups)
+        return Index(
+            idxFile.id(),
+            decompressed.crc,
+            data.toWhirlpool(),
+            decompressed.compression,
+            protocol,
+            revision,
+            isNamed,
+            isUsingWhirlpool,
+            groups
+        )
     }
 
     override fun encode(override: Index): ByteArray {
@@ -93,74 +103,89 @@ internal data class DatIndexSector(
         if (override.protocol >= 7) header.putIntShortSmart(count) else header.putShort(count.toShort())
 
         val stream = override.groups().stream()
-        val groupIds = stream.map { it.id }.toList().toIntArray()
+        val ids = stream.map { it.id }.toList().toIntArray()
         val nameHashes = stream.map { it.nameHash }.toList().toIntArray()
         val crcs = stream.map { it.crc }.toList().toIntArray()
         val whirlpools = stream.map { it.whirlpool }.toList().toTypedArray()
         val revisions = stream.map { it.revision }.toList().toIntArray()
+        val fileSizes = stream.map { it.files().size }.toList().toIntArray()
 
-        val groupNameHashes = encodeGroupNameHashes(count, override.isNamed, groupIds, nameHashes)
-        val groupCrcs = encodeGroupCrcs(count, groupIds, crcs)
-        val groupWhirlpools = encodeGroupWhirlpools(count, groupIds, override.isUsingWhirlpool, whirlpools)
-        val groupRevisions = encodeGroupRevisions(count, groupIds, revisions)
+        val groupIds = encodeGroupIds(count, override.protocol, ids)
+        val groupNameHashes = encodeGroupNameHashes(count, override.isNamed, ids, nameHashes)
+        val groupCrcs = encodeGroupCrcs(count, ids, crcs)
+        val groupWhirlpools = encodeGroupWhirlpools(count, ids, override.isUsingWhirlpool, whirlpools)
+        val groupRevisions = encodeGroupRevisions(count, ids, revisions)
+        val groupFileSizes = encodeGroupFileSizes(count, ids, override.protocol, fileSizes)
 
-        val buffer = ByteBuffer.allocate(header.position()
+        val buffer = ByteBuffer.allocate(
+                /**/header.position()
+                + groupIds.position()
                 + groupNameHashes.position()
                 + groupCrcs.position()
                 + groupWhirlpools.position()
-                + groupRevisions.position())
+                + groupRevisions.position()
+                + groupFileSizes.position()
+        )
 
         buffer.put(header)
-        //TODO Group ids
+        buffer.put(groupIds)
         buffer.put(groupNameHashes)
         buffer.put(groupCrcs)
         buffer.put(groupWhirlpools)
         buffer.put(groupRevisions)
+        buffer.put(groupFileSizes)
         //TODO The rest
         return buffer.array()
     }
 
-    private fun decodeGroupIds(
+    fun decodeGroupIds(
         count: Int,
         buffer: ByteBuffer,
         protocol: Int
     ): IntArray {
         val groupIds = IntArray(count)
-        var offset = 0
         (0 until count).forEach {
-            groupIds[it] = if (protocol >= 7) { buffer.readUnsignedIntShortSmart() } else { buffer.readUnsignedShort() }
-                .let { id -> offset += id; offset }
+            groupIds[it] = (if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()) + if (it == 0) 0 else groupIds[it - 1]
         }
         return groupIds
     }
 
-    private fun decodeGroupFileSizes(
+    fun encodeGroupIds(
+        count: Int,
+        protocol: Int,
+        groupIds: IntArray
+    ): ByteBuffer {
+        val buffer = ByteBuffer.allocate(groupIds.sumOf { (if (protocol >= 7) if (it >= Short.MAX_VALUE) 4 else 2 else 2).toInt() })
+        (0 until count).forEach {
+            val value = groupIds[it] - if (it == 0) 0 else groupIds[it - 1]
+            if (protocol >= 7) buffer.putIntShortSmart(value) else buffer.putShort(value.toShort())
+        }
+        return buffer
+    }
+
+    fun decodeGroupFileSizes(
         maxGroupId: Int,
         count: Int,
         groupIds: IntArray,
         buffer: ByteBuffer,
         protocol: Int
     ): IntArray {
-        val groupFileIds = IntArray(maxGroupId)
+        val groupFileSizes = IntArray(maxGroupId)
         (0 until count).forEach {
-            groupFileIds[groupIds[it]] = if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()
+            groupFileSizes[groupIds[it]] = if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()
         }
-        return groupFileIds
+        return groupFileSizes
     }
 
-    private fun encodeGroupFileSizes(
+    fun encodeGroupFileSizes(
         count: Int,
         groupIds: IntArray,
         protocol: Int,
-        groupFileIds: IntArray
+        groupFileSizes: IntArray
     ): ByteBuffer {
-        var capacity = 0
+        val buffer = ByteBuffer.allocate(groupIds.sumOf { (if (protocol >= 7) if (it >= Short.MAX_VALUE) 4 else 2 else 2).toInt() })
         (0 until count).forEach {
-            capacity += Variable.asSizeBytes(protocol, groupFileIds[groupIds[it]])
-        }
-        val buffer = ByteBuffer.allocate(capacity)
-        (0 until count).forEach {
-            if (protocol >= 7) buffer.putIntShortSmart(groupFileIds[groupIds[it]]) else buffer.putShort(groupFileIds[groupIds[it]].toShort())
+            if (protocol >= 7) buffer.putIntShortSmart(groupFileSizes[groupIds[it]]) else buffer.putShort(groupFileSizes[groupIds[it]].toShort())
         }
         return buffer
     }
@@ -279,28 +304,25 @@ internal data class DatIndexSector(
         return buffer
     }
 
-    private fun decodeFileIds(
+    private fun decodeGroupFileIds(
         maxGroupId: Int,
-        validFileIds: IntArray,
+        groupFileSizes: IntArray,
         count: Int,
         groupIds: IntArray,
         buffer: ByteBuffer,
         protocol: Int
     ): Array<IntArray> {
-        val fileIds = Array(maxGroupId) { IntArray(validFileIds[it]) }
+        val fileIds = Array(maxGroupId) { IntArray(groupFileSizes[it]) }
         (0 until count).forEach {
             val groupId = groupIds[it]
-            var offset = 0
-            (0 until validFileIds[groupId]).forEach { fileId ->
-                if (protocol >= 7) { buffer.readUnsignedIntShortSmart() } else { buffer.readUnsignedShort() }
-                    .let { i -> offset += i; offset }
-                    .also { fileIds[groupId][fileId] = offset }
+            (0 until groupFileSizes[groupId]).forEach { fileId ->
+                fileIds[groupId][fileId] = (if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()) + if (fileId == 0) 0 else fileIds[groupId][fileId - 1]
             }
         }
         return fileIds
     }
 
-    private fun decodeFileNameHashes(
+    fun decodeFileNameHashes(
         maxGroupId: Int,
         validFileIds: IntArray,
         count: Int,
@@ -320,7 +342,7 @@ internal data class DatIndexSector(
         return fileNameHashes
     }
 
-    private fun encodeFileNameHashes(
+    fun encodeFileNameHashes(
         count: Int,
         groupIds: IntArray,
         validFileIds: IntArray,
@@ -328,14 +350,7 @@ internal data class DatIndexSector(
         fileNameHashes: Array<IntArray>
     ): ByteBuffer {
         if (isNamed.not()) return ByteBuffer.allocate(0)
-        //TODO Figure out a way to calc the number of bytes without doing it like this.
-        var bytes = 0
-        (0 until count).forEach {
-            (0 until validFileIds[groupIds[it]]).forEach { _ ->
-                bytes += Int.SIZE_BYTES
-            }
-        }
-        val buffer = ByteBuffer.allocate(bytes)
+        val buffer = ByteBuffer.allocate(validFileIds.sum() * Int.SIZE_BYTES)
         (0 until count).forEach {
             val groupId = groupIds[it]
             (0 until validFileIds[groupId]).forEach { fileId ->

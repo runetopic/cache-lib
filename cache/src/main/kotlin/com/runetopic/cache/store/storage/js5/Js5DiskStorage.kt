@@ -6,10 +6,10 @@ import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.cache.store.storage.IStorage
 import com.runetopic.cache.store.storage.js5.io.dat.DatFile
-import com.runetopic.cache.store.storage.js5.io.idx.IdxFile
 import com.runetopic.cache.store.storage.js5.io.dat.IDatFile
 import com.runetopic.cache.store.storage.js5.io.dat.sector.DatIndexSector
 import com.runetopic.cache.store.storage.js5.io.idx.IIdxFile
+import com.runetopic.cache.store.storage.js5.io.idx.IdxFile
 import java.io.FileNotFoundException
 import java.nio.file.Path
 import java.util.concurrent.CopyOnWriteArrayList

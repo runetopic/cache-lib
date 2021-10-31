@@ -11,22 +11,11 @@ internal fun ByteBuffer.putIntShortSmart(value: Int) {
         value >= Short.MAX_VALUE -> ByteBuffer.allocate(Int.SIZE_BYTES).putInt(value - Int.MAX_VALUE - 1)
         else -> ByteBuffer.allocate(Short.SIZE_BYTES).putShort(if (value >= 0) value.toShort() else Short.MAX_VALUE)
     }
-    put(buffer)
+    get(buffer.array())
 }
 
 internal fun ByteBuffer.remainingBytes(): ByteArray {
     val bytes = ByteArray(remaining())
     get(bytes)
     return bytes
-}
-
-class Variable {
-    companion object {
-        internal fun asSizeBytes(
-            protocol: Int,
-            value: Int
-        ): Int {
-            return if (protocol >= 7) if (value >= Short.MAX_VALUE) 4 else 2 else 2
-        }
-    }
 }
