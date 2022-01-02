@@ -8,16 +8,16 @@ configure(allprojects) {
     group = "com.runetopic.cache"
 
     plugins.withType<KotlinPluginWrapper> {
-        java.sourceCompatibility = JavaVersion.VERSION_16
-        java.targetCompatibility = JavaVersion.VERSION_16
+        java.sourceCompatibility = JavaVersion.VERSION_17
+        java.targetCompatibility = JavaVersion.VERSION_17
 
         tasks {
             compileKotlin {
-                kotlinOptions.jvmTarget = "16"
+                kotlinOptions.jvmTarget = "1.8"
                 kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
             }
             compileTestKotlin {
-                kotlinOptions.jvmTarget = "16"
+                kotlinOptions.jvmTarget = "1.8"
                 kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
             }
         }
