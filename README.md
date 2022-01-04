@@ -4,9 +4,6 @@
 
 A cache library written in Kotlin. 
 
-# Requirements
-- Java Version 16
-
 # Supported
 - RS2 (414-772)
 - RS3 (773-~788)  
