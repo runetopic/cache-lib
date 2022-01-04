@@ -14,7 +14,9 @@ data class DatGroupSector(
     val count: Int,
     val groupId: Int
 ) : IDatSector<Map<Int, File>> {
-    override fun decode(): MutableMap<Int, File> {
+
+    @OptIn(ExperimentalStdlibApi::class)
+    override fun decode(): Map<Int, File> {
         if (data.isEmpty()) return hashMapOf(Pair(0, File.DEFAULT))
         if (count <= 1) return hashMapOf(Pair(0, File(fileIds[groupId][0], fileNameHashes[groupId][0], data)))
 
@@ -24,35 +26,30 @@ data class DatGroupSector(
         val buffer = data.toByteBuffer()
         buffer.position(position)
         val filesSizes = IntArray(count)
-        (0 until chunks).forEach { _ ->
-            var read = 0
-            (0 until count).forEach {
-                read += buffer.int
-                filesSizes[it] += read
+        repeat(chunks) {
+            var bytesRead = 0
+            repeat(count) {
+                bytesRead += buffer.int
+                filesSizes[it] += bytesRead
             }
         }
         val filesDatas = Array(count) { byteArrayOf() }
-        (0 until count).forEach {
+        repeat(count) {
             filesDatas[it] = ByteArray(filesSizes[it])
             filesSizes[it] = 0
         }
         buffer.position(position)
         var offset = 0
-        (0 until chunks).forEach { _ ->
-            var read = 0
-            (0 until count).forEach {
-                read += buffer.int
-                System.arraycopy(data, offset, filesDatas[it], filesSizes[it], read)
-                offset += read
-                filesSizes[it] += read
+        repeat(chunks) {
+            var bytesRead = 0
+            repeat(count) {
+                bytesRead += buffer.int
+                System.arraycopy(data, offset, filesDatas[it], filesSizes[it], bytesRead)
+                offset += bytesRead
+                filesSizes[it] += bytesRead
             }
         }
-
-        val files = hashMapOf<Int, File>()
-        (0 until count).forEach {
-            files[it] = File(fileIds[groupId][it], fileNameHashes[groupId][it], filesDatas[it])
-        }
-        return files
+        return buildMap { repeat(count) { put(it, File(fileIds[groupId][it], fileNameHashes[groupId][it], filesDatas[it])) } }
     }
 
     override fun encode(override: Map<Int, File>): ByteArray {

@@ -34,7 +34,6 @@ data class Index(
     fun group(groupName: String): Group = groups.values.find { it.nameHash == groupName.nameHash() } ?: Group.DEFAULT
 
     fun expand(): Int = groups.values.last().files().size + (groups.values.last().id shl 8)
-    fun use(block: (Index) -> Unit) = block.invoke(this)
 
     override fun compareTo(other: Index): Int = this.id.compareTo(other.id)
     override fun equals(other: Any?): Boolean {

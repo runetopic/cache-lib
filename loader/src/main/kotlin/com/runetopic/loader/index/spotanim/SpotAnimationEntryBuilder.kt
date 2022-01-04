@@ -14,11 +14,10 @@ internal class SpotAnimationEntryBuilder : IEntryBuilder<SpotAnimationEntryType>
 
     lateinit var spotAnimations: Set<SpotAnimationEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         spotAnimations = buildSet {
-            store.index(21).use { index ->
-                (0 until index.expand()).forEach {
+            store.index(21).let { index ->
+                repeat(index.expand()) {
                     add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), SpotAnimationEntryType(it)))
                 }
             }
@@ -59,7 +58,7 @@ internal class SpotAnimationEntryBuilder : IEntryBuilder<SpotAnimationEntryType>
                 val size = buffer.readUnsignedByte()
                 val colorToFind = ShortArray(size)
                 val colorToReplace = ShortArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     colorToFind[it] = (buffer.readUnsignedShort()).toShort()
                     colorToReplace[it] = (buffer.readUnsignedShort()).toShort()
                 }
@@ -70,7 +69,7 @@ internal class SpotAnimationEntryBuilder : IEntryBuilder<SpotAnimationEntryType>
                 val size = buffer.readUnsignedByte()
                 val textureToFind = ShortArray(size)
                 val textureToReplace = ShortArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     textureToFind[it] = (buffer.readUnsignedShort()).toShort()
                     textureToReplace[it] = (buffer.readUnsignedShort()).toShort()
                 }

@@ -14,7 +14,6 @@ import java.nio.ByteBuffer
 internal class InventoryEntryBuilder : IEntryBuilder<InventoryEntryType> {
     lateinit var inventoryTypes: Set<InventoryEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         inventoryTypes = buildSet {
             store.index(2).group(5).files().forEach {

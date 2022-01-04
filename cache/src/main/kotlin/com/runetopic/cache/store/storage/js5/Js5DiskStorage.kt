@@ -58,7 +58,7 @@ internal class Js5DiskStorage(
             val latch = CountDownLatch(masterIdxFile.validIndexCount())
             val threads = Runtime.getRuntime().availableProcessors()
             val pool = Executors.newFixedThreadPool(if (threads >= 16) 8 else if (threads >= 8) 4 else 2)
-            (0 until masterIdxFile.validIndexCount()).forEach {
+            repeat(masterIdxFile.validIndexCount()) {
                 pool.execute {
                     read(it, store)
                     latch.countDown()
@@ -66,9 +66,7 @@ internal class Js5DiskStorage(
             }
             latch.await()
             pool.shutdown()
-        } else {
-            (0 until masterIdxFile.validIndexCount()).forEach { read(it, store) }
-        }
+        } else { repeat(masterIdxFile.validIndexCount()) { read(it, store) } }
         logger.debug { "Opened ${idxFiles.size} js5 indexes. (Allocated ${((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024)}MB)." }
     }
 
@@ -91,24 +89,16 @@ internal class Js5DiskStorage(
         // val idk2 = DatIndexSector(datFile, getIdxFile(indexId), data).encode(index)
     }
 
-    override fun loadMasterReferenceTable(groupId: Int): ByteArray {
-        return datFile.decode(Constants.MASTER_INDEX_ID, masterIdxFile.decode(groupId))
+    override fun loadMasterReferenceTable(groupId: Int): ByteArray = datFile.decode(Constants.MASTER_INDEX_ID, masterIdxFile.decode(groupId))
+
+    override fun loadReferenceTable(index: Index, groupId: Int): ByteArray = datFile.decode(index.id, getIdxFile(index.id).decode(groupId))
+
+    override fun loadReferenceTable(index: Index, groupName: String): ByteArray = index.group(groupName).let {
+        if (it.data.isEmpty()) return it.data
+        else datFile.decode(index.id, getIdxFile(index.id).decode(it.id))
     }
 
-    override fun loadReferenceTable(index: Index, groupId: Int): ByteArray {
-        return datFile.decode(index.id, getIdxFile(index.id).decode(groupId))
-    }
-
-    override fun loadReferenceTable(index: Index, groupName: String): ByteArray {
-        val group = index.group(groupName)
-        if (group.data.isEmpty()) return group.data
-        return datFile.decode(index.id, getIdxFile(index.id).decode(group.id))
-    }
-
-    private fun getIdxFile(id: Int): IdxFile {
-        idxFiles.find { it.id() == id }?.let { return it }
-        return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}$id"))
-    }
+    private fun getIdxFile(id: Int): IdxFile = idxFiles.find { it.id() == id } ?: IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}$id"))
 
     override fun close() {
         masterIdxFile.close()

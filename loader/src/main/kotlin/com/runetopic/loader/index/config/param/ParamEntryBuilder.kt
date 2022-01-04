@@ -16,7 +16,6 @@ internal class ParamEntryBuilder : IEntryBuilder<ParamEntryType> {
 
     lateinit var paramTypes: Set<ParamEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         paramTypes = buildSet {
             store.index(2).group(11).files().forEach {

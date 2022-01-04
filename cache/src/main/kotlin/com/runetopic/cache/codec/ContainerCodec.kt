@@ -1,5 +1,9 @@
 package com.runetopic.cache.codec
 
+import com.runetopic.cache.codec.CodecType.BZipCodec
+import com.runetopic.cache.codec.CodecType.BadCodec
+import com.runetopic.cache.codec.CodecType.GZipCodec
+import com.runetopic.cache.codec.CodecType.NoCodec
 import com.runetopic.cache.exception.CompressionException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort

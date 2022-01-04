@@ -53,35 +53,33 @@ class Js5Store(
 
     fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0
-        index(indexId).use { index ->
+        index(indexId).let { index ->
             index.groups().forEach { size += storage.loadReferenceTable(index, it.id).size }
         }
         return size
     }
 
-    fun groupReferenceTableSize(indexId: Int, groupName: String): Int {
-        val referenceTable = storage.loadReferenceTable(index(indexId), groupName)
-        return if (referenceTable.isEmpty()) 0 else referenceTable.size - 2
-    }
+    fun groupReferenceTableSize(
+        indexId: Int,
+        groupName: String
+    ): Int = storage.loadReferenceTable(index(indexId), groupName).let { if (it.isEmpty()) 0 else it.size - 2 }
 
-    fun groupReferenceTableSize(indexId: Int, groupId: Int): Int {
-        val referenceTable = storage.loadReferenceTable(index(indexId), groupId)
-        return if (referenceTable.isEmpty()) 0 else referenceTable.size - 2
-    }
+    fun groupReferenceTableSize(
+        indexId: Int,
+        groupId: Int
+    ): Int = storage.loadReferenceTable(index(indexId), groupId).let { if (it.isEmpty()) 0 else it.size - 2 }
 
-    fun groupReferenceTable(indexId: Int, groupId: Int): ByteArray {
-        if (indexId == Constants.MASTER_INDEX_ID) return storage.loadMasterReferenceTable(groupId)
-        return storage.loadReferenceTable(index(indexId), groupId)
-    }
+    fun groupReferenceTable(
+        indexId: Int,
+        groupId: Int
+    ): ByteArray = if (indexId == Constants.MASTER_INDEX_ID) storage.loadMasterReferenceTable(groupId) else storage.loadReferenceTable(index(indexId), groupId)
 
-    fun checksumsWithoutRSA(): ByteArray {
-        val header = ByteBuffer.allocate(indexes.size * 8)
-        indexes.forEach {
-            header.putInt(it.crc)
-            header.putInt(it.revision)
+    fun checksumsWithoutRSA(): ByteArray = ByteBuffer.allocate(indexes.size * 8).also {
+        indexes.forEach { index ->
+            it.putInt(index.crc)
+            it.putInt(index.revision)
         }
-        return header.array()
-    }
+    }.array()
 
     fun checksumsWithRSA(exponent: BigInteger, modulus: BigInteger): ByteArray {
         val header = ByteBuffer.allocate(indexes.size * 72 + 6)

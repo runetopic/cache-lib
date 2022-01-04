@@ -12,11 +12,10 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
 
     lateinit var objs: Set<ObjEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         objs = buildSet {
-            store.index(19).use { index ->
-                (0 until index.expand()).forEach {
+            store.index(19).let { index ->
+                repeat(index.expand()) {
                     add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), ObjEntryType(it)))
                 }
             }
@@ -50,7 +49,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
                 val size = buffer.readUnsignedByte()
                 val colorToFind = ShortArray(size)
                 val colorToReplace = ShortArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     colorToFind[it] = buffer.readUnsignedShort().toShort()
                     colorToReplace[it] = buffer.readUnsignedShort().toShort()
                 }
@@ -61,7 +60,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
                 val size = buffer.readUnsignedByte()
                 val textureToFind = ShortArray(size)
                 val textureToReplace = ShortArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     textureToFind[it] = buffer.readUnsignedShort().toShort()
                     textureToReplace[it] = buffer.readUnsignedShort().toShort()
                 }
@@ -71,7 +70,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
             42 -> {
                 val size = buffer.readUnsignedByte()
                 val aByteArray1858 = ByteArray(size)
-                (0 until size).forEach { aByteArray1858[it] = buffer.readUnsignedByte().toByte() }
+                repeat(size) { aByteArray1858[it] = buffer.readUnsignedByte().toByte() }
                 type.aByteArray1858 = aByteArray1858
             }
             65 -> type.tradeable = true
@@ -130,7 +129,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
             132 -> {
                 val size = buffer.readUnsignedByte()
                 val anIntArray1893 = IntArray(size)
-                (0 until size).forEach { anIntArray1893[it] = buffer.readUnsignedShort() }
+                repeat(size) { anIntArray1893[it] = buffer.readUnsignedShort() }
                 type.anIntArray1893 = anIntArray1893
             }
             134 -> type.anInt1902 = buffer.readUnsignedByte()
@@ -138,7 +137,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
             140 -> type.anInt1885 = buffer.readUnsignedShort()
             249 -> {
                 val size = buffer.readUnsignedByte()
-                (0 until size).forEach { _ ->
+                repeat(size) {
                     val string = buffer.readUnsignedByte().toBoolean()
                     type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }

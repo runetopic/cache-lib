@@ -12,7 +12,6 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
 
     lateinit var particles: Set<ParticleEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         particles = buildSet {
             store.index(27).group(0).files().forEach {
@@ -55,13 +54,13 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
             9 -> {
                 val size = buffer.readUnsignedByte()
                 val localMagnets = IntArray(size)
-                (0 until size).forEach { localMagnets[it] = buffer.readUnsignedShort() }
+                repeat(size) { localMagnets[it] = buffer.readUnsignedShort() }
                 type.localMagnets = localMagnets
             }
             10 -> {
                 val size = buffer.readUnsignedByte()
                 val globalMagnets = IntArray(size)
-                (0 until size).forEach { globalMagnets[it] = buffer.readUnsignedShort() }
+                repeat(size) { globalMagnets[it] = buffer.readUnsignedShort() }
                 type.globalMagnets = globalMagnets
             }
             12 -> type.minLevel = buffer.get().toInt()
@@ -85,7 +84,7 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
             25 -> {
                 val size = buffer.readUnsignedByte()
                 val generalMagnets = IntArray(size)
-                (0 until size).forEach { generalMagnets[it] = buffer.readUnsignedShort() }
+                repeat(size) { generalMagnets[it] = buffer.readUnsignedShort() }
                 type.generalMagnets = generalMagnets
             }
             26 -> type.aBoolean3070 = false

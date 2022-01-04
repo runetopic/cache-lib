@@ -48,7 +48,7 @@ internal data class DatIndexSector(
         val groupFileNameHashes = decodeGroupFileNameHashes(maxGroupId, groupFileSizes, count, groupIds, buffer, isNamed)
 
         val groups = hashMapOf<Int, Group>()
-        (0 until count).forEach {
+        repeat(count) {
             val groupId = groupIds[it]
 
             val groupReferenceTableData = datFile.decode(idxFile.id(), idxFile.decode(groupId))
@@ -66,19 +66,18 @@ internal data class DatIndexSector(
                 groupId
             )
 
-            groups[groupId] = (
-                Group(
-                    groupId,
-                    groupNameHashes[groupId],
-                    groupCrcs[groupId],
-                    groupWhirlpools[groupId],
-                    groupRevisions[groupId],
-                    intArrayOf(), // TODO
-                    groupSector.decode(),
-                    data
-                )
-                )
+            groups[groupId] = Group(
+                groupId,
+                groupNameHashes[groupId],
+                groupCrcs[groupId],
+                groupWhirlpools[groupId],
+                groupRevisions[groupId],
+                intArrayOf(), // TODO
+                groupSector.decode().toMutableMap(),
+                data
+            )
         }
+
         return Index(
             idxFile.id(),
             decompressed.crc,
@@ -164,11 +163,11 @@ internal data class DatIndexSector(
         buffer: ByteBuffer,
         protocol: Int
     ): IntArray {
-        val groupIds = IntArray(count)
-        (0 until count).forEach {
-            groupIds[it] = (if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()) + if (it == 0) 0 else groupIds[it - 1]
+        return IntArray(count).also {
+            repeat(count) { index ->
+                it[index] = (if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()) + if (index == 0) 0 else it[index - 1]
+            }
         }
-        return groupIds
     }
 
     fun encodeGroupIds(
@@ -177,12 +176,12 @@ internal data class DatIndexSector(
         groupIds: IntArray
     ): ByteBuffer {
         // TODO This buffer needs to be allocated properly for protocol >= 7
-        val buffer = ByteBuffer.allocate(calc(count, groupIds, protocol))
-        (0 until count).forEach {
-            val value = groupIds[it] - if (it == 0) 0 else groupIds[it - 1]
-            if (protocol >= 7) buffer.putIntShortSmart(value) else buffer.putShort(value.toShort())
+        return ByteBuffer.allocate(calc(count, groupIds, protocol)).also {
+            repeat(count) { index ->
+                val value = groupIds[index] - if (index == 0) 0 else groupIds[index - 1]
+                if (protocol >= 7) it.putIntShortSmart(value) else it.putShort(value.toShort())
+            }
         }
-        return buffer
     }
 
     fun calc(
@@ -191,7 +190,7 @@ internal data class DatIndexSector(
         protocol: Int
     ): Int {
         var bytes = 0
-        (0 until count).forEach {
+        repeat(count) {
             val value = groupIds[it] - if (it == 0) 0 else groupIds[it - 1]
             bytes += if (protocol >= 7) if (value >= Short.MAX_VALUE) 4 else 2 else 2
         }
@@ -205,11 +204,11 @@ internal data class DatIndexSector(
         buffer: ByteBuffer,
         protocol: Int
     ): IntArray {
-        val groupFileSizes = IntArray(maxGroupId)
-        (0 until count).forEach {
-            groupFileSizes[groupIds[it]] = if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()
+        return IntArray(maxGroupId).also {
+            repeat(count) { index ->
+                it[groupIds[index]] = if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()
+            }
         }
-        return groupFileSizes
     }
 
     fun encodeGroupFileSizes(
@@ -219,11 +218,11 @@ internal data class DatIndexSector(
         groupFileSizes: IntArray
     ): ByteBuffer {
         // TODO This buffer needs to be allocated properly for protocol >= 7
-        val buffer = ByteBuffer.allocate(groupIds.sumOf { Short.SIZE_BYTES })
-        (0 until count).forEach {
-            if (protocol >= 7) buffer.putIntShortSmart(groupFileSizes[groupIds[it]]) else buffer.putShort(groupFileSizes[groupIds[it]].toShort())
+        return ByteBuffer.allocate(groupIds.sumOf { Short.SIZE_BYTES }).also {
+            repeat(count) { index ->
+                if (protocol >= 7) it.putIntShortSmart(groupFileSizes[groupIds[index]]) else it.putShort(groupFileSizes[groupIds[index]].toShort())
+            }
         }
-        return buffer
     }
 
     fun decodeGroupRevisions(
@@ -232,11 +231,11 @@ internal data class DatIndexSector(
         groupIds: IntArray,
         buffer: ByteBuffer
     ): IntArray {
-        val revisions = IntArray(maxGroupId)
-        (0 until count).forEach {
-            revisions[groupIds[it]] = buffer.int
+        return IntArray(maxGroupId).also {
+            repeat(count) { index ->
+                it[groupIds[index]] = buffer.int
+            }
         }
-        return revisions
     }
 
     fun encodeGroupRevisions(
@@ -244,11 +243,11 @@ internal data class DatIndexSector(
         groupIds: IntArray,
         revisions: IntArray
     ): ByteBuffer {
-        val buffer = ByteBuffer.allocate(count * Int.SIZE_BYTES)
-        (0 until count).forEach {
-            buffer.putInt(revisions[groupIds[it]])
+        return ByteBuffer.allocate(count * Int.SIZE_BYTES).also {
+            repeat(count) { index ->
+                it.putInt(revisions[groupIds[index]])
+            }
         }
-        return buffer
     }
 
     fun decodeGroupWhirlpools(
@@ -258,15 +257,13 @@ internal data class DatIndexSector(
         buffer: ByteBuffer,
         groupIds: IntArray
     ): Array<ByteArray> {
-        val whirlpools = Array(maxGroupId) { ByteArray(64) }
-        if (usesWhirlpool.not()) return whirlpools
-
-        (0 until count).forEach {
-            val whirlpool = ByteArray(64)
-            buffer.get(whirlpool)
-            whirlpools[groupIds[it]] = whirlpool
+        return Array(maxGroupId) { ByteArray(64) }.also {
+            if (usesWhirlpool) {
+                repeat(count) { index ->
+                    it[groupIds[index]] = ByteArray(64).also { b -> buffer.get(b) }
+                }
+            }
         }
-        return whirlpools
     }
 
     fun encodeGroupWhirlpools(
@@ -275,13 +272,11 @@ internal data class DatIndexSector(
         usesWhirlpool: Boolean,
         whirlpools: Array<ByteArray>
     ): ByteBuffer {
-        if ((usesWhirlpool.not())) return ByteBuffer.allocate(0)
-
-        val buffer = ByteBuffer.allocate(count * 64)
-        (0 until count).forEach {
-            buffer.put(whirlpools[groupIds[it]])
+        return if (usesWhirlpool.not()) ByteBuffer.allocate(0) else ByteBuffer.allocate(count * 64).also {
+            repeat(count) { index ->
+                it.put(whirlpools[groupIds[index]])
+            }
         }
-        return buffer
     }
 
     fun decodeGroupCrcs(
@@ -290,11 +285,11 @@ internal data class DatIndexSector(
         groupIds: IntArray,
         buffer: ByteBuffer
     ): IntArray {
-        val crcs = IntArray(maxGroupId)
-        (0 until count).forEach {
-            crcs[groupIds[it]] = buffer.int
+        return IntArray(maxGroupId).also {
+            repeat(count) { index ->
+                it[groupIds[index]] = buffer.int
+            }
         }
-        return crcs
     }
 
     fun encodeGroupCrcs(
@@ -302,11 +297,11 @@ internal data class DatIndexSector(
         groupIds: IntArray,
         crcs: IntArray
     ): ByteBuffer {
-        val buffer = ByteBuffer.allocate(count * Int.SIZE_BYTES)
-        (0 until count).forEach {
-            buffer.putInt(crcs[groupIds[it]])
+        return ByteBuffer.allocate(count * Int.SIZE_BYTES).also {
+            repeat(count) { index ->
+                it.putInt(crcs[groupIds[index]])
+            }
         }
-        return buffer
     }
 
     fun decodeGroupNameHashes(
@@ -316,13 +311,13 @@ internal data class DatIndexSector(
         groupIds: IntArray,
         buffer: ByteBuffer
     ): IntArray {
-        val nameHashes = IntArray(maxGroupId) { -1 }
-        if (isNamed.not()) return nameHashes
-
-        (0 until count).forEach {
-            nameHashes[groupIds[it]] = buffer.int
+        return IntArray(maxGroupId) { -1 }.also {
+            if (isNamed) {
+                repeat(count) { index ->
+                    it[groupIds[index]] = buffer.int
+                }
+            }
         }
-        return nameHashes
     }
 
     fun encodeGroupNameHashes(
@@ -331,13 +326,11 @@ internal data class DatIndexSector(
         groupIds: IntArray,
         nameHashes: IntArray
     ): ByteBuffer {
-        if (isNamed.not()) return ByteBuffer.allocate(0)
-
-        val buffer = ByteBuffer.allocate(count * Int.SIZE_BYTES)
-        (0 until count).forEach {
-            buffer.putInt(nameHashes[groupIds[it]])
+        return if (isNamed.not()) ByteBuffer.allocate(0) else ByteBuffer.allocate(count * Int.SIZE_BYTES).also {
+            repeat(count) { index ->
+                it.putInt(nameHashes[groupIds[index]])
+            }
         }
-        return buffer
     }
 
     fun decodeGroupFileIds(
@@ -348,14 +341,15 @@ internal data class DatIndexSector(
         buffer: ByteBuffer,
         protocol: Int
     ): Array<IntArray> {
-        val fileIds = Array(maxGroupId) { IntArray(groupFileSizes[it]) }
-        (0 until count).forEach {
-            val groupId = groupIds[it]
-            (0 until groupFileSizes[groupId]).forEach { fileId ->
-                fileIds[groupId][fileId] = (if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()) + if (fileId == 0) 0 else fileIds[groupId][fileId - 1]
+        return Array(maxGroupId) { IntArray(groupFileSizes[it]) }.also {
+            repeat(count) { index ->
+                groupIds[index].let { groupId ->
+                    repeat(groupFileSizes[groupId]) { fileId ->
+                        it[groupId][fileId] = (if (protocol >= 7) buffer.readUnsignedIntShortSmart() else buffer.readUnsignedShort()) + if (fileId == 0) 0 else it[groupId][fileId - 1]
+                    }
+                }
             }
         }
-        return fileIds
     }
 
     fun encodeGroupFileIds(
@@ -366,15 +360,16 @@ internal data class DatIndexSector(
         fileIds: Array<IntArray>
     ): ByteBuffer {
         // TODO This buffer needs to be allocated properly for protocol >= 7
-        val buffer = ByteBuffer.allocate(groupFileSizes.sumOf { it * Short.SIZE_BYTES })
-        (0 until count).forEach {
-            val groupId = groupIds[it]
-            (0 until groupFileSizes[groupId]).forEach { fileId ->
-                val value = fileIds[groupId][fileId] - if (fileId == 0) 0 else fileIds[groupId][fileId - 1]
-                if (protocol >= 7) buffer.putIntShortSmart(value) else buffer.putShort(value.toShort())
+        return ByteBuffer.allocate(groupFileSizes.sumOf { it * Short.SIZE_BYTES }).also {
+            repeat(count) { index ->
+                groupIds[index].let { groupId ->
+                    repeat(groupFileSizes[groupId]) { fileId ->
+                        val value = fileIds[groupId][fileId] - if (fileId == 0) 0 else fileIds[groupId][fileId - 1]
+                        if (protocol >= 7) it.putIntShortSmart(value) else it.putShort(value.toShort())
+                    }
+                }
             }
         }
-        return buffer
     }
 
     fun decodeGroupFileNameHashes(
@@ -385,16 +380,17 @@ internal data class DatIndexSector(
         buffer: ByteBuffer,
         isNamed: Boolean
     ): Array<IntArray> {
-        val fileNameHashes = Array(maxGroupId) { IntArray(groupFileSizes[it]) { -1 } }
-        if (isNamed.not()) return fileNameHashes
-
-        (0 until count).forEach {
-            val groupId = groupIds[it]
-            (0 until groupFileSizes[groupId]).forEach { fileId ->
-                fileNameHashes[groupId][fileId] = buffer.int
+        return Array(maxGroupId) { IntArray(groupFileSizes[it]) { -1 } }.also {
+            if (isNamed) {
+                repeat(count) { index ->
+                    groupIds[index].let { groupId ->
+                        repeat(groupFileSizes[groupId]) { fileId ->
+                            it[groupId][fileId] = buffer.int
+                        }
+                    }
+                }
             }
         }
-        return fileNameHashes
     }
 
     fun encodeGroupFileNameHashes(
@@ -404,15 +400,15 @@ internal data class DatIndexSector(
         isNamed: Boolean,
         fileNameHashes: Array<IntArray>
     ): ByteBuffer {
-        if (isNamed.not()) return ByteBuffer.allocate(0)
-        val buffer = ByteBuffer.allocate(groupFileSizes.sum() * Int.SIZE_BYTES)
-        (0 until count).forEach {
-            val groupId = groupIds[it]
-            (0 until groupFileSizes[groupId]).forEach { fileId ->
-                buffer.putInt(fileNameHashes[groupId][fileId])
+        return if (isNamed.not()) ByteBuffer.allocate(0) else ByteBuffer.allocate(groupFileSizes.sum() * Int.SIZE_BYTES).also {
+            repeat(count) { index ->
+                groupIds[index].let { groupId ->
+                    repeat(groupFileSizes[groupId]) { fileId ->
+                        it.putInt(fileNameHashes[groupId][fileId])
+                    }
+                }
             }
         }
-        return buffer
     }
 
     override fun equals(other: Any?): Boolean {

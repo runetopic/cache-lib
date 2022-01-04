@@ -19,7 +19,7 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         mapTypes = buildSet {
-            store.index(5).use {
+            store.index(5).let {
                 (0..Short.MAX_VALUE).forEach { regionId ->
                     val regionX: Int = regionId shr 8
                     val regionY: Int = regionId and 0xFF
