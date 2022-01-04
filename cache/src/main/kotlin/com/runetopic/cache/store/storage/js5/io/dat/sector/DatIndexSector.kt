@@ -20,7 +20,7 @@ internal data class DatIndexSector(
     val datFile: IDatFile,
     val idxFile: IIdxFile,
     val data: ByteArray
-): IDatSector<Index> {
+) : IDatSector<Index> {
 
     override fun decode(): Index {
         val decompressed = ContainerCodec.decompress(data)
@@ -66,16 +66,18 @@ internal data class DatIndexSector(
                 groupId
             )
 
-            groups[groupId] = (Group(
-                groupId,
-                groupNameHashes[groupId],
-                groupCrcs[groupId],
-                groupWhirlpools[groupId],
-                groupRevisions[groupId],
-                intArrayOf(),//TODO
-                groupSector.decode(),
-                data
-            ))
+            groups[groupId] = (
+                Group(
+                    groupId,
+                    groupNameHashes[groupId],
+                    groupCrcs[groupId],
+                    groupWhirlpools[groupId],
+                    groupRevisions[groupId],
+                    intArrayOf(), // TODO
+                    groupSector.decode(),
+                    data
+                )
+                )
         }
         return Index(
             idxFile.id(),
@@ -127,15 +129,15 @@ internal data class DatIndexSector(
         val groupFileNameHashes = encodeGroupFileNameHashes(count, ids, fileSizes, override.isNamed, fileNameHashes)
 
         val buffer = ByteBuffer.allocate(
-                /**/header.position()
-                + groupIds.position()
-                + groupNameHashes.position()
-                + groupCrcs.position()
-                + groupWhirlpools.position()
-                + groupRevisions.position()
-                + groupFileSizes.position()
-                + groupFileIds.position()
-                + groupFileNameHashes.position()
+            /**/header.position() +
+                groupIds.position() +
+                groupNameHashes.position() +
+                groupCrcs.position() +
+                groupWhirlpools.position() +
+                groupRevisions.position() +
+                groupFileSizes.position() +
+                groupFileIds.position() +
+                groupFileNameHashes.position()
         )
 
         buffer.put(header.array())
@@ -152,7 +154,7 @@ internal data class DatIndexSector(
             override.compression,
             override.revision,
             buffer.array(),
-            intArrayOf()//TODO
+            intArrayOf() // TODO
         )
         return compressed.array()
     }
@@ -174,7 +176,7 @@ internal data class DatIndexSector(
         protocol: Int,
         groupIds: IntArray
     ): ByteBuffer {
-        //TODO This buffer needs to be allocated properly for protocol >= 7
+        // TODO This buffer needs to be allocated properly for protocol >= 7
         val buffer = ByteBuffer.allocate(calc(count, groupIds, protocol))
         (0 until count).forEach {
             val value = groupIds[it] - if (it == 0) 0 else groupIds[it - 1]
@@ -216,7 +218,7 @@ internal data class DatIndexSector(
         protocol: Int,
         groupFileSizes: IntArray
     ): ByteBuffer {
-        //TODO This buffer needs to be allocated properly for protocol >= 7
+        // TODO This buffer needs to be allocated properly for protocol >= 7
         val buffer = ByteBuffer.allocate(groupIds.sumOf { Short.SIZE_BYTES })
         (0 until count).forEach {
             if (protocol >= 7) buffer.putIntShortSmart(groupFileSizes[groupIds[it]]) else buffer.putShort(groupFileSizes[groupIds[it]].toShort())
@@ -363,7 +365,7 @@ internal data class DatIndexSector(
         groupFileSizes: IntArray,
         fileIds: Array<IntArray>
     ): ByteBuffer {
-        //TODO This buffer needs to be allocated properly for protocol >= 7
+        // TODO This buffer needs to be allocated properly for protocol >= 7
         val buffer = ByteBuffer.allocate(groupFileSizes.sumOf { it * Short.SIZE_BYTES })
         (0 until count).forEach {
             val groupId = groupIds[it]

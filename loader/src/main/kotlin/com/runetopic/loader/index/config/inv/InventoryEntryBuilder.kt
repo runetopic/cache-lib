@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class InventoryEntryBuilder: IEntryBuilder<InventoryEntryType> {
+internal class InventoryEntryBuilder : IEntryBuilder<InventoryEntryType> {
     lateinit var inventoryTypes: Set<InventoryEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -27,7 +27,7 @@ internal class InventoryEntryBuilder: IEntryBuilder<InventoryEntryType> {
         do when (val opcode = buffer.readUnsignedByte()) {
             0 -> break
             2 -> type.size = buffer.readUnsignedShort()
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

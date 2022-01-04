@@ -10,7 +10,7 @@ data class IdentityKitEntryType(
     var texturesToFind: ShortArray? = null,
     var texturesToReplace: ShortArray? = null,
     var chatHeadModels: IntArray = intArrayOf(-1, -1, -1, -1, -1)
-): IEntryType {
+) : IEntryType {
     override fun getId(): Int = id
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

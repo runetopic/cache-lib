@@ -6,7 +6,7 @@ import com.runetopic.loader.IEntryProvider
 /**
  * @author Jordan Abraham
  */
-class NpcEntryProvider: IEntryProvider<NpcEntryType> {
+class NpcEntryProvider : IEntryProvider<NpcEntryType> {
 
     private val builder = NpcEntryBuilder()
 

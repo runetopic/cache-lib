@@ -6,7 +6,7 @@ import com.runetopic.loader.IEntryProvider
 /**
  * @author Jordan Abraham
  */
-class OverlayEntryProvider: IEntryProvider<OverlayEntryType> {
+class OverlayEntryProvider : IEntryProvider<OverlayEntryType> {
 
     private val builder = OverlayEntryBuilder()
 

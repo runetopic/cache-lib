@@ -12,7 +12,7 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
+internal class ParamEntryBuilder : IEntryBuilder<ParamEntryType> {
 
     lateinit var paramTypes: Set<ParamEntryType>
 
@@ -32,7 +32,7 @@ internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
             2 -> type.defaultInt = buffer.int
             4 -> type.aBoolean1822 = false
             5 -> type.defaultString = buffer.readString()
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

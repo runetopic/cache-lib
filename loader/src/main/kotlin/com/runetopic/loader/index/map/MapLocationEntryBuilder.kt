@@ -23,7 +23,7 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
                 (0..Short.MAX_VALUE).forEach { regionId ->
                     val regionX: Int = regionId shr 8
                     val regionY: Int = regionId and 0xFF
-                    it.group("l${regionX}_${regionY}").data.let { data ->
+                    it.group("l${regionX}_$regionY").data.let { data ->
                         if (data.isEmpty()) return@forEach
                         add(read(data.toByteBuffer(), MapLocationEntryType(regionId, regionX, regionY)))
                     }

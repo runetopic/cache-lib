@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
 /**
  * @author Jordan Abraham
  */
-class OverlayEntryBuilder: IEntryBuilder<OverlayEntryType> {
+class OverlayEntryBuilder : IEntryBuilder<OverlayEntryType> {
 
     lateinit var overlays: Set<OverlayEntryType>
 
@@ -35,7 +35,7 @@ class OverlayEntryBuilder: IEntryBuilder<OverlayEntryType> {
             5 -> type.occlude = false
             7 -> type.secondaryColor = buffer.readUnsignedMedium()
             8 -> {
-                //Some sort of client usage happens here.
+                // Some sort of client usage happens here.
             }
             9 -> type.textureResolution = buffer.readUnsignedShort() shl 2
             10 -> type.aBoolean397 = false
@@ -44,7 +44,7 @@ class OverlayEntryBuilder: IEntryBuilder<OverlayEntryType> {
             13 -> type.anInt392 = buffer.readUnsignedMedium()
             14 -> type.anInt395 = buffer.readUnsignedByte() shl 2
             16 -> type.anInt388 = buffer.readUnsignedByte()
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

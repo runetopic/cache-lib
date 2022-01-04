@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class MouseIconEntryBuilder: IEntryBuilder<MouseIconEntryType> {
+internal class MouseIconEntryBuilder : IEntryBuilder<MouseIconEntryType> {
     lateinit var mouseIconTypes: Set<MouseIconEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -31,7 +31,7 @@ internal class MouseIconEntryBuilder: IEntryBuilder<MouseIconEntryType> {
                 type.xCoord = buffer.readUnsignedByte()
                 type.yCoord = buffer.readUnsignedByte()
             }
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

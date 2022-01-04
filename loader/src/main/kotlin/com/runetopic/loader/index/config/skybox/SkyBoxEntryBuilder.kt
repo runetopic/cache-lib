@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class SkyBoxEntryBuilder: IEntryBuilder<SkyBoxEntryType> {
+internal class SkyBoxEntryBuilder : IEntryBuilder<SkyBoxEntryType> {
     lateinit var skyBoxTypes: Set<SkyBoxEntryType>
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -35,7 +35,7 @@ internal class SkyBoxEntryBuilder: IEntryBuilder<SkyBoxEntryType> {
                 }
             }
             3 -> type.anInt2392 = buffer.readUnsignedByte()
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

@@ -35,16 +35,16 @@ internal class Js5DiskStorage(
     private val logger = InlineLogger()
 
     init {
-        val masterIndexFile = Path.of("${path}/${Constants.MAIN_FILE_255}")
+        val masterIndexFile = Path.of("$path/${Constants.MAIN_FILE_255}")
 
         if (masterIndexFile.exists().not()) {
-            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_255} in directory ${path}/${Constants.MAIN_FILE_255}")
+            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_255} in directory $path/${Constants.MAIN_FILE_255}")
         }
 
-        val datFile = Path.of("${path}/${Constants.MAIN_FILE_DAT}")
+        val datFile = Path.of("$path/${Constants.MAIN_FILE_DAT}")
 
         if (datFile.exists().not()) {
-            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_DAT} in directory ${path}/${Constants.MAIN_FILE_DAT}")
+            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_DAT} in directory $path/${Constants.MAIN_FILE_DAT}")
         }
 
         this.masterIdxFile = IdxFile(Constants.MASTER_INDEX_ID, masterIndexFile)
@@ -88,7 +88,7 @@ internal class Js5DiskStorage(
         val idk = masterIdxFile.encode(byteArrayOf())
         val data = datFile.encode(byteArrayOf())
         val index = store.index(indexId)
-        //val idk2 = DatIndexSector(datFile, getIdxFile(indexId), data).encode(index)
+        // val idk2 = DatIndexSector(datFile, getIdxFile(indexId), data).encode(index)
     }
 
     override fun loadMasterReferenceTable(groupId: Int): ByteArray {
@@ -107,7 +107,7 @@ internal class Js5DiskStorage(
 
     private fun getIdxFile(id: Int): IdxFile {
         idxFiles.find { it.id() == id }?.let { return it }
-        return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}${id}"))
+        return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}$id"))
     }
 
     override fun close() {

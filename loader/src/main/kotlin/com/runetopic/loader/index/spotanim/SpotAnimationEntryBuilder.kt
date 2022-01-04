@@ -10,7 +10,7 @@ import java.nio.ByteBuffer
 /**
  * @author Jordan Abraham
  */
-internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> {
+internal class SpotAnimationEntryBuilder : IEntryBuilder<SpotAnimationEntryType> {
 
     lateinit var spotAnimations: Set<SpotAnimationEntryType>
 
@@ -77,7 +77,7 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
                 type.textureToFind = textureToFind
                 type.textureToReplace = textureToReplace
             }
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

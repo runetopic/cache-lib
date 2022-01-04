@@ -12,6 +12,6 @@ data class UnderlayEntryType(
     var textureResolution: Int = 512,
     var aBoolean2647: Boolean = true,
     var aBoolean2648: Boolean = true
-): IEntryType {
+) : IEntryType {
     override fun getId(): Int = id
 }

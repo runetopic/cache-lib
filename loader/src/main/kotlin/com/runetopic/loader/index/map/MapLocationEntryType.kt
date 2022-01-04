@@ -11,7 +11,7 @@ data class MapLocationEntryType(
     private val regionX: Int,
     private val regionY: Int,
     val locations: ArrayList<MapLocation> = arrayListOf()
-): IEntryType {
+) : IEntryType {
     override fun getId(): Int = regionId
 
     class MapLocation(

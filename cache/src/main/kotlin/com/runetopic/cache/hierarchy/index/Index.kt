@@ -19,7 +19,7 @@ data class Index(
     val isNamed: Boolean,
     val isUsingWhirlpool: Boolean,
     private val groups: Map<Int, Group>
-): Comparable<Index> {
+) : Comparable<Index> {
 
     @JvmName("getGroups")
     fun groups(): Collection<Group> = groups.values

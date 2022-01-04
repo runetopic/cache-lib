@@ -12,7 +12,7 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
+internal class IdentityKitEntryBuilder : IEntryBuilder<IdentityKitEntryType> {
 
     lateinit var identityKitTypes: Set<IdentityKitEntryType>
 
@@ -39,7 +39,7 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
                 type.models = models
             }
             3 -> {
-               // This is no longer used in higher revisions. OSRS uses this
+                // This is no longer used in higher revisions. OSRS uses this
             }
             40 -> {
                 val size = buffer.readUnsignedByte()
@@ -64,7 +64,7 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
                 type.texturesToReplace = texturesToReplace
             }
             in 60..69 -> buffer.readUnsignedShort().let { type.chatHeadModels[opcode - 60] = it }
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

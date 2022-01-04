@@ -7,7 +7,7 @@ import com.runetopic.cache.store.Js5Store
  */
 interface IEntryProvider<T : IEntryType> {
     fun load(store: Js5Store)
-    fun lookup(id: Int) : T
+    fun lookup(id: Int): T
     fun size(): Int
     fun collect(): Set<T>
 }

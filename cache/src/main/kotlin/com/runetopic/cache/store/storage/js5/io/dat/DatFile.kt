@@ -1,7 +1,6 @@
 package com.runetopic.cache.store.storage.js5.io.dat
 
 import com.runetopic.cache.exception.DatFileException
-import com.runetopic.cache.exception.EndOfDatFileException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedMedium
 import com.runetopic.cache.extension.readUnsignedShort
@@ -20,7 +19,7 @@ import java.nio.file.Path
  */
 internal class DatFile(
     path: Path
-): IDatFile {
+) : IDatFile {
     private val datFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
     private val datBuffer = ByteArray(datFile.length().toInt())
 
@@ -41,7 +40,7 @@ internal class DatFile(
         var part = 0
         var bytes = 0
         while (length > bytes) {
-            //validate sector
+            // validate sector
             if (sector <= 0 || datBuffer.size / DAT_SIZE < sector) return byteArrayOf()
 
             val position = DAT_SIZE * sector
@@ -49,7 +48,7 @@ internal class DatFile(
             val headerSize = if (large) 10 else 8
             val blockSize = adjustBlockLength(length - bytes, headerSize)
             val totalSize = position + headerSize + blockSize
-            //validate the total size.
+            // validate the total size.
             if (totalSize > datBuffer.size) return byteArrayOf()
 
             val header = datBuffer.copyOfRange(position, totalSize).toByteBuffer()
@@ -59,7 +58,7 @@ internal class DatFile(
             val currentIndex = header.readUnsignedByte()
 
             if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentIndex) {
-                throw DatFileException("DatFile mismatch Id={${currentIndex}} != {${id}}, ReferenceTableId={${currentReferenceTableId}} != {${referenceTableId}}, CurrentPart={${currentPart}} != {${part}}")
+                throw DatFileException("DatFile mismatch Id={$currentIndex} != {$id}, ReferenceTableId={$currentReferenceTableId} != {$referenceTableId}, CurrentPart={$currentPart} != {$part}")
             }
             if (nextSector < 0 || datBuffer.size / DAT_SIZE < nextSector) {
                 throw DatFileException("Invalid next sector $nextSector")
@@ -76,7 +75,6 @@ internal class DatFile(
     }
 
     override fun encode(data: ByteArray) {
-
     }
 
     private fun adjustBlockLength(

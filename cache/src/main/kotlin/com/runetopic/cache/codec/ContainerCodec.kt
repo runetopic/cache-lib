@@ -1,6 +1,5 @@
 package com.runetopic.cache.codec
 
-import com.runetopic.cache.codec.CodecType.*
 import com.runetopic.cache.exception.CompressionException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
@@ -35,10 +34,10 @@ internal object ContainerCodec {
         }
         buffer.put(compressed)
         if (keys.isNotEmpty()) {
-            //TODO xtea
+            // TODO xtea
         }
         if (revision != -1) {
-            //buffer.putShort(revision.toShort())
+            // buffer.putShort(revision.toShort())
         }
         return buffer
     }
@@ -70,7 +69,7 @@ internal object ContainerCodec {
 
                 Container(decrypted, compression, revision, crc32.value.toInt())
             }
-            GZipCodec, BZipCodec-> {
+            GZipCodec, BZipCodec -> {
                 val encrypted = ByteArray(length + 4)
                 buffer.get(encrypted)
                 crc32.update(encrypted, 0, encrypted.size)

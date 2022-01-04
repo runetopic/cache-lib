@@ -3,7 +3,6 @@ package com.runetopic.loader.index.map
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryProvider
 
-
 /**
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>

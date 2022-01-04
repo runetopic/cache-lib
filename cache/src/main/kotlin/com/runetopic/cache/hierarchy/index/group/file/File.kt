@@ -10,7 +10,7 @@ data class File(
     val id: Int,
     val nameHash: Int,
     val data: ByteArray
-): Comparable<File> {
+) : Comparable<File> {
 
     override fun compareTo(other: File): Int = this.id.compareTo(other.id)
     override fun equals(other: Any?): Boolean {

@@ -8,7 +8,7 @@ import java.nio.ByteBuffer
 /**
  * @author Jordan Abraham
  */
-class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
+class NpcEntryBuilder : IEntryBuilder<NpcEntryType> {
 
     lateinit var npcs: Set<NpcEntryType>
 
@@ -176,7 +176,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
             141 -> type.aBoolean875 = true
             142 -> type.anInt846 = buffer.readUnsignedShort()
             143 -> type.aBoolean869 = true
-            in 150..154 -> { buffer.readString().let { type.options[opcode -150] = it } }
+            in 150..154 -> { buffer.readString().let { type.options[opcode - 150] = it } }
             155 -> {
                 type.aByte821 = buffer.get()
                 type.aByte824 = buffer.get()

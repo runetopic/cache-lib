@@ -100,7 +100,7 @@ internal class ParticleEntryBuilder : IEntryBuilder<ParticleEntryType> {
             32 -> type.aBoolean3048 = false
             33 -> type.aBoolean3023 = true
             34 -> type.aBoolean3069 = false
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

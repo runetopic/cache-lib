@@ -11,7 +11,7 @@ import java.util.zip.GZIPOutputStream
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class GZipCodec: IFileCodec {
+internal class GZipCodec : IFileCodec {
     override fun compress(data: ByteArray, keys: IntArray): ByteArray {
         val inputStream = ByteArrayInputStream(data)
         val outputStream = ByteArrayOutputStream()

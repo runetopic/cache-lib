@@ -13,7 +13,7 @@ data class DatGroupSector(
     val data: ByteArray,
     val count: Int,
     val groupId: Int
-): IDatSector<Map<Int, File>> {
+) : IDatSector<Map<Int, File>> {
     override fun decode(): MutableMap<Int, File> {
         if (data.isEmpty()) return hashMapOf(Pair(0, File.DEFAULT))
         if (count <= 1) return hashMapOf(Pair(0, File(fileIds[groupId][0], fileNameHashes[groupId][0], data)))

@@ -9,7 +9,7 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
+internal class StructEntryBuilder : IEntryBuilder<StructEntryType> {
 
     lateinit var structTypes: Set<StructEntryType>
 
@@ -32,7 +32,7 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
                     type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

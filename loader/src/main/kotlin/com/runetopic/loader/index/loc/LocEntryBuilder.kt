@@ -207,7 +207,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                 type.anIntArray1154 = anIntArray1154
             }
             107 -> type.anInt1101 = buffer.readUnsignedShort()
-            in 150..154 -> buffer.readString().let { type.actions[opcode -150] = it }
+            in 150..154 -> buffer.readString().let { type.actions[opcode - 150] = it }
             160 -> {
                 val length = buffer.readUnsignedByte()
                 val anIntArray1153 = IntArray(length)
@@ -247,7 +247,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                     type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

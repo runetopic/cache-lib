@@ -143,7 +143,7 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
                     type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

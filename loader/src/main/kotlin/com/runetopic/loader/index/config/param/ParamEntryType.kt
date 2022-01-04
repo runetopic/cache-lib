@@ -8,6 +8,6 @@ data class ParamEntryType(
     var aBoolean1822: Boolean = true,
     var defaultString: String = "",
     var defaultInt: Int = 0
-): IEntryType {
+) : IEntryType {
     override fun getId(): Int = id
 }

@@ -14,7 +14,7 @@ import java.util.*
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class BZip2Codec: IFileCodec {
+internal class BZip2Codec : IFileCodec {
     override fun compress(data: ByteArray, keys: IntArray): ByteArray {
         val stream: InputStream = ByteArrayInputStream(data)
         val bout = ByteArrayOutputStream()
@@ -33,7 +33,7 @@ internal class BZip2Codec: IFileCodec {
     override fun decompress(data: ByteArray, length: Int, keys: IntArray): ByteArray {
         val buffer = ByteArray(length + BZIP_HEADER.size)
 
-        System.arraycopy(BZIP_HEADER, 0, buffer,0, BZIP_HEADER.size)
+        System.arraycopy(BZIP_HEADER, 0, buffer, 0, BZIP_HEADER.size)
         System.arraycopy(data, 0, buffer, BZIP_HEADER.size, length)
 
         val stream = ByteArrayOutputStream()

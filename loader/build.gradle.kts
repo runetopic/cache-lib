@@ -32,7 +32,6 @@ publishing {
                     }
                 }
 
-
                 artifact(tasks["javadocJar"])
                 artifact(tasks["sourcesJar"])
             }

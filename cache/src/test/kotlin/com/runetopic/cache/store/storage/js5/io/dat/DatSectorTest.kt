@@ -133,7 +133,7 @@ class DatSectorTest {
         verify(exactly = 1) { indexSector.decodeGroupIds(count, buffer, protocol) }
         verify(exactly = 1) { indexSector.encodeGroupIds(count, protocol, decoded) }
         verify(atLeast = 1) { indexSector.calc(count, groupIds, protocol) }
-        //confirmVerified(indexSector)
+        // confirmVerified(indexSector)
     }
 
     @Test
