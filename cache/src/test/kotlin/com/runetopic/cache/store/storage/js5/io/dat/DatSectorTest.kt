@@ -23,8 +23,8 @@ class DatSectorTest {
     fun `test decode and encode`() {
         val indexSector = mockk<DatIndexSector>()
 
-        every { indexSector.datFile } returns DatFile(Path.of("./main_file_cache.dat2"))
-        every { indexSector.idxFile } returns IdxFile(10, Path.of("./main_file_cache.idx10"))
+        every { indexSector.datFile } returns DatFile(Path.of("src", "test", "resources", "./main_file_cache.dat2"))
+        every { indexSector.idxFile } returns IdxFile(10, Path.of("src", "test", "resources", "./main_file_cache.idx10"))
         every { indexSector.data } returns byteArrayOf(0, 0, 0, 0, 30, 6, 0, 0, 0, 5, 1, 0, 1, 0, 1, 74, -4, 115, -83, 120, 17, 126, 78, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0)
 
         every { indexSector.decode() } answers { callOriginal() }
@@ -37,6 +37,7 @@ class DatSectorTest {
         every { indexSector.decodeGroupFileIds(any(), any(), any(), any(), any(), any()) } answers { callOriginal() }
         every { indexSector.decodeGroupFileNameHashes(any(), any(), any(), any(), any(), any()) } answers { callOriginal() }
 
+        every { indexSector.calc(any(), any(), any()) } answers { callOriginal() }
         every { indexSector.encode(any()) } answers { callOriginal() }
         every { indexSector.encodeGroupIds(any(), any(), any()) } answers { callOriginal() }
         every { indexSector.encodeGroupNameHashes(any(), any(), any(), any()) } answers { callOriginal() }
@@ -66,6 +67,7 @@ class DatSectorTest {
         verify(atLeast = 1) { indexSector.decodeGroupFileNameHashes(any(), any(), any(), any(), any(), any()) }
 
         verify(exactly = 1) { indexSector.encode(decoded) }
+        verify(atLeast = 1) { indexSector.calc(any(), any(), any()) }
         verify(atLeast = 1) { indexSector.encodeGroupIds(any(), any(), any()) }
         verify(atLeast = 1) { indexSector.encodeGroupNameHashes(any(), any(), any(), any()) }
         verify(atLeast = 1) { indexSector.encodeGroupCrcs(any(), any(), any()) }
