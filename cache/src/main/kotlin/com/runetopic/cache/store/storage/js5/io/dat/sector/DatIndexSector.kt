@@ -6,9 +6,9 @@ import com.runetopic.cache.exception.ProtocolException
 import com.runetopic.cache.extension.*
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.hierarchy.index.group.Group
-import com.runetopic.cache.store.storage.js5.io.dat.IDatFile
-import com.runetopic.cache.store.storage.js5.io.dat.IDatSector
-import com.runetopic.cache.store.storage.js5.io.idx.IIdxFile
+import com.runetopic.cache.store.storage.js5.io.dat.DatFileCodec
+import com.runetopic.cache.store.storage.js5.io.dat.DatSectorCodec
+import com.runetopic.cache.store.storage.js5.io.idx.IdxFileCodec
 import com.runetopic.cryptography.toWhirlpool
 import java.nio.ByteBuffer
 import java.util.zip.ZipException
@@ -17,10 +17,10 @@ import java.util.zip.ZipException
  * @author Jordan Abraham
  */
 internal data class DatIndexSector(
-    val datFile: IDatFile,
-    val idxFile: IIdxFile,
+    val datFile: DatFileCodec,
+    val idxFile: IdxFileCodec,
     val data: ByteArray
-) : IDatSector<Index> {
+) : DatSectorCodec<Index> {
 
     override fun decode(): Index {
         val decompressed = ContainerCodec.decompress(data)

@@ -9,7 +9,7 @@ import java.io.Flushable
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal interface IStorage : Closeable, Flushable {
+internal interface Storage : Closeable, Flushable {
     fun open(store: Js5Store)
     fun read(indexId: Int, store: Js5Store)
     fun write(indexId: Int, store: Js5Store)

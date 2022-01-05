@@ -19,7 +19,7 @@ import kotlin.io.path.fileSize
 internal class IdxFile(
     private val id: Int,
     private val path: Path
-) : IIdxFile {
+) : IdxFileCodec {
     private val idxFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
     private val idxBuffer = ByteArray(idxFile.length().toInt()).also { idxFile.readFully(it) }
 

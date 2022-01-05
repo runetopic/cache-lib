@@ -4,11 +4,11 @@ import com.github.michaelbull.logging.InlineLogger
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Js5Store
-import com.runetopic.cache.store.storage.IStorage
+import com.runetopic.cache.store.storage.Storage
 import com.runetopic.cache.store.storage.js5.io.dat.DatFile
-import com.runetopic.cache.store.storage.js5.io.dat.IDatFile
+import com.runetopic.cache.store.storage.js5.io.dat.DatFileCodec
 import com.runetopic.cache.store.storage.js5.io.dat.sector.DatIndexSector
-import com.runetopic.cache.store.storage.js5.io.idx.IIdxFile
+import com.runetopic.cache.store.storage.js5.io.idx.IdxFileCodec
 import com.runetopic.cache.store.storage.js5.io.idx.IdxFile
 import java.io.FileNotFoundException
 import java.nio.file.Path
@@ -28,9 +28,9 @@ import kotlin.io.path.exists
 internal class Js5DiskStorage(
     private val path: Path,
     private val parallel: Boolean
-) : IStorage {
-    private var masterIdxFile: IIdxFile
-    private var datFile: IDatFile
+) : Storage {
+    private var masterIdxFile: IdxFileCodec
+    private var datFile: DatFileCodec
     private var idxFiles = CopyOnWriteArrayList<IdxFile>()
     private val logger = InlineLogger()
 

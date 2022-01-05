@@ -11,7 +11,7 @@ import com.runetopic.cache.codec.impl.NoFileCodec
  * @author Jordan Abraham
  */
 internal sealed class CodecType(
-    val codec: IFileCodec
+    val codec: FileCodec
 ) {
     object BadCodec : CodecType(NoFileCodec())
     object NoCodec : CodecType(NoFileCodec())

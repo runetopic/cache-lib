@@ -1,6 +1,6 @@
 package com.runetopic.cache.codec.impl
 
-import com.runetopic.cache.codec.IFileCodec
+import com.runetopic.cache.codec.FileCodec
 import org.apache.commons.compress.utils.IOUtils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -11,7 +11,7 @@ import java.util.zip.GZIPOutputStream
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class GZipCodec : IFileCodec {
+internal class GZipCodec : FileCodec {
     override fun compress(data: ByteArray, keys: IntArray): ByteArray {
         val inputStream = ByteArrayInputStream(data)
         val outputStream = ByteArrayOutputStream()

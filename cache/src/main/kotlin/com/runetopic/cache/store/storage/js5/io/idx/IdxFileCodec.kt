@@ -7,7 +7,7 @@ import java.io.Closeable
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal interface IIdxFile : Closeable {
+internal interface IdxFileCodec : Closeable {
     fun decode(id: Int): ReferenceTable
     fun encode(data: ByteArray)
     fun validIndexCount(): Int

@@ -7,7 +7,7 @@ import java.io.Closeable
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal interface IDatFile : Closeable {
+internal interface DatFileCodec : Closeable {
     fun decode(id: Int, referenceTable: ReferenceTable): ByteArray
     fun encode(data: ByteArray)
 }

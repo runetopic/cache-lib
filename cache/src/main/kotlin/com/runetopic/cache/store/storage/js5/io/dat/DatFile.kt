@@ -19,7 +19,7 @@ import java.nio.file.Path
  */
 internal class DatFile(
     path: Path
-) : IDatFile {
+) : DatFileCodec {
     private val datFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
     private val datBuffer = ByteArray(datFile.length().toInt())
 

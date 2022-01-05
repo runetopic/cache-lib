@@ -2,7 +2,7 @@ package com.runetopic.cache.store.storage.js5.io.dat.sector
 
 import com.runetopic.cache.extension.toByteBuffer
 import com.runetopic.cache.hierarchy.index.group.file.File
-import com.runetopic.cache.store.storage.js5.io.dat.IDatSector
+import com.runetopic.cache.store.storage.js5.io.dat.DatSectorCodec
 
 /**
  * @author Jordan Abraham
@@ -13,7 +13,7 @@ data class DatGroupSector(
     val data: ByteArray,
     val count: Int,
     val groupId: Int
-) : IDatSector<Map<Int, File>> {
+) : DatSectorCodec<Map<Int, File>> {
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun decode(): Map<Int, File> {
