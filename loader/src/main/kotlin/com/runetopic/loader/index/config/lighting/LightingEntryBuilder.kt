@@ -15,7 +15,6 @@ internal class LightingEntryBuilder : IEntryBuilder<LightingEntryType> {
 
     lateinit var lightings: Set<LightingEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         lightings = buildSet {
             store.index(2).group(31).files().forEach {
@@ -28,10 +27,10 @@ internal class LightingEntryBuilder : IEntryBuilder<LightingEntryType> {
         do when (val opcode = buffer.readUnsignedByte()) {
             0 -> break
             1 -> type.anInt961 = buffer.readUnsignedByte()
-            2-> type.anInt957 = buffer.readUnsignedShort()
+            2 -> type.anInt957 = buffer.readUnsignedShort()
             3 -> type.anInt956 = buffer.readUnsignedShort()
             4 -> type.anInt962 = buffer.short.toInt()
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

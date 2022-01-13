@@ -17,11 +17,15 @@ data class Index(
     val protocol: Int,
     val revision: Int,
     val isNamed: Boolean,
+    val isUsingWhirlpool: Boolean,
     private val groups: Map<Int, Group>
-): Comparable<Index> {
+) : Comparable<Index> {
 
     @JvmName("getGroups")
     fun groups(): Collection<Group> = groups.values
+
+    @JvmName("getGroupIds")
+    fun groupIds(): Collection<Int> = groups.keys
 
     @JvmName("getGroup")
     fun group(groupId: Int): Group = groups[groupId] ?: Group.DEFAULT
@@ -30,7 +34,6 @@ data class Index(
     fun group(groupName: String): Group = groups.values.find { it.nameHash == groupName.nameHash() } ?: Group.DEFAULT
 
     fun expand(): Int = groups.values.last().files().size + (groups.values.last().id shl 8)
-    fun use(block: (Index) -> Unit) = block.invoke(this)
 
     override fun compareTo(other: Index): Int = this.id.compareTo(other.id)
     override fun equals(other: Any?): Boolean {
@@ -64,6 +67,6 @@ data class Index(
     }
 
     internal companion object {
-        fun default(indexId: Int): Index = Index(indexId, 0, ByteArray(64), -1, -1, 0, false, hashMapOf())
+        fun default(indexId: Int): Index = Index(indexId, 0, ByteArray(64), -1, -1, 0, false, false, hashMapOf())
     }
 }

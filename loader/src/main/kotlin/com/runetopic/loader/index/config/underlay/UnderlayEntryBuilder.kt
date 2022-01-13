@@ -11,11 +11,10 @@ import java.nio.ByteBuffer
 /**
  * @author Jordan Abraham
  */
-class UnderlayEntryBuilder: IEntryBuilder<UnderlayEntryType> {
+class UnderlayEntryBuilder : IEntryBuilder<UnderlayEntryType> {
 
     lateinit var underlays: Set<UnderlayEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         underlays = buildSet {
             store.index(2).group(1).files().forEach {
@@ -34,8 +33,8 @@ class UnderlayEntryBuilder: IEntryBuilder<UnderlayEntryType> {
             3 -> type.textureResolution = buffer.readUnsignedShort() shl 2
             4 -> type.aBoolean2647 = false
             5 -> type.aBoolean2648 = false
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
-        } while(true)
+            else -> throw Exception("Read unused opcode with id: $opcode.")
+        } while (true)
         return type
     }
 }

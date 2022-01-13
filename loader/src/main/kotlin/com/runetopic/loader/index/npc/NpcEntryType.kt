@@ -70,6 +70,6 @@ data class NpcEntryType(
     var aByte843: Byte = 0,
     var aBoolean809: Boolean = false,
     var params: MutableMap<Int, Any> = mutableMapOf(),
-): IEntryType {
+) : IEntryType {
     override fun getId(): Int = id
 }

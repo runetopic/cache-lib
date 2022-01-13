@@ -1,6 +1,6 @@
 package com.runetopic.cache.codec.impl
 
-import com.runetopic.cache.codec.IFileCodec
+import com.runetopic.cache.codec.FileCodec
 import com.runetopic.cache.store.Constants.BZIP_HEADER
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
@@ -14,8 +14,8 @@ import java.util.*
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class BZip2Codec: IFileCodec {
-    override fun compress(data: ByteArray, length: Int, keys: IntArray): ByteArray {
+internal class BZip2Codec : FileCodec {
+    override fun compress(data: ByteArray, keys: IntArray): ByteArray {
         val stream: InputStream = ByteArrayInputStream(data)
         val bout = ByteArrayOutputStream()
         BZip2CompressorOutputStream(bout, 1).use { os -> IOUtils.copy(stream, os) }
@@ -33,7 +33,7 @@ internal class BZip2Codec: IFileCodec {
     override fun decompress(data: ByteArray, length: Int, keys: IntArray): ByteArray {
         val buffer = ByteArray(length + BZIP_HEADER.size)
 
-        System.arraycopy(BZIP_HEADER, 0, buffer,0, BZIP_HEADER.size)
+        System.arraycopy(BZIP_HEADER, 0, buffer, 0, BZIP_HEADER.size)
         System.arraycopy(data, 0, buffer, BZIP_HEADER.size, length)
 
         val stream = ByteArrayOutputStream()

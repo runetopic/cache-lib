@@ -2,7 +2,7 @@ rootProject.name = "cache-lib"
 
 pluginManagement {
     plugins {
-        kotlin("jvm") version "1.5.21"
+        kotlin("jvm") version "1.6.10"
     }
 }
 
@@ -14,7 +14,6 @@ dependencyResolutionManagement {
         }
     }
 }
-
 
 include("app")
 include("cache")

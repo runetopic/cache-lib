@@ -11,10 +11,9 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class SkyBoxEntryBuilder: IEntryBuilder<SkyBoxEntryType> {
+internal class SkyBoxEntryBuilder : IEntryBuilder<SkyBoxEntryType> {
     lateinit var skyBoxTypes: Set<SkyBoxEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         skyBoxTypes = buildSet {
             store.index(2).group(29).files().forEach {
@@ -30,12 +29,10 @@ internal class SkyBoxEntryBuilder: IEntryBuilder<SkyBoxEntryType> {
             2 -> {
                 val size = buffer.readUnsignedByte()
                 val sphereIds = IntArray(size)
-                (0 until size).forEach {
-                    sphereIds[it] = buffer.readUnsignedShort()
-                }
+                repeat(size) { sphereIds[it] = buffer.readUnsignedShort() }
             }
             3 -> type.anInt2392 = buffer.readUnsignedByte()
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

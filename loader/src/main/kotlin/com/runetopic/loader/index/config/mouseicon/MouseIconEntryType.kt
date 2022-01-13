@@ -7,7 +7,6 @@ data class MouseIconEntryType(
     var xCoord: Int = 0,
     var yCoord: Int = 0,
     var spriteId: Int = 0
-): IEntryType {
+) : IEntryType {
     override fun getId(): Int = id
-
 }

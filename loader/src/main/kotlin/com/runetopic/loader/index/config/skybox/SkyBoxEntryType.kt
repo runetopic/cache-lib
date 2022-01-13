@@ -7,7 +7,7 @@ data class SkyBoxEntryType(
     var anInt2392: Int = -1,
     var sphereIds: IntArray? = null,
     var textureId: Int = -1
-): IEntryType {
+) : IEntryType {
     override fun getId(): Int = id
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

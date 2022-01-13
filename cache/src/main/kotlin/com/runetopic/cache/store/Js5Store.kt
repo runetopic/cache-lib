@@ -1,6 +1,7 @@
 package com.runetopic.cache.store
 
 import com.runetopic.cache.hierarchy.index.Index
+import com.runetopic.cache.hierarchy.index.group.file.File
 import com.runetopic.cache.store.storage.js5.Js5DiskStorage
 import com.runetopic.cryptography.toWhirlpool
 import java.io.Closeable
@@ -23,7 +24,7 @@ class Js5Store(
     private val indexes = CopyOnWriteArrayList<Index>()
 
     init {
-        storage.init(this)
+        storage.open(this)
         indexes.sortWith(compareBy { it.id })
     }
 
@@ -32,39 +33,53 @@ class Js5Store(
         indexes.add(index)
     }
 
+    fun putFile(indexId: Int, groupId: Int, id: Int, data: ByteArray) {
+        val group = index(indexId).group(groupId)
+        val exists = group.fileIds().contains(id)
+        if (exists) {
+            val file = group.file(id)
+            group.putFile(id, File(file.id, file.nameHash, data))
+            return
+        }
+        group.putFile(id, File(id, 0, data))
+    }
+
+    fun save(): Boolean {
+
+        return true
+    }
+
     fun index(indexId: Int): Index = indexes.find { it.id == indexId }!!
 
     fun indexReferenceTableSize(indexId: Int): Int {
         var size = 0
-        index(indexId).use { index ->
+        index(indexId).let { index ->
             index.groups().forEach { size += storage.loadReferenceTable(index, it.id).size }
         }
         return size
     }
 
-    fun groupReferenceTableSize(indexId: Int, groupName: String): Int {
-        val referenceTable = storage.loadReferenceTable(index(indexId), groupName)
-        return if (referenceTable.isEmpty()) 0 else referenceTable.size - 2
-    }
+    fun groupReferenceTableSize(
+        indexId: Int,
+        groupName: String
+    ): Int = storage.loadReferenceTable(index(indexId), groupName).let { if (it.isEmpty()) 0 else it.size - 2 }
 
-    fun groupReferenceTableSize(indexId: Int, groupId: Int): Int {
-        val referenceTable = storage.loadReferenceTable(index(indexId), groupId)
-        return if (referenceTable.isEmpty()) 0 else referenceTable.size - 2
-    }
+    fun groupReferenceTableSize(
+        indexId: Int,
+        groupId: Int
+    ): Int = storage.loadReferenceTable(index(indexId), groupId).let { if (it.isEmpty()) 0 else it.size - 2 }
 
-    fun groupReferenceTable(indexId: Int, groupId: Int): ByteArray {
-        if (indexId == Constants.MASTER_INDEX_ID) return storage.loadMasterReferenceTable(groupId)
-        return storage.loadReferenceTable(index(indexId), groupId)
-    }
+    fun groupReferenceTable(
+        indexId: Int,
+        groupId: Int
+    ): ByteArray = if (indexId == Constants.MASTER_INDEX_ID) storage.loadMasterReferenceTable(groupId) else storage.loadReferenceTable(index(indexId), groupId)
 
-    fun checksumsWithoutRSA(): ByteArray {
-        val header = ByteBuffer.allocate(indexes.size * 8)
-        indexes.forEach {
-            header.putInt(it.crc)
-            header.putInt(it.revision)
+    fun checksumsWithoutRSA(): ByteArray = ByteBuffer.allocate(indexes.size * 8).also {
+        indexes.forEach { index ->
+            it.putInt(index.crc)
+            it.putInt(index.revision)
         }
-        return header.array()
-    }
+    }.array()
 
     fun checksumsWithRSA(exponent: BigInteger, modulus: BigInteger): ByteArray {
         val header = ByteBuffer.allocate(indexes.size * 72 + 6)

@@ -8,6 +8,6 @@ data class LightingEntryType(
     var anInt962: Int = 0,
     var anInt956: Int = 2048,
     var anInt957: Int = 2048,
-): IEntryType {
-    override fun getId(): Int  = id
+) : IEntryType {
+    override fun getId(): Int = id
 }

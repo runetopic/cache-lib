@@ -3,7 +3,6 @@ package com.runetopic.loader.index.config.skybox
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryProvider
 
-
 /**
  * @author Jordan Abraham
  */

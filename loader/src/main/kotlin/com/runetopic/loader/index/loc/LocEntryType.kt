@@ -7,7 +7,7 @@ import com.runetopic.loader.IEntryType
  * @email <xlitersps@gmail.com>
  */
 data class LocEntryType(
-    private val id: Int= 0,
+    private val id: Int = 0,
     var types: ByteArray? = null,
     var models: Array<IntArray>? = null,
     var name: String = "null",
@@ -87,6 +87,6 @@ data class LocEntryType(
     var aBoolean1167: Boolean = false,
     var anInt1113: Int = 0,
     var params: MutableMap<Int, Any> = mutableMapOf(),
-    ): IEntryType {
+) : IEntryType {
     override fun getId(): Int = id
 }

@@ -18,6 +18,6 @@ data class OverlayEntryType(
     var anInt392: Int = 1190717,
     var anInt395: Int = 64,
     var anInt388: Int = 127
-): IEntryType {
+) : IEntryType {
     override fun getId(): Int = id
 }

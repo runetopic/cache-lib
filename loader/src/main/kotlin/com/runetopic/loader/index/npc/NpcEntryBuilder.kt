@@ -8,15 +8,14 @@ import java.nio.ByteBuffer
 /**
  * @author Jordan Abraham
  */
-class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
+class NpcEntryBuilder : IEntryBuilder<NpcEntryType> {
 
     lateinit var npcs: Set<NpcEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         npcs = buildSet {
-            store.index(18).use { index ->
-                (0 until index.expand()).forEach {
+            store.index(18).let { index ->
+                repeat(index.expand()) {
                     add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), NpcEntryType(it)))
                 }
             }
@@ -29,7 +28,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
             1 -> {
                 val size = buffer.readUnsignedByte()
                 val models = IntArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     models[it] = buffer.readUnsignedShort()
                     if (models[it] == 65535) {
                         models[it] = -1
@@ -44,7 +43,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
                 val size = buffer.readUnsignedByte()
                 val colorToFind = ShortArray(size)
                 val colorToReplace = ShortArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     colorToFind[it] = buffer.readUnsignedShort().toShort()
                     colorToReplace[it] = buffer.readUnsignedShort().toShort()
                 }
@@ -55,7 +54,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
                 val size = buffer.readUnsignedByte()
                 val textureToFind = ShortArray(size)
                 val textureToReplace = ShortArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     textureToFind[it] = buffer.readUnsignedShort().toShort()
                     textureToReplace[it] = buffer.readUnsignedShort().toShort()
                 }
@@ -65,17 +64,13 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
             42 -> {
                 val size = buffer.readUnsignedByte()
                 val aByteArray866 = ByteArray(size)
-                (0 until size).forEach {
-                    aByteArray866[it] = buffer.get()
-                }
+                repeat(size) { aByteArray866[it] = buffer.get() }
                 type.aByteArray866 = aByteArray866
             }
             60 -> {
                 val size = buffer.readUnsignedByte()
                 val chatheadModels = IntArray(size)
-                (0 until size).forEach {
-                    chatheadModels[it] = buffer.readUnsignedShort()
-                }
+                repeat(size) { chatheadModels[it] = buffer.readUnsignedShort() }
                 type.chatheadModels = chatheadModels
             }
             93 -> type.isMinimapVisible = false
@@ -105,7 +100,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
                 }
                 val size = buffer.readUnsignedByte()
                 val configChangeDest = IntArray(size + 2)
-                (0..size).forEach {
+                repeat(size + 1) {
                     configChangeDest[it] = buffer.readUnsignedShort()
                     if (configChangeDest[it] == 65535) {
                         configChangeDest[it] = -1
@@ -129,7 +124,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
             121 -> {
                 val anIntArrayArray845 = arrayOfNulls<IntArray>(type.models!!.size)
                 val size = buffer.readUnsignedByte()
-                (0 until size).forEach {
+                repeat(size) {
                     val i_98_ = buffer.readUnsignedByte()
                     val data = (IntArray(3).also { anIntArrayArray845[i_98_] = it })
                     data[0] = buffer.get().toInt()
@@ -176,7 +171,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
             141 -> type.aBoolean875 = true
             142 -> type.anInt846 = buffer.readUnsignedShort()
             143 -> type.aBoolean869 = true
-            in 150..154 -> { buffer.readString().let { type.options[opcode -150] = it } }
+            in 150..154 -> { buffer.readString().let { type.options[opcode - 150] = it } }
             155 -> {
                 type.aByte821 = buffer.get()
                 type.aByte824 = buffer.get()
@@ -188,9 +183,7 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
             160 -> {
                 val size = buffer.readUnsignedByte()
                 val anIntArray867 = IntArray(size)
-                (0 until size).forEach {
-                    anIntArray867[it] = buffer.readUnsignedShort()
-                }
+                repeat(size) { anIntArray867[it] = buffer.readUnsignedShort() }
             }
             162 -> type.aBoolean809 = true
             163 -> type.anInt864 = buffer.readUnsignedByte()
@@ -201,8 +194,8 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
             165 -> type.anInt847 = buffer.readUnsignedByte()
             168 -> type.anInt828 = buffer.readUnsignedByte()
             249 -> {
-                val length = buffer.readUnsignedByte()
-                (0 until length).forEach { _ ->
+                val size = buffer.readUnsignedByte()
+                repeat(size) {
                     val string = buffer.readUnsignedByte().toBoolean()
                     type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }

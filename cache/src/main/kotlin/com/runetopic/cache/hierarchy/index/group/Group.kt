@@ -15,15 +15,22 @@ data class Group(
     val whirlpool: ByteArray,
     val revision: Int,
     val keys: IntArray,
-    private val files: Map<Int, File>,
+    private val files: MutableMap<Int, File>,
     val data: ByteArray
-): Comparable<Group> {
+) : Comparable<Group> {
 
     @JvmName("getFiles")
     fun files(): Collection<File> = files.values
 
+    @JvmName("getFileIds")
+    fun fileIds(): Collection<Int> = files.keys
+
     @JvmName("getFile")
     fun file(fileId: Int): File = files[fileId] ?: File.DEFAULT
+
+    internal fun putFile(id: Int, file: File) {
+        files[id] = file
+    }
 
     override fun compareTo(other: Group): Int = this.id.compareTo(other.id)
     override fun equals(other: Any?): Boolean {
@@ -57,6 +64,6 @@ data class Group(
     }
 
     internal companion object {
-        val DEFAULT = Group(-1, -1, -1, byteArrayOf(), -1, intArrayOf(), mapOf(), byteArrayOf())
+        val DEFAULT = Group(-1, -1, 0, byteArrayOf(), 0, intArrayOf(), mutableMapOf(), byteArrayOf())
     }
 }

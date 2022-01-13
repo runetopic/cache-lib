@@ -13,10 +13,9 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
 
     lateinit var mapTypes: Set<LocEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         mapTypes = buildSet {
-            store.index(16).use { index ->
+            store.index(16).let { index ->
                 (0 until index.expand()).forEach {
                     add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), LocEntryType(it)))
                 }
@@ -32,14 +31,13 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                 val types = ByteArray(size)
                 val models = Array(size) { intArrayOf() }
 
-                (0 until size).forEach {
+                repeat(size) {
                     types[it] = buffer.get()
                     val count = buffer.readUnsignedByte()
                     models[it] = IntArray(count)
-                    (0 until count).forEach { it2 ->
-                        models[it][it2] = buffer.readUnsignedShort()
-                    }
+                    repeat(count) { it2 -> models[it][it2] = buffer.readUnsignedShort() }
                 }
+
                 if (opcode == 5) {
                     skipReadModelIds(buffer)
                 }
@@ -71,7 +69,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                 val size = buffer.readUnsignedByte()
                 val colorsToFind = ShortArray(size)
                 val colorsToReplace = ShortArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     colorsToFind[it] = buffer.readUnsignedShort().toShort()
                     colorsToReplace[it] = buffer.readUnsignedShort().toShort()
                 }
@@ -82,7 +80,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                 val size = buffer.readUnsignedByte()
                 val texturesToFind = ShortArray(size)
                 val texturesToReplace = ShortArray(size)
-                (0 until size).forEach {
+                repeat(size) {
                     texturesToFind[it] = buffer.readUnsignedShort().toShort()
                     texturesToReplace[it] = buffer.readUnsignedShort().toShort()
                 }
@@ -91,12 +89,10 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                 type.texturesToReplace = texturesToReplace
             }
             42 -> {
-                val length = buffer.readUnsignedByte()
-                val aByteArray1118 = ByteArray(length)
+                val size = buffer.readUnsignedByte()
+                val aByteArray1118 = ByteArray(size)
 
-                (0 until length).forEach {
-                    aByteArray1118[it] = buffer.get()
-                }
+                repeat(size) { aByteArray1118[it] = buffer.get() }
                 type.aByteArray1118 = aByteArray1118
             }
             62 -> type.isRotated = true
@@ -131,7 +127,7 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                 val size = buffer.readUnsignedByte()
                 val configChangeDest = IntArray(size + 2)
 
-                (0..size).forEach { index ->
+                repeat(size + 1) { index ->
                     buffer.readUnsignedShort().let {
                         if (it == 65535) configChangeDest[index] = -1
                         else configChangeDest[index] = it
@@ -149,12 +145,10 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
                 type.anInt1145 = buffer.readUnsignedShort()
                 type.anInt1139 = buffer.readUnsignedShort()
                 type.anInt1144 = buffer.readUnsignedByte()
-                val length = buffer.readUnsignedByte()
-                val anIntArray1127 = IntArray(length)
+                val size = buffer.readUnsignedByte()
+                val anIntArray1127 = IntArray(size)
 
-                (0 until length).forEach { index ->
-                    anIntArray1127[index] = buffer.readUnsignedShort()
-                }
+                repeat(size) { anIntArray1127[it] = buffer.readUnsignedShort() }
 
                 type.anIntArray1127 = anIntArray1127
             }
@@ -193,27 +187,25 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
             104 -> type.anInt1136 = buffer.readUnsignedByte()
             105 -> type.aBoolean1148 = true
             106 -> {
-                val length = buffer.readUnsignedByte()
-                val anIntArray1170 = IntArray(length)
-                val anIntArray1154 = IntArray(length)
-                (0 until length).forEach { index ->
-                    anIntArray1170[index] = buffer.readUnsignedShort()
-                    val size = buffer.readUnsignedByte()
-                    anIntArray1154[index] = size
-                    type.anInt1116 += size
+                val size = buffer.readUnsignedByte()
+                val anIntArray1170 = IntArray(size)
+                val anIntArray1154 = IntArray(size)
+                repeat(size) {
+                    anIntArray1170[it] = buffer.readUnsignedShort()
+                    val i = buffer.readUnsignedByte()
+                    anIntArray1154[it] = i
+                    type.anInt1116 += i
                 }
 
                 type.anIntArray1170 = anIntArray1170
                 type.anIntArray1154 = anIntArray1154
             }
             107 -> type.anInt1101 = buffer.readUnsignedShort()
-            in 150..154 -> buffer.readString().let { type.actions[opcode -150] = it }
+            in 150..154 -> buffer.readString().let { type.actions[opcode - 150] = it }
             160 -> {
-                val length = buffer.readUnsignedByte()
-                val anIntArray1153 = IntArray(length)
-                (0 until length).forEach { index ->
-                    anIntArray1153[index] = buffer.readUnsignedShort()
-                }
+                val size = buffer.readUnsignedByte()
+                val anIntArray1153 = IntArray(size)
+                repeat(size) { anIntArray1153[it] = buffer.readUnsignedShort() }
                 type.anIntArray1153 = anIntArray1153
             }
             162 -> {
@@ -241,13 +233,13 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
             177 -> type.aBoolean1167 = true
             178 -> type.anInt1113 = buffer.readUnsignedByte()
             249 -> {
-                val length = buffer.readUnsignedByte()
-                (0 until length).forEach { _ ->
+                val size = buffer.readUnsignedByte()
+                repeat(size) {
                     val string = buffer.readUnsignedByte().toBoolean()
                     type.params[buffer.readUnsignedMedium()] = if (string) buffer.readString() else buffer.int
                 }
             }
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

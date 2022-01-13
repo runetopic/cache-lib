@@ -12,11 +12,10 @@ import java.nio.ByteBuffer
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
+internal class ParamEntryBuilder : IEntryBuilder<ParamEntryType> {
 
     lateinit var paramTypes: Set<ParamEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         paramTypes = buildSet {
             store.index(2).group(11).files().forEach {
@@ -32,7 +31,7 @@ internal class ParamEntryBuilder: IEntryBuilder<ParamEntryType> {
             2 -> type.defaultInt = buffer.int
             4 -> type.aBoolean1822 = false
             5 -> type.defaultString = buffer.readString()
-            else -> throw Exception("Read unused opcode with id: ${opcode}.")
+            else -> throw Exception("Read unused opcode with id: $opcode.")
         } while (true)
         return type
     }

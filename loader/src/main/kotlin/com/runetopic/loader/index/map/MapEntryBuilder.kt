@@ -17,14 +17,13 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
 
     lateinit var mapTypes: Set<MapEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         mapTypes = buildSet {
-            store.index(5).use {
+            store.index(5).let {
                 (0..Short.MAX_VALUE).forEach { regionId ->
                     val regionX: Int = regionId shr 8
                     val regionY: Int = regionId and 0xFF
-                    it.group("m${regionX}_${regionY}").data.let { data ->
+                    it.group("m${regionX}_$regionY").data.let { data ->
                         if (data.isEmpty()) return@forEach
                         add(read(data.toByteBuffer(), MapEntryType(regionId, regionX, regionY)))
                     }
@@ -34,9 +33,9 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
     }
 
     override fun read(buffer: ByteBuffer, type: MapEntryType): MapEntryType {
-        (0 until MapEntryType.PLANES).forEach { plane ->
-            (0 until MapEntryType.MAP_SIZE).forEach { x ->
-                (0 until MapEntryType.MAP_SIZE).forEach { z ->
+        repeat(MapEntryType.PLANES) { plane ->
+            repeat(MapEntryType.MAP_SIZE) { x ->
+                repeat(MapEntryType.MAP_SIZE) { z ->
                     val tile = MapEntryType.Tile()
 
                     while (true) {
@@ -140,7 +139,7 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
                     val cameraAngles = arrayOfNulls<Array<ByteArray>>(4)
                     (0 until 4).forEach { index ->
                         val i = buffer.get().toInt()
-                        //0 checks if the array exists.
+                        // 0 checks if the array exists.
                         if (i == 1) {
                             val regionParamX = 104
                             val regionParamY = 104
