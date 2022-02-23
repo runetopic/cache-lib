@@ -21,7 +21,7 @@ import java.nio.file.Path
  */
 internal class DatFile(
     path: Path
-): IDatFile {
+) : IDatFile {
     private val datFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
     private val datBuffer = ByteArray(datFile.length().toInt())
 
@@ -60,7 +60,7 @@ internal class DatFile(
             val currentIndex = header.readUnsignedByte()
 
             if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentIndex) {
-                throw DatFileException("DatFile mismatch Id={${currentIndex}} != {${id}}, ReferenceTableId={${currentReferenceTableId}} != {${referenceTableId}}, CurrentPart={${currentPart}} != {${part}}")
+                throw DatFileException("DatFile mismatch Id={$currentIndex} != {$id}, ReferenceTableId={$currentReferenceTableId} != {$referenceTableId}, CurrentPart={$currentPart} != {$part}")
             }
             if (nextSector < 0 || datFile.length() / DAT_SIZE < nextSector) {
                 throw DatFileException("Invalid next sector $nextSector")

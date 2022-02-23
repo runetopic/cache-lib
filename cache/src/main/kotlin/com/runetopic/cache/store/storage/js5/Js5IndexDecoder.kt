@@ -20,7 +20,8 @@ internal fun decode(
     datFile: IDatFile,
     idxFile: IIdxFile,
     whirlpool: ByteArray,
-    decompressed: Container
+    decompressed: Container,
+    decompressionIndexExclusions: IntArray
 ): Index {
     val buffer = decompressed.data.toByteBuffer()
     val protocol = buffer.readUnsignedByte()
@@ -50,24 +51,39 @@ internal fun decode(
         val groupId = groupIds[it]
 
         val groupReferenceTableData = datFile.readReferenceTable(idxFile.id(), idxFile.loadReferenceTable(groupId))
-        val data = if (groupReferenceTableData.isEmpty()) byteArrayOf() else try {
-            groupReferenceTableData.decompress()
-        } catch (exception: ZipException) {
-            groupReferenceTableData
-        }
+        val data = getOrDecompressGroupReferenceTable(groupReferenceTableData, decompressionIndexExclusions, idxFile)
 
-        groups[groupId] = (Group(
-            groupId,
-            groupNameHashes[groupId],
-            groupCrcs[groupId],
-            groupWhirlpools[groupId],
-            groupRevisions[groupId],
-            intArrayOf(),//TODO
-            decodeFiles(fileIds, fileNameHashes, data, groupFileIds[groupId], groupId),
-            data
-        ))
+        groups[groupId] = (
+            Group(
+                groupId,
+                groupNameHashes[groupId],
+                groupCrcs[groupId],
+                groupWhirlpools[groupId],
+                groupRevisions[groupId],
+                intArrayOf(), // TODO
+                decodeFiles(fileIds, fileNameHashes, data, groupFileIds[groupId], groupId),
+                data
+            )
+            )
     }
     return Index(idxFile.id(), decompressed.crc, whirlpool, decompressed.compression, protocol, revision, isNamed, groups)
+}
+
+private fun getOrDecompressGroupReferenceTable(
+    groupReferenceTableData: ByteArray,
+    decompressionIndexExclusions: IntArray,
+    idxFile: IIdxFile
+) = when {
+    groupReferenceTableData.isNotEmpty() -> try {
+        if (idxFile.id() !in decompressionIndexExclusions) {
+            groupReferenceTableData.decompress()
+        } else {
+            groupReferenceTableData
+        }
+    } catch (exception: ZipException) {
+        groupReferenceTableData
+    }
+    else -> byteArrayOf()
 }
 
 private fun decodeGroupIds(

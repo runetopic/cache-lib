@@ -4,7 +4,7 @@ plugins {
     signing
 }
 
-version = "1.4.19-SNAPSHOT"
+version = "1.4.24-SNAPSHOT"
 
 java {
     withJavadocJar()
@@ -17,7 +17,7 @@ publishing {
             pom {
                 packaging = "jar"
                 name.set("Xlite Cache Library")
-                description.set("Cache Library for reading and writing to the jagex cache in the 647 protocol.")
+                description.set("Cache Library for reading and writing from the jagex cache.")
                 url.set("https://github.com/xlite2/cache-lib")
 
                 developers {
@@ -67,7 +67,6 @@ publishing {
     }
 }
 
-
 signing {
     sign(publishing.publications["mavenJava"])
 }
@@ -75,7 +74,7 @@ signing {
 dependencies {
     implementation("org.apache.commons:commons-compress:1.21")
     implementation("com.michael-bull.kotlin-inline-logger:kotlin-inline-logger:1.0.3")
-    implementation("org.slf4j:slf4j-simple:1.7.32")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.+")
+    implementation("org.slf4j:slf4j-simple:1.7.36")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     implementation("com.runetopic.cryptography:cryptography:1.0.6-SNAPSHOT")
 }

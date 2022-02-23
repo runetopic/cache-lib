@@ -26,7 +26,8 @@ import kotlin.io.path.exists
 @OptIn(ExperimentalPathApi::class)
 internal class Js5DiskStorage(
     private val path: Path,
-    private val parallel: Boolean
+    private val parallel: Boolean,
+    private val decompressionIndexExclusions: IntArray
 ) : IStorage {
     private var masterIdxFile: IIdxFile
     private var datFile: IDatFile
@@ -34,16 +35,16 @@ internal class Js5DiskStorage(
     private val logger = InlineLogger()
 
     init {
-        val masterIndexFile = Path.of("${path}/${Constants.MAIN_FILE_255}")
+        val masterIndexFile = Path.of("$path/${Constants.MAIN_FILE_255}")
 
         if (masterIndexFile.exists().not()) {
-            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_255} in directory ${path}/${Constants.MAIN_FILE_255}")
+            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_255} in directory $path/${Constants.MAIN_FILE_255}")
         }
 
-        val datFile = Path.of("${path}/${Constants.MAIN_FILE_DAT}")
+        val datFile = Path.of("$path/${Constants.MAIN_FILE_DAT}")
 
         if (datFile.exists().not()) {
-            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_DAT} in directory ${path}/${Constants.MAIN_FILE_DAT}")
+            throw FileNotFoundException("Missing ${Constants.MAIN_FILE_DAT} in directory $path/${Constants.MAIN_FILE_DAT}")
         }
 
         this.masterIdxFile = IdxFile(Constants.MASTER_INDEX_ID, masterIndexFile)
@@ -65,9 +66,7 @@ internal class Js5DiskStorage(
             }
             latch.await()
             pool.shutdown()
-        } else {
-            (0 until masterIdxFile.validIndexCount()).forEach { open(it, store) }
-        }
+        } else (0 until masterIdxFile.validIndexCount()).forEach { open(it, store) }
         logger.debug { "Opened ${idxFiles.size} js5 indexes. (Allocated ${((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024)}MB)." }
     }
 
@@ -80,7 +79,7 @@ internal class Js5DiskStorage(
             return
         }
         val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
-        store.addIndex(decode(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable)))
+        store.addIndex(decode(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable), decompressionIndexExclusions))
     }
 
     override fun loadMasterReferenceTable(groupId: Int): ByteArray {
@@ -99,7 +98,7 @@ internal class Js5DiskStorage(
 
     private fun getIdxFile(id: Int): IdxFile {
         idxFiles.find { it.id() == id }?.let { return it }
-        return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}${id}"))
+        return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}$id"))
     }
 
     override fun close() {

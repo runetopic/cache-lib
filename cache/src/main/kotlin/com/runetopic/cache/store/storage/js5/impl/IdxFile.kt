@@ -4,7 +4,6 @@ import com.runetopic.cache.exception.IdxFileException
 import com.runetopic.cache.extension.readUnsignedMedium
 import com.runetopic.cache.extension.toByteBuffer
 import com.runetopic.cache.hierarchy.ReferenceTable
-import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Constants.IDX_SIZE
 import com.runetopic.cache.store.storage.js5.IIdxFile
 import java.io.RandomAccessFile

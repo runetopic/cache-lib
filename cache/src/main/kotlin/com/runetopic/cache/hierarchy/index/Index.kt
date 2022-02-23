@@ -18,7 +18,7 @@ data class Index(
     val revision: Int,
     val isNamed: Boolean,
     private val groups: Map<Int, Group>
-): Comparable<Index> {
+) : Comparable<Index> {
 
     @JvmName("getGroups")
     fun groups(): Collection<Group> = groups.values

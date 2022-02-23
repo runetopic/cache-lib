@@ -1,6 +1,6 @@
 package com.runetopic.cache.codec
 
-import com.runetopic.cache.codec.CodecType.*
+import com.runetopic.cache.codec.impl.GZipCodec
 import com.runetopic.cache.exception.CompressionException
 import com.runetopic.cache.extension.readUnsignedByte
 import com.runetopic.cache.extension.readUnsignedShort
@@ -30,18 +30,23 @@ internal object ContainerCodec {
         crc32.update(data, 0, 5)
 
         return when (val type = compressionType(compression)) {
-            BadCodec -> throw CompressionException("Compression type not found with a compression opcode of $compression.")
-            is NoCodec -> {
+            CodecType.BadCodec -> throw CompressionException("Compression type not found with a compression opcode of $compression.")
+            is CodecType.NoCodec -> {
                 val encrypted = ByteArray(length)
                 buffer.get(encrypted, 0, length)
                 crc32.update(encrypted, 0, length)
                 val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys)
 
-                val revision = -1 /*buffer.short.toInt() and 0xFFFF*/
+                var revision = -1
+
+                if (buffer.remaining() >= 2) {
+                    revision = buffer.readUnsignedShort()
+                    assert(revision != -1) { "Revision not properly decoded with no codec. Was -1" }
+                }
 
                 Container(decrypted, compression, revision, crc32.value.toInt())
             }
-            GZipCodec, BZipCodec-> {
+            CodecType.GZipCodec, CodecType.BZipCodec -> {
                 val encrypted = ByteArray(length + 4)
                 buffer.get(encrypted)
                 crc32.update(encrypted, 0, encrypted.size)
@@ -51,6 +56,7 @@ internal object ContainerCodec {
 
                 if (buffer.remaining() >= 2) {
                     revision = buffer.readUnsignedShort()
+                    assert(revision != -1) { "Revision not properly decoded. Was -1" }
                 }
 
                 val byteBuffer = decrypted.toByteBuffer()
@@ -68,10 +74,10 @@ internal object ContainerCodec {
 
     private fun compressionType(compression: Int): CodecType {
         return when (compression) {
-            0 -> NoCodec
-            1 -> BZipCodec
-            2 -> GZipCodec
-            else -> BadCodec
+            0 -> CodecType.NoCodec
+            1 -> CodecType.BZipCodec
+            2 -> CodecType.GZipCodec
+            else -> CodecType.BadCodec
         }
     }
 }

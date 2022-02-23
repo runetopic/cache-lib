@@ -17,7 +17,7 @@ data class Group(
     val keys: IntArray,
     private val files: Map<Int, File>,
     val data: ByteArray
-): Comparable<Group> {
+) : Comparable<Group> {
 
     @JvmName("getFiles")
     fun files(): Collection<File> = files.values

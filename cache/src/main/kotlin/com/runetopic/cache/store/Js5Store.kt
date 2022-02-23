@@ -17,9 +17,10 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class Js5Store(
     path: Path,
-    parallel: Boolean = false
+    parallel: Boolean = false,
+    decompressionIndexExclusions: IntArray = intArrayOf()
 ) : Closeable {
-    private var storage = Js5DiskStorage(path, parallel)
+    private var storage = Js5DiskStorage(path, parallel, decompressionIndexExclusions)
     private val indexes = CopyOnWriteArrayList<Index>()
 
     init {
@@ -90,6 +91,8 @@ class Js5Store(
         checksums.put(rsa)
         return checksums.array()
     }
+
+    fun validIndexCount() = indexes.size
 
     override fun close() = storage.close()
 }
