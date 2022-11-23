@@ -17,4 +17,3 @@ dependencyResolutionManagement {
 
 include("app")
 include("cache")
-include("loader")

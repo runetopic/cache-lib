@@ -4,7 +4,7 @@ plugins {
     signing
 }
 
-version = "1.2.0"
+version = "1.6.0"
 
 java {
     withJavadocJar()
@@ -13,12 +13,12 @@ java {
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
+        create<MavenPublication>("maven") {
             pom {
                 packaging = "jar"
                 name.set("Xlite Cache Library")
                 description.set("Cache Library for reading and writing from the jagex cache.")
-                url.set("https://github.com/xlite2/cache-lib")
+                url.set("https://github.com/runetopic/cache-lib")
 
                 developers {
                     developer {
@@ -40,10 +40,6 @@ publishing {
                 }
             }
 
-            artifact(tasks["javadocJar"])
-            artifact(tasks["sourcesJar"])
-        }
-        create<MavenPublication>("maven") {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
@@ -68,7 +64,7 @@ publishing {
 }
 
 signing {
-    sign(publishing.publications["mavenJava"])
+    sign(publishing.publications["maven"])
 }
 
 dependencies {
