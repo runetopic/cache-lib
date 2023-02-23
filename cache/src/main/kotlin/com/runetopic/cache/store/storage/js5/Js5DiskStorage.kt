@@ -5,7 +5,7 @@ import com.runetopic.cache.extension.decompress
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Js5Store
-import com.runetopic.cache.store.storage.IStorage
+import com.runetopic.cache.store.storage.Storage
 import com.runetopic.cache.store.storage.js5.impl.DatFile
 import com.runetopic.cache.store.storage.js5.impl.IdxFile
 import com.runetopic.cryptography.toWhirlpool
@@ -25,10 +25,10 @@ import kotlin.io.path.exists
 internal class Js5DiskStorage(
     private val path: Path,
     private val parallel: Boolean
-) : IStorage {
-    private var masterIdxFile: IIdxFile
-    private var datFile: IDatFile
-    private var idxFiles = CopyOnWriteArrayList<IdxFile>()
+) : Storage {
+    private val masterIdxFile: IIdxFile
+    private val datFile: IDatFile
+    private val idxFiles = CopyOnWriteArrayList<IdxFile>()
     private val logger = InlineLogger()
 
     init {
@@ -62,7 +62,11 @@ internal class Js5DiskStorage(
             }
             latch.await()
             pool.shutdown()
-        } else (0 until masterIdxFile.validIndexCount()).forEach { open(it, store) }
+        } else {
+            repeat(masterIdxFile.validIndexCount()) {
+                open(it, store)
+            }
+        }
         logger.debug { "Opened ${idxFiles.size} js5 indexes. (Allocated ${((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024)}MB)." }
     }
 
