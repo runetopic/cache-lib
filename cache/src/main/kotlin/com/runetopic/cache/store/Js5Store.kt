@@ -84,5 +84,5 @@ class Js5Store(
         return checksums.array()
     }
 
-    fun validIndexCount() = indexes.size
+    fun validIndexCount(): Int = indexes.size
 }
