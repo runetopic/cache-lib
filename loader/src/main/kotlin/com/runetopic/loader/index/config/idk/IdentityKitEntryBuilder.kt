@@ -16,7 +16,6 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
 
     lateinit var identityKitTypes: Set<IdentityKitEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         identityKitTypes = buildSet {
             store.index(2).group(3).files().forEach {

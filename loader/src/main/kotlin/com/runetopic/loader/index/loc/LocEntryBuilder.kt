@@ -13,13 +13,11 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
 
     lateinit var mapTypes: Set<LocEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         mapTypes = buildSet {
-            store.index(16).use { index ->
-                (0 until index.expand()).forEach {
-                    add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), LocEntryType(it)))
-                }
+            val index = store.index(16)
+            (0 until index.expand()).forEach {
+                add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), LocEntryType(it)))
             }
         }
     }

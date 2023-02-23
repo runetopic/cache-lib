@@ -12,13 +12,11 @@ internal class ObjEntryBuilder : IEntryBuilder<ObjEntryType> {
 
     lateinit var objs: Set<ObjEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         objs = buildSet {
-            store.index(19).use { index ->
-                (0 until index.expand()).forEach {
-                    add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), ObjEntryType(it)))
-                }
+            val index = store.index(19)
+            (0 until index.expand()).forEach {
+                add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), ObjEntryType(it)))
             }
         }
     }

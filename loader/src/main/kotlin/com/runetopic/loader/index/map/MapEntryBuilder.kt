@@ -1,5 +1,6 @@
 package com.runetopic.loader.index.map
 
+import com.runetopic.cache.extension.decompress
 import com.runetopic.cache.store.Js5Store
 import com.runetopic.loader.IEntryBuilder
 import com.runetopic.loader.extension.readUnsignedByte
@@ -17,17 +18,15 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
 
     lateinit var mapTypes: Set<MapEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         mapTypes = buildSet {
-            store.index(5).use {
-                (0..Short.MAX_VALUE).forEach { regionId ->
-                    val regionX: Int = regionId shr 8
-                    val regionY: Int = regionId and 0xFF
-                    it.group("m${regionX}_${regionY}").data.let { data ->
-                        if (data.isEmpty()) return@forEach
-                        add(read(data.toByteBuffer(), MapEntryType(regionId, regionX, regionY)))
-                    }
+            val index = store.index(5)
+            (0..Short.MAX_VALUE).forEach { regionId ->
+                val regionX: Int = regionId shr 8
+                val regionY: Int = regionId and 0xFF
+                index.group("m${regionX}_${regionY}").data.let { data ->
+                    if (data.isEmpty()) return@forEach
+                    add(read(data.decompress().data.toByteBuffer(), MapEntryType(regionId, regionX, regionY)))
                 }
             }
         }

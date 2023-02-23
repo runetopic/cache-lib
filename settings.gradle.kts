@@ -1,11 +1,5 @@
 rootProject.name = "cache-lib"
 
-pluginManagement {
-    plugins {
-        kotlin("jvm") version "1.5.21"
-    }
-}
-
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
@@ -13,7 +7,17 @@ dependencyResolutionManagement {
             url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
         }
     }
+
+    versionCatalogs {
+        create("deps") {
+            version("kotlin", "1.7.10")
+            plugin("jvm", "org.jetbrains.kotlin.jvm").versionRef("kotlin")
+        }
+    }
 }
 
-include("app")
-include("cache")
+listOf(
+    "app",
+    "cache",
+    "loader"
+).also(::include)

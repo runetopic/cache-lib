@@ -1,7 +1,7 @@
 package com.runetopic.cache.store.storage.js5
 
 import com.github.michaelbull.logging.InlineLogger
-import com.runetopic.cache.codec.ContainerCodec
+import com.runetopic.cache.extension.decompress
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.Constants
 import com.runetopic.cache.store.Js5Store
@@ -14,7 +14,6 @@ import java.nio.file.Path
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.exists
 
 /**
@@ -23,11 +22,9 @@ import kotlin.io.path.exists
  *
  * @author Jordan Abraham
  */
-@OptIn(ExperimentalPathApi::class)
 internal class Js5DiskStorage(
     private val path: Path,
-    private val parallel: Boolean,
-    private val decompressionIndexExclusions: IntArray
+    private val parallel: Boolean
 ) : IStorage {
     private var masterIdxFile: IIdxFile
     private var datFile: IDatFile
@@ -56,9 +53,8 @@ internal class Js5DiskStorage(
 
         if (parallel) {
             val latch = CountDownLatch(masterIdxFile.validIndexCount())
-            val threads = Runtime.getRuntime().availableProcessors()
-            val pool = Executors.newFixedThreadPool(if (threads >= 16) 8 else if (threads >= 8) 4 else 2)
-            (0 until masterIdxFile.validIndexCount()).forEach {
+            val pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+            repeat(masterIdxFile.validIndexCount()) {
                 pool.execute {
                     open(it, store)
                     latch.countDown()
@@ -74,21 +70,23 @@ internal class Js5DiskStorage(
         val indexTable = masterIdxFile.loadReferenceTable(indexId)
         idxFiles.add(getIdxFile(indexId))
 
-        if (indexTable.exists().not()) {
+        if (indexTable.length == 0 && indexTable.sector == 0) {
             store.addIndex(Index.default(indexId))
             return
         }
         val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
-        store.addIndex(decode(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), ContainerCodec.decompress(indexDatTable), decompressionIndexExclusions))
+        store.addIndex(decodeJs5Index(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), indexDatTable.decompress()))
     }
 
-    override fun loadMasterReferenceTable(groupId: Int): ByteArray {
-        return datFile.readReferenceTable(Constants.MASTER_INDEX_ID, masterIdxFile.loadReferenceTable(groupId))
-    }
+    override fun loadMasterReferenceTable(groupId: Int): ByteArray = datFile.readReferenceTable(
+        id = Constants.MASTER_INDEX_ID,
+        referenceTable = masterIdxFile.loadReferenceTable(groupId)
+    )
 
-    override fun loadReferenceTable(index: Index, groupId: Int): ByteArray {
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(groupId))
-    }
+    override fun loadReferenceTable(index: Index, groupId: Int): ByteArray = datFile.readReferenceTable(
+        id = index.id,
+        referenceTable = getIdxFile(index.id).loadReferenceTable(groupId)
+    )
 
     override fun loadReferenceTable(index: Index, groupName: String): ByteArray {
         val group = index.group(groupName)
@@ -96,18 +94,5 @@ internal class Js5DiskStorage(
         return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(group.id))
     }
 
-    private fun getIdxFile(id: Int): IdxFile {
-        idxFiles.find { it.id() == id }?.let { return it }
-        return IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}$id"))
-    }
-
-    override fun close() {
-        masterIdxFile.close()
-        datFile.close()
-        idxFiles.forEach { it.close() }
-    }
-
-    override fun flush() {
-        TODO("Not yet implemented")
-    }
+    private fun getIdxFile(id: Int): IdxFile = idxFiles.find { it.id() == id } ?: IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}$id"))
 }

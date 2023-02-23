@@ -19,15 +19,9 @@ import kotlin.io.path.fileSize
  */
 internal class IdxFile(
     private val id: Int,
-    private val path: Path
+    private val path: Path,
+    private val idxBuffer: ByteArray = path.toFile().readBytes()
 ) : IIdxFile {
-    private val idxFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
-    private val idxBuffer = ByteArray(idxFile.length().toInt())
-
-    init {
-        idxFile.readFully(idxBuffer)
-    }
-
     override fun loadReferenceTable(id: Int): ReferenceTable {
         val offset = id * IDX_SIZE
         val buffer = idxBuffer.copyOfRange(offset, offset + IDX_SIZE).toByteBuffer()
@@ -39,8 +33,6 @@ internal class IdxFile(
         return ReferenceTable(id, sector, length)
     }
 
-    @OptIn(ExperimentalPathApi::class)
     override fun validIndexCount(): Int = path.fileSize().toInt() / IDX_SIZE
     override fun id(): Int = id
-    override fun close() = idxFile.close()
 }

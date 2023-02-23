@@ -12,13 +12,11 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
 
     lateinit var npcs: Set<NpcEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         npcs = buildSet {
-            store.index(18).use { index ->
-                (0 until index.expand()).forEach {
-                    add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), NpcEntryType(it)))
-                }
+            val index = store.index(18)
+            (0 until index.expand()).forEach {
+                add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), NpcEntryType(it)))
             }
         }
     }

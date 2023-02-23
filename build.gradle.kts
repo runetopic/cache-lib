@@ -1,31 +1,40 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.UsesKotlinJavaToolchain
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("jvm")
+    alias(deps.plugins.jvm)
 }
 
-configure(allprojects) {
+allprojects {
     group = "com.runetopic.cache"
 
-    plugins.withType<KotlinPluginWrapper> {
-        java.sourceCompatibility = JavaVersion.VERSION_16
-        java.targetCompatibility = JavaVersion.VERSION_16
-
-        tasks {
-            compileKotlin {
-                kotlinOptions.jvmTarget = "1.8"
-            }
-            compileTestKotlin {
-                kotlinOptions.jvmTarget = "1.8"
-            }
-        }
-    }
-}
-
-configure(subprojects) {
     plugins.withType<KotlinPluginWrapper> {
         dependencies {
             implementation(kotlin("stdlib"))
         }
+    }
+
+    tasks.withType<Test> {
+        dependencies {
+            testImplementation(kotlin("test"))
+        }
+    }
+
+    tasks.withType<KotlinCompile> {
+        kotlin {
+            jvmToolchain {
+                languageVersion.set(JavaLanguageVersion.of(18))
+            }
+        }
+    }
+
+    tasks.withType<UsesKotlinJavaToolchain>().configureEach {
+        kotlinJavaToolchain.toolchain.use(
+            project.extensions.getByType<JavaToolchainService>().launcherFor {
+                languageVersion.set(JavaLanguageVersion.of(18))
+            }
+        )
     }
 }

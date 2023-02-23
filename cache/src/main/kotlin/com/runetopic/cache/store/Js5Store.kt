@@ -17,10 +17,9 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class Js5Store(
     path: Path,
-    parallel: Boolean = false,
-    decompressionIndexExclusions: IntArray = intArrayOf()
-) : Closeable {
-    private var storage = Js5DiskStorage(path, parallel, decompressionIndexExclusions)
+    parallel: Boolean = false
+) {
+    private var storage = Js5DiskStorage(path, parallel)
     private val indexes = CopyOnWriteArrayList<Index>()
 
     init {
@@ -35,13 +34,7 @@ class Js5Store(
 
     fun index(indexId: Int): Index = indexes.find { it.id == indexId }!!
 
-    fun indexReferenceTableSize(indexId: Int): Int {
-        var size = 0
-        index(indexId).use { index ->
-            index.groups().forEach { size += storage.loadReferenceTable(index, it.id).size }
-        }
-        return size
-    }
+    fun indexReferenceTableSize(indexId: Int): Int = index(indexId).let { it.groups().fold(0) { size, group -> size + storage.loadReferenceTable(it, group.id).size } }
 
     fun groupReferenceTableSize(indexId: Int, groupName: String): Int {
         val referenceTable = storage.loadReferenceTable(index(indexId), groupName)
@@ -93,6 +86,4 @@ class Js5Store(
     }
 
     fun validIndexCount() = indexes.size
-
-    override fun close() = storage.close()
 }

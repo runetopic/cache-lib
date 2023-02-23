@@ -20,70 +20,53 @@ import java.nio.file.Path
  * @author Jordan Abraham
  */
 internal class DatFile(
-    path: Path
+    path: Path,
+    private val datBuffer: ByteArray = path.toFile().readBytes()
 ) : IDatFile {
-    private val datFile: RandomAccessFile = RandomAccessFile(path.toFile(), "rw")
-    private val datBuffer = ByteArray(datFile.length().toInt())
 
-    init {
-        datFile.readFully(datBuffer)
+    override fun readReferenceTable(id: Int, referenceTable: ReferenceTable): ByteArray {
+        val sector = referenceTable.sector
+        val length = referenceTable.length
+        if (validateSector(sector)) return byteArrayOf()
+        return ByteBuffer.allocate(length).decode(id, referenceTable.id, length, sector)
     }
 
-    override fun readReferenceTable(
+    private tailrec fun ByteBuffer.decode(
         id: Int,
-        referenceTable: ReferenceTable
+        referenceTableId: Int,
+        length: Int,
+        sector: Int,
+        bytes: Int = 0,
+        part: Int = 0
     ): ByteArray {
-        var sector = referenceTable.sector
-        val length = referenceTable.length
-        val referenceTableId = referenceTable.id
+        if (length <= bytes) return flip().array()
 
-        if (validateSector(sector)) return byteArrayOf()
-
-        val buffer = ByteBuffer.allocate(length)
-
-        var part = 0
-        var bytes = 0
-        while (length > bytes) {
-            if (sector == 0) {
-                throw EndOfDatFileException("Unexpected end of file. Id=[$id} Length=[$length]")
-            }
-
-            val offset = DAT_SIZE * sector
-            val large = referenceTableId > 0xFFFF
-            val headerSize = if (large) 10 else 8
-            val blockSize = adjustBlockLength(length - bytes, headerSize)
-            val header = datBuffer.copyOfRange(offset, offset + headerSize + blockSize).toByteBuffer()
-
-            val currentReferenceTableId = if (large) header.int else header.readUnsignedShort()
-            val currentPart = header.readUnsignedShort()
-            val nextSector = header.readUnsignedMedium()
-            val currentIndex = header.readUnsignedByte()
-
-            if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentIndex) {
-                throw DatFileException("DatFile mismatch Id={$currentIndex} != {$id}, ReferenceTableId={$currentReferenceTableId} != {$referenceTableId}, CurrentPart={$currentPart} != {$part}")
-            }
-            if (nextSector < 0 || datFile.length() / DAT_SIZE < nextSector) {
-                throw DatFileException("Invalid next sector $nextSector")
-            }
-
-            buffer.put(header.array(), headerSize, blockSize)
-            bytes += blockSize
-            sector = nextSector
-            ++part
+        if (sector == 0) {
+            throw EndOfDatFileException("Unexpected end of file. Id=[$id} Length=[$length]")
         }
 
-        buffer.flip()
-        return buffer.array()
+        val offset = DAT_SIZE * sector
+        val large = referenceTableId > 0xFFFF
+        val headerSize = if (large) 10 else 8
+        val blockSize = adjustBlockLength(length - bytes, headerSize)
+        val header = datBuffer.copyOfRange(offset, offset + headerSize + blockSize).toByteBuffer()
+
+        val currentReferenceTableId = if (large) header.int else header.readUnsignedShort()
+        val currentPart = header.readUnsignedShort()
+        val nextSector = header.readUnsignedMedium()
+        val currentIndex = header.readUnsignedByte()
+
+        if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentIndex) {
+            throw DatFileException("DatFile mismatch Id={$currentIndex} != {$id}, ReferenceTableId={$currentReferenceTableId} != {$referenceTableId}, CurrentPart={$currentPart} != {$part}")
+        }
+        if (nextSector < 0 || datBuffer.size / DAT_SIZE < nextSector) {
+            throw DatFileException("Invalid next sector $nextSector")
+        }
+
+        put(header.array(), headerSize, blockSize)
+        return decode(id, referenceTableId, length, nextSector, bytes + blockSize, part + 1)
     }
 
-    private fun adjustBlockLength(
-        blockLength: Int,
-        headerLength: Int
-    ): Int {
-        return if (blockLength <= DAT_SIZE - headerLength) blockLength else DAT_SIZE - headerLength
-    }
-
-    private fun validateSector(sector: Int): Boolean = (sector <= 0L || datFile.length() / DAT_SIZE < sector)
-
-    override fun close() = datFile.close()
+    private fun adjustBlockLength(blockLength: Int, headerLength: Int): Int = if (blockLength <= DAT_SIZE - headerLength) blockLength else DAT_SIZE - headerLength
+    private fun validateSector(sector: Int): Boolean = (sector <= 0L || datBuffer.size / DAT_SIZE < sector)
 }

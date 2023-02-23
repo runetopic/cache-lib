@@ -2,7 +2,6 @@ package com.runetopic.cache.codec
 
 import com.runetopic.cache.codec.impl.BZip2Codec
 import com.runetopic.cache.codec.impl.GZipCodec
-import com.runetopic.cache.codec.impl.NoFileCodec
 
 /**
  * @author Tyler Telis
@@ -10,11 +9,9 @@ import com.runetopic.cache.codec.impl.NoFileCodec
  *
  * @author Jordan Abraham
  */
-internal sealed class CodecType(
-    val codec: IFileCodec
-) {
-    object BadCodec : CodecType(NoFileCodec())
-    object NoCodec : CodecType(NoFileCodec())
-    object BZipCodec : CodecType(BZip2Codec())
-    object GZipCodec : CodecType(GZipCodec())
+internal class CodecType {
+    companion object {
+        val bzip = BZip2Codec()
+        val gzip = GZipCodec()
+    }
 }
