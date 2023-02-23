@@ -7,7 +7,7 @@ import com.runetopic.cache.store.Js5Store
  * @author Tyler Telis
  * @email <xlitersps@gmail.com>
  */
-internal interface IStorage {
+internal interface Storage {
     fun init(store: Js5Store)
     fun open(indexId: Int, store: Js5Store)
     fun loadReferenceTable(index: Index, groupId: Int): ByteArray
