@@ -3,7 +3,6 @@ package com.runetopic.cache.store
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.storage.js5.Js5DiskStorage
 import com.runetopic.cryptography.toWhirlpool
-import java.io.Closeable
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -28,7 +27,7 @@ class Js5Store(
     }
 
     internal fun addIndex(index: Index) {
-        indexes.forEach { i -> require(index.id != i.id) { "Index with Id={${index.id}} already exists." } }
+        indexes.forEach { require(index.id != it.id) { "Index with Id={${index.id}} already exists." } }
         indexes.add(index)
     }
 
