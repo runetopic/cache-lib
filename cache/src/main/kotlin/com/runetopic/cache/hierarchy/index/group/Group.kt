@@ -25,25 +25,25 @@ data class Group(
     @JvmName("getFiles")
     fun files(): Array<File> {
         if (::groupFiles.isInitialized) return groupFiles
-        return decodeJs5Group().apply { groupFiles = Array(size) { this[it] } }
+        return decodeJs5Group().apply { groupFiles = this }
     }
 
     @JvmName("getFile")
     fun file(fileId: Int): File? {
         if (::groupFiles.isInitialized) return groupFiles.firstOrNull { it.id == fileId }
-        return decodeJs5Group().apply { groupFiles = Array(size) { this[it] } }.firstOrNull { it.id == fileId }
+        return decodeJs5Group().apply { groupFiles = this }.firstOrNull { it.id == fileId }
     }
 
     @JvmName("getFiles")
     fun files(keys: IntArray): Array<File> {
         if (::groupFiles.isInitialized) return groupFiles
-        return decodeJs5Group(keys).apply { groupFiles = Array(size) { this[it] } }
+        return decodeJs5Group(keys).apply { groupFiles = this }
     }
 
     @JvmName("getFile")
     fun file(fileId: Int, keys: IntArray): File? {
         if (::groupFiles.isInitialized) return groupFiles.firstOrNull { it.id == fileId }
-        return decodeJs5Group(keys).apply { groupFiles = Array(size) { this[it] } }.firstOrNull { it.id == fileId }
+        return decodeJs5Group(keys).apply { groupFiles = this }.firstOrNull { it.id == fileId }
     }
 
     override fun compareTo(other: Group): Int = this.id.compareTo(other.id)
