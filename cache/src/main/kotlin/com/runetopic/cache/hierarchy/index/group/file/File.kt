@@ -12,8 +12,4 @@ data class File(
     val data: ByteArray
 ) : Comparable<File> {
     override fun compareTo(other: File): Int = this.id.compareTo(other.id)
-
-    internal companion object {
-        val DEFAULT = File(-1, -1, byteArrayOf(0))
-    }
 }
