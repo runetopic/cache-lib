@@ -24,10 +24,10 @@ data class Index(
     fun groups(): Array<Group> = groups
 
     @JvmName("getGroup")
-    fun group(groupId: Int): Group = groups[groupId]
+    fun group(groupId: Int): Group = groups.first { it.id == groupId }
 
     @JvmName("getGroup")
-    fun group(groupName: String): Group = groups.find { it.nameHash == groupName.hashed() } ?: Group.DEFAULT
+    fun group(groupName: String): Group = groups.first { it.nameHash == groupName.hashed() }
 
     fun expand(): Int = groups.last().files().size + (groups.last().id shl 8)
 
