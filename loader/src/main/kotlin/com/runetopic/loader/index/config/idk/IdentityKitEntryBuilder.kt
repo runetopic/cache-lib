@@ -18,7 +18,7 @@ internal class IdentityKitEntryBuilder: IEntryBuilder<IdentityKitEntryType> {
 
     override fun build(store: Js5Store) {
         identityKitTypes = buildSet {
-            store.index(2).group(3).files().forEach {
+            store.index(2).group(3)?.files()?.forEach {
                 add(read(it.data.toByteBuffer(), IdentityKitEntryType(it.id)))
             }
         }

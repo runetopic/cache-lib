@@ -16,7 +16,9 @@ class NpcEntryBuilder: IEntryBuilder<NpcEntryType> {
         npcs = buildSet {
             val index = store.index(18)
             (0 until index.expand()).forEach {
-                add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), NpcEntryType(it)))
+                index.group(it ushr 8)?.file(it and 0xFF)?.data?.toByteBuffer()?.let { buffer ->
+                    read(buffer, NpcEntryType(it))
+                }?.let { type -> add(type) }
             }
         }
     }

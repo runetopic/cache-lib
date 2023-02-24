@@ -17,7 +17,9 @@ internal class LocEntryBuilder : IEntryBuilder<LocEntryType> {
         mapTypes = buildSet {
             val index = store.index(16)
             (0 until index.expand()).forEach {
-                add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), LocEntryType(it)))
+                index.group(it ushr 8)?.file(it and 0xFF)?.data?.toByteBuffer()?.let { buffer ->
+                    read(buffer, LocEntryType(it))
+                }?.let { type -> add(type) }
             }
         }
     }

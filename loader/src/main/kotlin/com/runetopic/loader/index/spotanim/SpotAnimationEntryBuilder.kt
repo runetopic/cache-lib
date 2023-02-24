@@ -18,7 +18,9 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
         spotAnimations = buildSet {
             val index = store.index(21)
             (0 until index.expand()).forEach {
-                add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), SpotAnimationEntryType(it)))
+                index.group(it ushr 8)?.file(it and 0xFF)?.data?.toByteBuffer()?.let { buffer ->
+                    read(buffer, SpotAnimationEntryType(it))
+                }?.let { type -> add(type) }
             }
         }
     }

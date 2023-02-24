@@ -14,10 +14,9 @@ import java.nio.ByteBuffer
 internal class MouseIconEntryBuilder: IEntryBuilder<MouseIconEntryType> {
     lateinit var mouseIconTypes: Set<MouseIconEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         mouseIconTypes = buildSet {
-            store.index(2).group(33).files().forEach {
+            store.index(2).group(33)?.files()?.forEach {
                 add(read(it.data.toByteBuffer(), MouseIconEntryType(it.id)))
             }
         }

@@ -15,10 +15,9 @@ class UnderlayEntryBuilder: IEntryBuilder<UnderlayEntryType> {
 
     lateinit var underlays: Set<UnderlayEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         underlays = buildSet {
-            store.index(2).group(1).files().forEach {
+            store.index(2).group(1)?.files()?.forEach {
                 add(read(it.data.toByteBuffer(), UnderlayEntryType(it.id)))
             }
         }

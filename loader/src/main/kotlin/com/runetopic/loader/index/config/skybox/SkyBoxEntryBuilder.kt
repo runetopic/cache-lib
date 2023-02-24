@@ -14,10 +14,9 @@ import java.nio.ByteBuffer
 internal class SkyBoxEntryBuilder: IEntryBuilder<SkyBoxEntryType> {
     lateinit var skyBoxTypes: Set<SkyBoxEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         skyBoxTypes = buildSet {
-            store.index(2).group(29).files().forEach {
+            store.index(2).group(29)?.files()?.forEach {
                 add(read(it.data.toByteBuffer(), SkyBoxEntryType(it.id)))
             }
         }

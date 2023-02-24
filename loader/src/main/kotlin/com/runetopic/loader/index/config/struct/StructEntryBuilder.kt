@@ -13,10 +13,9 @@ internal class StructEntryBuilder: IEntryBuilder<StructEntryType> {
 
     lateinit var structTypes: Set<StructEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         structTypes = buildSet {
-            store.index(2).group(26).files().forEach {
+            store.index(2).group(26)?.files()?.forEach {
                 add(read(it.data.toByteBuffer(), StructEntryType(it.id)))
             }
         }
