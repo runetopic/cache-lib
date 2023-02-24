@@ -36,15 +36,15 @@ data class Group(
     }
 
     @JvmName("getFile")
-    fun file(fileId: Int): File {
-        if (::fileArray.isInitialized) return fileArray.first { it.id == fileId }
+    fun file(fileId: Int): File? {
+        if (::fileArray.isInitialized) return fileArray.firstOrNull { it.id == fileId }
 
         return decodeJs5Group(
             fileIds,
             fileNameHashes,
             fileCount,
             data.decompress().data
-        ).apply { fileArray = Array(size) { this[it] } }.first { it.id == fileId }
+        ).apply { fileArray = Array(size) { this[it] } }.firstOrNull { it.id == fileId }
     }
 
     @JvmName("getFiles")
@@ -60,15 +60,15 @@ data class Group(
     }
 
     @JvmName("getFile")
-    fun file(fileId: Int, keys: IntArray): File {
-        if (::fileArray.isInitialized) return fileArray.first { it.id == fileId }
+    fun file(fileId: Int, keys: IntArray): File? {
+        if (::fileArray.isInitialized) return fileArray.firstOrNull { it.id == fileId }
 
         return decodeJs5Group(
             fileIds,
             fileNameHashes,
             fileCount,
             data.decompress(keys).data
-        ).apply { fileArray = Array(size) { this[it] } }.first { it.id == fileId }
+        ).apply { fileArray = Array(size) { this[it] } }.firstOrNull { it.id == fileId }
     }
 
     override fun compareTo(other: Group): Int = this.id.compareTo(other.id)
