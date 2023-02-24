@@ -11,19 +11,17 @@ import java.nio.ByteBuffer
  * @author Jordan Abraham
  */
 internal fun Group.decodeJs5Group(keys: IntArray = intArrayOf()): Array<File> {
-    val data = data.decompress(keys).data
     if (data.isEmpty() || fileCount <= 1) return arrayOf(File(fileIds[0], fileNameHashes[0], data))
-
-    var position = data.size
-    val chunks = data[--position].toInt() and 0xFF
+    val decompressed = data.decompress(keys).data
+    var position = decompressed.size
+    val chunks = decompressed[--position].toInt() and 0xFF
     position -= chunks * (fileCount * 4)
-    val buffer = data.toByteBuffer()
+    val buffer = decompressed.toByteBuffer()
     buffer.position(position)
     val fileChunks = buffer.decodeFileChunks(chunks, fileCount)
     val fileSegments = buffer.decodeFileSegments(fileCount, fileChunks)
     buffer.position(position)
-    buffer.decodeFiles(data, fileCount, chunks, fileChunks, fileSegments)
-
+    buffer.decodeFiles(decompressed, fileCount, chunks, fileChunks, fileSegments)
     return Array(fileCount) { File(fileIds[it], fileNameHashes[it], fileSegments[it]) }
 }
 
@@ -71,7 +69,7 @@ private tailrec fun ByteBuffer.decodeFiles(
     curr: Int = 0
 ) {
     if (curr == chunks) return
-    return decodeFiles(data, count, chunks, fileChunks, fileSegments, decodeFileChunkSegmentSize(data, count, chunks, fileChunks, fileSegments, offset, curr), curr + 1)
+    return decodeFiles(data, count, chunks, fileChunks, fileSegments, offset + decodeFileChunkSegmentSize(data, count, chunks, fileChunks, fileSegments, offset, curr), curr + 1)
 }
 
 private tailrec fun ByteBuffer.decodeFileChunkSegmentSize(
