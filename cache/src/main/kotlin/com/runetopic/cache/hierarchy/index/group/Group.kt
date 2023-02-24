@@ -37,14 +37,14 @@ data class Group(
 
     @JvmName("getFile")
     fun file(fileId: Int): File {
-        if (::fileArray.isInitialized) return fileArray.firstOrNull { it.id == fileId } ?: File.DEFAULT
+        if (::fileArray.isInitialized) return fileArray.first { it.id == fileId }
 
         return decodeJs5Group(
             fileIds,
             fileNameHashes,
             fileCount,
             data.decompress().data
-        ).apply { fileArray = Array(size) { this[it] } }.firstOrNull { it.id == fileId } ?: File.DEFAULT
+        ).apply { fileArray = Array(size) { this[it] } }.first { it.id == fileId }
     }
 
     @JvmName("getFiles")
@@ -61,29 +61,15 @@ data class Group(
 
     @JvmName("getFile")
     fun file(fileId: Int, keys: IntArray): File {
-        if (::fileArray.isInitialized) return fileArray.firstOrNull { it.id == fileId } ?: File.DEFAULT
+        if (::fileArray.isInitialized) return fileArray.first { it.id == fileId }
 
         return decodeJs5Group(
             fileIds,
             fileNameHashes,
             fileCount,
             data.decompress(keys).data
-        ).apply { fileArray = Array(size) { this[it] } }.firstOrNull { it.id == fileId } ?: File.DEFAULT
+        ).apply { fileArray = Array(size) { this[it] } }.first { it.id == fileId }
     }
 
     override fun compareTo(other: Group): Int = this.id.compareTo(other.id)
-
-    internal companion object {
-        val DEFAULT = Group(
-            id = -1,
-            nameHash = -1,
-            crc = -1,
-            whirlpool = byteArrayOf(),
-            revision = -1,
-            fileCount = -1,
-            fileIds = intArrayOf(),
-            fileNameHashes = intArrayOf(),
-            data = byteArrayOf()
-        )
-    }
 }
