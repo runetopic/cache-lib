@@ -25,22 +25,20 @@ fun ByteArray.decompress(keys: IntArray): DecompressedArchive {
 
     return when (compression) {
         0 -> {
-            val encrypted = ByteArray(length).apply { buffer.get(this) }
-            crc32.update(encrypted, 0, length)
+            val encrypted = ByteArray(length).apply { buffer.get(this) }.also { crc32.update(this) }
             val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys)
             val revision = if (buffer.remaining() >= 2) buffer.readUnsignedShort().also { assert(it != -1) { "Revision not properly decoded with no codec. Was -1" } } else -1
             DecompressedArchive(decrypted, compression, revision, crc32.value.toInt())
         }
         1, 2 -> {
-            val encrypted = ByteArray(length + 4).apply { buffer.get(this) }
-            crc32.update(encrypted, 0, encrypted.size)
+            val encrypted = ByteArray(length + 4).apply { buffer.get(this) }.also { crc32.update(this) }
             val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys)
             val revision = if (buffer.remaining() >= 2) buffer.readUnsignedShort().also { assert(it != -1) { "Revision not properly decoded with no codec. Was -1" } } else -1
 
-            val byteBuffer = decrypted.toByteBuffer()
-            val decryptedLength = byteBuffer.int
+            val decryptedBuffer = decrypted.toByteBuffer()
+            val decryptedLength = decryptedBuffer.int
             val decryptedData = with(if (compression == 1) CodecType.bzip else CodecType.gzip) {
-                decompress(byteBuffer.remainingBytes(), length, keys)
+                decompress(decryptedBuffer.remainingBytes(), length, keys)
             }
 
             if (decryptedData.size != decryptedLength) {
