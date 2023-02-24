@@ -24,16 +24,12 @@ data class Index(
     fun groups(): Array<Group> = groups
 
     @JvmName("getGroup")
-    fun group(groupId: Int): Group = groups.first { it.id == groupId }
+    fun group(groupId: Int): Group? = groups.firstOrNull { it.id == groupId }
 
     @JvmName("getGroup")
-    fun group(groupName: String): Group = groups.first { it.nameHash == groupName.hashed() }
+    fun group(groupName: String): Group? = groups.firstOrNull { it.nameHash == groupName.hashed() }
 
     fun expand(): Int = groups.last().files().size + (groups.last().id shl 8)
 
     override fun compareTo(other: Index): Int = this.id.compareTo(other.id)
-
-    internal companion object {
-        fun default(indexId: Int): Index = Index(indexId, 0, ByteArray(64), -1, -1, 0, false, arrayOf())
-    }
 }
