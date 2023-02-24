@@ -13,4 +13,5 @@ internal interface Storage {
     fun loadReferenceTable(index: Index, groupId: Int): ByteArray
     fun loadMasterReferenceTable(groupId: Int): ByteArray
     fun loadReferenceTable(index: Index, groupName: String): ByteArray
+    fun validIndexCount(): Int
 }

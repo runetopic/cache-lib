@@ -19,19 +19,17 @@ class Js5Store(
     parallel: Boolean = false
 ) {
     private var storage = Js5DiskStorage(path, parallel)
-    private val indexes = CopyOnWriteArrayList<Index>()
+    private val indexes = arrayOfNulls<Index>(storage.validIndexCount())
 
     init {
         storage.init(this)
-        indexes.sortWith(compareBy { it.id })
     }
 
     internal fun addIndex(index: Index) {
-        indexes.forEach { require(index.id != it.id) { "Index with Id={${index.id}} already exists." } }
-        indexes.add(index)
+        indexes[index.id] = index
     }
 
-    fun index(indexId: Int): Index = indexes.find { it.id == indexId }!!
+    fun index(indexId: Int): Index = indexes[indexId]!!
 
     fun indexReferenceTableSize(indexId: Int): Int = index(indexId).let { it.groups().fold(0) { size, group -> size + storage.loadReferenceTable(it, group.id).size } }
 
@@ -53,8 +51,8 @@ class Js5Store(
     fun checksumsWithoutRSA(): ByteArray {
         val header = ByteBuffer.allocate(indexes.size * 8)
         indexes.forEach {
-            header.putInt(it.crc)
-            header.putInt(it.revision)
+            header.putInt(it?.crc ?: -1)
+            header.putInt(it?.revision ?: -1)
         }
         return header.array()
     }
@@ -64,9 +62,9 @@ class Js5Store(
         header.position(5)
         header.put(indexes.size.toByte())
         indexes.forEach {
-            header.putInt(it.crc)
-            header.putInt(it.revision)
-            header.put(it.whirlpool)
+            header.putInt(it?.crc ?: -1)
+            header.putInt(it?.revision ?: -1)
+            header.put(it?.whirlpool)
         }
         val headerPosition = header.position()
         val headerArray = header.array()
