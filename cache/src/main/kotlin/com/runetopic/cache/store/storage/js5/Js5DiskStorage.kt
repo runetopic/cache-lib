@@ -75,7 +75,8 @@ internal class Js5DiskStorage(
         idxFiles.add(getIdxFile(indexId))
 
         if (indexTable.length == 0 && indexTable.sector == 0) {
-            store.addIndex(Index.default(indexId))
+            // Default this as an index if it can't be created.
+            store.addIndex(Index(indexId, 0, ByteArray(64), -1, -1, 0, false, arrayOf()))
             return
         }
         val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
@@ -93,7 +94,7 @@ internal class Js5DiskStorage(
     )
 
     override fun loadReferenceTable(index: Index, groupName: String): ByteArray {
-        val group = index.group(groupName)
+        val group = index.group(groupName) ?: return byteArrayOf()
         if (group.data.isEmpty()) return group.data
         return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(group.id))
     }
