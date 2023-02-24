@@ -64,7 +64,7 @@ class Js5Store(
         indexes.forEach {
             header.putInt(it?.crc ?: -1)
             header.putInt(it?.revision ?: -1)
-            header.put(it?.whirlpool)
+            header.put(it?.whirlpool ?: ByteArray(64))
         }
         val headerPosition = header.position()
         val headerArray = header.array()
