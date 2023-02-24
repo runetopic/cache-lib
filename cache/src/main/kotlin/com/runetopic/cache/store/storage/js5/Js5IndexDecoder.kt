@@ -13,13 +13,12 @@ import java.nio.ByteBuffer
 /**
  * @author Jordan Abraham
  */
-internal fun decodeJs5Index(
+internal fun DecompressedArchive.decodeJs5Index(
     datFile: IDatFile,
     idxFile: IIdxFile,
     whirlpool: ByteArray,
-    decompressed: DecompressedArchive
 ): Index {
-    val buffer = decompressed.data.toByteBuffer()
+    val buffer = data.toByteBuffer()
     val protocol = buffer.readUnsignedByte()
     val revision = when {
         protocol < 5 || protocol > 7 -> throw ProtocolException("Unhandled protocol $protocol")
@@ -44,9 +43,9 @@ internal fun decodeJs5Index(
 
     return Index(
         id = idxFile.id(),
-        crc = decompressed.crc,
+        crc = crc,
         whirlpool = whirlpool,
-        compression = decompressed.compression,
+        compression = compression,
         protocol = protocol,
         revision = revision,
         isNamed = isNamed,

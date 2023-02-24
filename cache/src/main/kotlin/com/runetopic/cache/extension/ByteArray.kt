@@ -10,9 +10,7 @@ import java.util.zip.CRC32
 /**
  * @author Jordan Abraham
  */
-fun ByteArray.decompress(): DecompressedArchive = decompress(intArrayOf())
-
-fun ByteArray.decompress(keys: IntArray): DecompressedArchive {
+fun ByteArray.decompress(keys: IntArray = intArrayOf()): DecompressedArchive {
     val buffer = toByteBuffer()
     val compression = buffer.readUnsignedByte()
     val length = buffer.int

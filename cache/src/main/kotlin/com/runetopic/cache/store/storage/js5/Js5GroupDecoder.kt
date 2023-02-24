@@ -1,6 +1,8 @@
 package com.runetopic.cache.store.storage.js5
 
+import com.runetopic.cache.extension.decompress
 import com.runetopic.cache.extension.toByteBuffer
+import com.runetopic.cache.hierarchy.index.group.Group
 import com.runetopic.cache.hierarchy.index.group.file.File
 import java.lang.System.arraycopy
 import java.nio.ByteBuffer
@@ -8,25 +10,21 @@ import java.nio.ByteBuffer
 /**
  * @author Jordan Abraham
  */
-internal fun decodeJs5Group(
-    fileIds: IntArray,
-    fileNameHashes: IntArray,
-    count: Int,
-    data: ByteArray
-): Array<File> {
-    if (data.isEmpty() || count <= 1) return arrayOf(File(fileIds[0], fileNameHashes[0], data))
+internal fun Group.decodeJs5Group(keys: IntArray = intArrayOf()): Array<File> {
+    val data = data.decompress(keys).data
+    if (data.isEmpty() || fileCount <= 1) return arrayOf(File(fileIds[0], fileNameHashes[0], data))
 
     var position = data.size
     val chunks = data[--position].toInt() and 0xFF
-    position -= chunks * (count * 4)
+    position -= chunks * (fileCount * 4)
     val buffer = data.toByteBuffer()
     buffer.position(position)
-    val fileChunks = buffer.decodeFileChunks(chunks, count)
-    val fileSegments = buffer.decodeFileSegments(count, fileChunks)
+    val fileChunks = buffer.decodeFileChunks(chunks, fileCount)
+    val fileSegments = buffer.decodeFileSegments(fileCount, fileChunks)
     buffer.position(position)
-    buffer.decodeFiles(data, count, chunks, fileChunks, fileSegments)
+    buffer.decodeFiles(data, fileCount, chunks, fileChunks, fileSegments)
 
-    return Array(count) { File(fileIds[it], fileNameHashes[it], fileSegments[it]) }
+    return Array(fileCount) { File(fileIds[it], fileNameHashes[it], fileSegments[it]) }
 }
 
 private tailrec fun ByteBuffer.decodeFileChunks(

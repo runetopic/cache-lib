@@ -1,6 +1,5 @@
 package com.runetopic.cache.hierarchy.index.group
 
-import com.runetopic.cache.extension.decompress
 import com.runetopic.cache.hierarchy.index.group.file.File
 import com.runetopic.cache.store.storage.js5.decodeJs5Group
 
@@ -21,54 +20,30 @@ data class Group(
     val fileNameHashes: IntArray,
     val data: ByteArray
 ) : Comparable<Group> {
-    private lateinit var fileArray: Array<File>
+    private lateinit var groupFiles: Array<File>
 
     @JvmName("getFiles")
     fun files(): Array<File> {
-        if (::fileArray.isInitialized) return fileArray
-
-        return decodeJs5Group(
-            fileIds,
-            fileNameHashes,
-            fileCount,
-            data.decompress().data
-        ).apply { fileArray = Array(size) { this[it] } }
+        if (::groupFiles.isInitialized) return groupFiles
+        return decodeJs5Group().apply { groupFiles = Array(size) { this[it] } }
     }
 
     @JvmName("getFile")
     fun file(fileId: Int): File? {
-        if (::fileArray.isInitialized) return fileArray.firstOrNull { it.id == fileId }
-
-        return decodeJs5Group(
-            fileIds,
-            fileNameHashes,
-            fileCount,
-            data.decompress().data
-        ).apply { fileArray = Array(size) { this[it] } }.firstOrNull { it.id == fileId }
+        if (::groupFiles.isInitialized) return groupFiles.firstOrNull { it.id == fileId }
+        return decodeJs5Group().apply { groupFiles = Array(size) { this[it] } }.firstOrNull { it.id == fileId }
     }
 
     @JvmName("getFiles")
     fun files(keys: IntArray): Array<File> {
-        if (::fileArray.isInitialized) return fileArray
-
-        return decodeJs5Group(
-            fileIds,
-            fileNameHashes,
-            fileCount,
-            data.decompress(keys).data
-        ).apply { fileArray = Array(size) { this[it] } }
+        if (::groupFiles.isInitialized) return groupFiles
+        return decodeJs5Group(keys).apply { groupFiles = Array(size) { this[it] } }
     }
 
     @JvmName("getFile")
     fun file(fileId: Int, keys: IntArray): File? {
-        if (::fileArray.isInitialized) return fileArray.firstOrNull { it.id == fileId }
-
-        return decodeJs5Group(
-            fileIds,
-            fileNameHashes,
-            fileCount,
-            data.decompress(keys).data
-        ).apply { fileArray = Array(size) { this[it] } }.firstOrNull { it.id == fileId }
+        if (::groupFiles.isInitialized) return groupFiles.firstOrNull { it.id == fileId }
+        return decodeJs5Group(keys).apply { groupFiles = Array(size) { this[it] } }.firstOrNull { it.id == fileId }
     }
 
     override fun compareTo(other: Group): Int = this.id.compareTo(other.id)

@@ -76,11 +76,29 @@ internal class Js5DiskStorage(
 
         if (indexTable.length == 0 && indexTable.sector == 0) {
             // Default this as an index if it can't be created.
-            store.addIndex(Index(indexId, 0, ByteArray(64), -1, -1, 0, false, arrayOf()))
+            store.addIndex(
+                Index(
+                    id = indexId,
+                    crc = 0,
+                    whirlpool = byteArrayOf(),
+                    compression = -1,
+                    protocol = -1,
+                    revision = 0,
+                    isNamed = false,
+                    groups = arrayOf()
+                )
+            )
             return
         }
-        val indexDatTable = datFile.readReferenceTable(masterIdxFile.id(), indexTable)
-        store.addIndex(decodeJs5Index(datFile, getIdxFile(indexId), indexDatTable.toWhirlpool(), indexDatTable.decompress()))
+        datFile.readReferenceTable(masterIdxFile.id(), indexTable).let {
+            store.addIndex(
+                it.decompress().decodeJs5Index(
+                    datFile = datFile,
+                    idxFile = getIdxFile(indexId),
+                    whirlpool = it.toWhirlpool()
+                )
+            )
+        }
     }
 
     override fun loadMasterReferenceTable(groupId: Int): ByteArray = datFile.readReferenceTable(
@@ -95,8 +113,10 @@ internal class Js5DiskStorage(
 
     override fun loadReferenceTable(index: Index, groupName: String): ByteArray {
         val group = index.group(groupName) ?: return byteArrayOf()
-        if (group.data.isEmpty()) return group.data
-        return datFile.readReferenceTable(index.id, getIdxFile(index.id).loadReferenceTable(group.id))
+        return datFile.readReferenceTable(
+            id = index.id,
+            referenceTable = getIdxFile(index.id).loadReferenceTable(group.id)
+        )
     }
 
     private fun getIdxFile(id: Int): IdxFile = idxFiles.find { it.id() == id } ?: IdxFile(id, Path.of("$path/${Constants.MAIN_FILE_IDX}$id"))
