@@ -25,7 +25,7 @@ fun ByteArray.decompress(keys: IntArray): DecompressedArchive {
 
     return when (compression) {
         0 -> {
-            val encrypted = ByteArray(length).apply { buffer.get(this, 0, length) }
+            val encrypted = ByteArray(length).apply { buffer.get(this) }
             crc32.update(encrypted, 0, length)
             val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys)
             val revision = if (buffer.remaining() >= 2) buffer.readUnsignedShort().also { assert(it != -1) { "Revision not properly decoded with no codec. Was -1" } } else -1
