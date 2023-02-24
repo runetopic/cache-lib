@@ -14,8 +14,7 @@ internal fun decodeJs5Group(
     count: Int,
     data: ByteArray
 ): Array<File> {
-    if (data.isEmpty()) return arrayOf(File(-1, -1, ByteArray(0)))
-    if (count <= 1) return arrayOf(File(fileIds[0], fileNameHashes[0], data))
+    if (data.isEmpty() || count <= 1) return arrayOf(File(fileIds[0], fileNameHashes[0], data))
 
     var position = data.size
     val chunks = data[--position].toInt() and 0xFF
