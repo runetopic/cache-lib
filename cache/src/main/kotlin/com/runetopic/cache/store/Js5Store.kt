@@ -48,38 +48,36 @@ class Js5Store(
         return storage.loadReferenceTable(index(indexId), groupId)
     }
 
-    fun checksumsWithoutRSA(): ByteArray {
-        val header = ByteBuffer.allocate(indexes.size * 8)
+    fun checksumsWithoutRSA(): ByteArray = ByteBuffer.allocate(indexes.size * 8).apply {
         indexes.forEach {
-            header.putInt(it?.crc ?: -1)
-            header.putInt(it?.revision ?: -1)
+            putInt(it?.crc ?: -1)
+            putInt(it?.revision ?: -1)
         }
-        return header.array()
-    }
+    }.array()
 
     fun checksumsWithRSA(exponent: BigInteger, modulus: BigInteger): ByteArray {
-        val header = ByteBuffer.allocate(indexes.size * 72 + 6)
-        header.position(5)
-        header.put(indexes.size.toByte())
-        indexes.forEach {
-            header.putInt(it?.crc ?: -1)
-            header.putInt(it?.revision ?: -1)
-            header.put(it?.whirlpool ?: ByteArray(64))
-        }
-        val headerPosition = header.position()
-        val headerArray = header.array()
+        val header = ByteBuffer.allocate(indexes.size * 72 + 6).apply {
+            position(5)
+            put(indexes.size.toByte())
+            indexes.forEach {
+                putInt(it?.crc ?: -1)
+                putInt(it?.revision ?: -1)
+                put(it?.whirlpool ?: ByteArray(64))
+            }
+        }.array()
 
-        val whirlpool = ByteBuffer.allocate(64 + 1)
-        whirlpool.put(1)
-        whirlpool.put(headerArray.copyInto(ByteArray(headerPosition - 5), 0, 5, headerPosition).toWhirlpool())
+        val whirlpool = ByteBuffer.allocate(64 + 1).apply {
+            put(1)
+            put(header.copyInto(ByteArray(header.size - 5), 0, 5, header.size).toWhirlpool())
+        }
 
         val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
-        val checksums = ByteBuffer.allocate(headerPosition + rsa.size)
-        checksums.put(0)
-        checksums.putInt((headerPosition + rsa.size) - 5)
-        checksums.put(headerArray, 5, headerPosition - 5)
-        checksums.put(rsa)
-        return checksums.array()
+        return ByteBuffer.allocate(header.size + rsa.size).apply {
+            put(0)
+            putInt((header.size + rsa.size) - 5)
+            put(header, 5, header.size - 5)
+            put(rsa)
+        }.array()
     }
 
     fun validIndexCount(): Int = indexes.size
