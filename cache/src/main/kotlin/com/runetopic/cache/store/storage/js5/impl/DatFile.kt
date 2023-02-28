@@ -52,10 +52,10 @@ internal class DatFile(
         val currentReferenceTableId = if (large) header.int else header.readUnsignedShort()
         val currentPart = header.readUnsignedShort()
         val nextSector = header.readUnsignedMedium()
-        val currentIndex = header.readUnsignedByte()
+        val currentId = header.readUnsignedByte()
 
-        if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentIndex) {
-            throw DatFileException("DatFile mismatch Id={$currentIndex} != {$id}, ReferenceTableId={$currentReferenceTableId} != {$referenceTableId}, CurrentPart={$currentPart} != {$part}")
+        if (referenceTableId != currentReferenceTableId || currentPart != part || id != currentId) {
+            throw DatFileException("DatFile mismatch Id={$currentId} != {$id}, ReferenceTableId={$currentReferenceTableId} != {$referenceTableId}, CurrentPart={$currentPart} != {$part}")
         }
         if (nextSector < 0 || nextSector > datBuffer.size / DAT_SIZE) {
             throw DatFileException("Invalid next sector $nextSector")
