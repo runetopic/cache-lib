@@ -39,7 +39,7 @@ internal class DatFile(
         bytes: Int = 0,
         part: Int = 0
     ): ByteArray {
-        if (length <= bytes) return flip().array()
+        if (length <= bytes) return array()
 
         if (sector == 0) {
             throw EndOfDatFileException("Unexpected end of file. Id=[$id} Length=[$length]")
