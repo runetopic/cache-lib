@@ -10,7 +10,7 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("deps") {
-            version("kotlin", "1.7.10")
+            version("kotlin", "1.8.10")
             plugin("jvm", "org.jetbrains.kotlin.jvm").versionRef("kotlin")
         }
     }

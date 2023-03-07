@@ -10,6 +10,10 @@ plugins {
 allprojects {
     group = "com.runetopic.cache"
 
+    apply {
+        plugin("org.jetbrains.kotlin.jvm")
+    }
+
     plugins.withType<KotlinPluginWrapper> {
         dependencies {
             implementation(kotlin("stdlib"))
@@ -22,19 +26,15 @@ allprojects {
         }
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlin {
-            jvmToolchain {
-                languageVersion.set(JavaLanguageVersion.of(18))
-            }
+    kotlin {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_11.majorVersion))
         }
     }
 
-    tasks.withType<UsesKotlinJavaToolchain>().configureEach {
-        kotlinJavaToolchain.toolchain.use(
-            project.extensions.getByType<JavaToolchainService>().launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(18))
-            }
-        )
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_11.majorVersion))
+        }
     }
 }
