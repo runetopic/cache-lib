@@ -18,7 +18,6 @@ internal fun DecompressedArchive.decodeJs5Index(
     idxFile: IIdxFile,
     whirlpool: ByteArray,
 ): Index {
-    val buffer = data.toByteBuffer()
     val protocol = buffer.readUnsignedByte()
     val revision = when {
         protocol < 5 || protocol > 7 -> throw ProtocolException("Unhandled protocol $protocol")

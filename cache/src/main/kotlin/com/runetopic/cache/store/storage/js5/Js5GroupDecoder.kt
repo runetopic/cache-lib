@@ -12,16 +12,15 @@ import java.nio.ByteBuffer
  */
 internal fun Group.decodeJs5Group(keys: IntArray = intArrayOf()): Array<File> {
     if (data.isEmpty() || fileCount <= 1) return arrayOf(File(fileIds[0], fileNameHashes[0], data))
-    val decompressed = data.decompress(keys).data
-    var position = decompressed.size
+    val decompressed = data.decompress(keys).buffer
+    var position = decompressed.capacity()
     val chunks = decompressed[--position].toInt() and 0xFF
     position -= chunks * (fileCount * 4)
-    val buffer = decompressed.toByteBuffer()
-    buffer.position(position)
-    val fileChunks = buffer.decodeFileChunks(chunks, fileCount)
-    val fileSegments = buffer.decodeFileSegments(fileCount, fileChunks)
-    buffer.position(position)
-    buffer.decodeFiles(decompressed, fileCount, chunks, fileChunks, fileSegments)
+    decompressed.position(position)
+    val fileChunks = decompressed.decodeFileChunks(chunks, fileCount)
+    val fileSegments = decompressed.decodeFileSegments(fileCount, fileChunks)
+    decompressed.position(position)
+    decompressed.decodeFiles(decompressed.array(), fileCount, chunks, fileChunks, fileSegments)
     return Array(fileCount) { File(fileIds[it], fileNameHashes[it], fileSegments[it]) }
 }
 

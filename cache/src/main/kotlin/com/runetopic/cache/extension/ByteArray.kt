@@ -24,26 +24,25 @@ fun ByteArray.decompress(keys: IntArray = intArrayOf()): DecompressedArchive {
     return when (compression) {
         0 -> {
             val encrypted = ByteArray(length).apply { buffer.get(this) }.also { crc32.update(it) }
-            val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys)
+            val decrypted = if (keys.isEmpty()) encrypted.toByteBuffer() else encrypted.fromXTEA(32, keys)
             val revision = if (buffer.remaining() >= 2) buffer.readUnsignedShort().also { assert(it != -1) { "Revision not properly decoded with no codec. Was -1" } } else -1
             DecompressedArchive(decrypted, compression, revision, crc32.value.toInt())
         }
         1, 2 -> {
             val encrypted = ByteArray(length + 4).apply { buffer.get(this) }.also { crc32.update(it) }
-            val decrypted = if (keys.isEmpty()) encrypted else encrypted.fromXTEA(32, keys)
+            val decrypted = if (keys.isEmpty()) encrypted.toByteBuffer() else encrypted.fromXTEA(32, keys)
             val revision = if (buffer.remaining() >= 2) buffer.readUnsignedShort().also { assert(it != -1) { "Revision not properly decoded with no codec. Was -1" } } else -1
 
-            val byteBuffer = decrypted.toByteBuffer()
-            val decryptedLength = byteBuffer.int
+            val decryptedLength = decrypted.int
             val decryptedData = with(if (compression == 1) CodecType.bzip else CodecType.gzip) {
-                decompress(byteBuffer.remainingBytes(), length, keys)
+                decompress(decrypted.remainingBytes(), length, keys)
             }
 
             if (decryptedData.size != decryptedLength) {
                 throw CompressionException("Compression size mismatch.")
             }
 
-            DecompressedArchive(decryptedData, compression, revision, crc32.value.toInt())
+            DecompressedArchive(decryptedData.toByteBuffer(), compression, revision, crc32.value.toInt())
         }
         else -> throw CompressionException("Compression type not found with a compression type of $compression.")
     }

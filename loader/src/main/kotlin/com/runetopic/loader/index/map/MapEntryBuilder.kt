@@ -26,7 +26,7 @@ internal class MapEntryBuilder : IEntryBuilder<MapEntryType> {
                 val regionY: Int = regionId and 0xFF
                 index.group("m${regionX}_${regionY}")?.data?.let { data ->
                     if (data.isEmpty()) return@forEach
-                    add(read(data.decompress().data.toByteBuffer(), MapEntryType(regionId, regionX, regionY)))
+                    add(read(data.decompress().buffer, MapEntryType(regionId, regionX, regionY)))
                 }
             }
         }
