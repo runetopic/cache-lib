@@ -32,11 +32,10 @@ fun ByteArray.decompress(keys: IntArray = intArrayOf()): DecompressedArchive {
             val encrypted = ByteArray(length + 4).apply { buffer.get(this) }.also { crc32.update(it) }
             val decrypted = if (keys.isEmpty()) encrypted.toByteBuffer() else encrypted.fromXTEA(32, keys)
             val revision = if (buffer.remaining() >= 2) buffer.readUnsignedShort().also { assert(it != -1) { "Revision not properly decoded with no codec. Was -1" } } else -1
-
-            val decryptedLength = decrypted.int
             val decryptedData = with(if (compression == 1) CodecType.bzip else CodecType.gzip) {
-                decompress(decrypted.remainingBytes(), length, keys)
+                decompress(decrypted.array().sliceArray(4 until decrypted.capacity()), length, keys)
             }
+            val decryptedLength = decrypted.int
 
             if (decryptedData.size != decryptedLength) {
                 throw CompressionException("Compression size mismatch.")
