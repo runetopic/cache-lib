@@ -14,13 +14,13 @@ internal class SpotAnimationEntryBuilder: IEntryBuilder<SpotAnimationEntryType> 
 
     lateinit var spotAnimations: Set<SpotAnimationEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         spotAnimations = buildSet {
-            store.index(21).use { index ->
-                (0 until index.expand()).forEach {
-                    add(read(index.group(it ushr 8).file(it and 0xFF).data.toByteBuffer(), SpotAnimationEntryType(it)))
-                }
+            val index = store.index(21)
+            (0 until index.expand()).forEach {
+                index.group(it ushr 8)?.file(it and 0xFF)?.data?.toByteBuffer()?.let { buffer ->
+                    read(buffer, SpotAnimationEntryType(it))
+                }?.let { type -> add(type) }
             }
         }
     }

@@ -3,7 +3,6 @@ package com.runetopic.cache.store
 import com.runetopic.cache.hierarchy.index.Index
 import com.runetopic.cache.store.storage.js5.Js5DiskStorage
 import com.runetopic.cryptography.toWhirlpool
-import java.io.Closeable
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -17,31 +16,22 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class Js5Store(
     path: Path,
-    parallel: Boolean = false,
-    decompressionIndexExclusions: IntArray = intArrayOf()
-) : Closeable {
-    private var storage = Js5DiskStorage(path, parallel, decompressionIndexExclusions)
-    private val indexes = CopyOnWriteArrayList<Index>()
+    parallel: Boolean = false
+) {
+    private var storage = Js5DiskStorage(path, parallel)
+    private val indexes = arrayOfNulls<Index>(storage.validIndexCount())
 
     init {
         storage.init(this)
-        indexes.sortWith(compareBy { it.id })
     }
 
     internal fun addIndex(index: Index) {
-        indexes.forEach { i -> require(index.id != i.id) { "Index with Id={${index.id}} already exists." } }
-        indexes.add(index)
+        indexes[index.id] = index
     }
 
-    fun index(indexId: Int): Index = indexes.find { it.id == indexId }!!
+    fun index(indexId: Int): Index = indexes[indexId]!!
 
-    fun indexReferenceTableSize(indexId: Int): Int {
-        var size = 0
-        index(indexId).use { index ->
-            index.groups().forEach { size += storage.loadReferenceTable(index, it.id).size }
-        }
-        return size
-    }
+    fun indexReferenceTableSize(indexId: Int): Int = index(indexId).let { it.groups().fold(0) { size, group -> size + storage.loadReferenceTable(it, group.id).size } }
 
     fun groupReferenceTableSize(indexId: Int, groupName: String): Int {
         val referenceTable = storage.loadReferenceTable(index(indexId), groupName)
@@ -58,41 +48,37 @@ class Js5Store(
         return storage.loadReferenceTable(index(indexId), groupId)
     }
 
-    fun checksumsWithoutRSA(): ByteArray {
-        val header = ByteBuffer.allocate(indexes.size * 8)
+    fun checksumsWithoutRSA(): ByteArray = ByteBuffer.allocate(indexes.size * 8).apply {
         indexes.forEach {
-            header.putInt(it.crc)
-            header.putInt(it.revision)
+            putInt(it?.crc ?: -1)
+            putInt(it?.revision ?: -1)
         }
-        return header.array()
-    }
+    }.array()
 
     fun checksumsWithRSA(exponent: BigInteger, modulus: BigInteger): ByteArray {
-        val header = ByteBuffer.allocate(indexes.size * 72 + 6)
-        header.position(5)
-        header.put(indexes.size.toByte())
-        indexes.forEach {
-            header.putInt(it.crc)
-            header.putInt(it.revision)
-            header.put(it.whirlpool)
-        }
-        val headerPosition = header.position()
-        val headerArray = header.array()
+        val header = ByteBuffer.allocate(indexes.size * 72 + 6).apply {
+            position(5)
+            put(indexes.size.toByte())
+            indexes.forEach {
+                putInt(it?.crc ?: -1)
+                putInt(it?.revision ?: -1)
+                put(it?.whirlpool ?: ByteArray(64))
+            }
+        }.array()
 
-        val whirlpool = ByteBuffer.allocate(64 + 1)
-        whirlpool.put(1)
-        whirlpool.put(headerArray.copyInto(ByteArray(headerPosition - 5), 0, 5, headerPosition).toWhirlpool())
+        val whirlpool = ByteBuffer.allocate(64 + 1).apply {
+            put(1)
+            put(header.copyInto(ByteArray(header.size - 5), 0, 5, header.size).toWhirlpool())
+        }
 
         val rsa = BigInteger(whirlpool.array()).modPow(exponent, modulus).toByteArray()
-        val checksums = ByteBuffer.allocate(headerPosition + rsa.size)
-        checksums.put(0)
-        checksums.putInt((headerPosition + rsa.size) - 5)
-        checksums.put(headerArray, 5, headerPosition - 5)
-        checksums.put(rsa)
-        return checksums.array()
+        return ByteBuffer.allocate(header.size + rsa.size).apply {
+            put(0)
+            putInt((header.size + rsa.size) - 5)
+            put(header, 5, header.size - 5)
+            put(rsa)
+        }.array()
     }
 
-    fun validIndexCount() = indexes.size
-
-    override fun close() = storage.close()
+    fun validIndexCount(): Int = indexes.size
 }

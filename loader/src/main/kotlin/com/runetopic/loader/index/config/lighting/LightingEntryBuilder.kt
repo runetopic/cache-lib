@@ -15,10 +15,9 @@ internal class LightingEntryBuilder : IEntryBuilder<LightingEntryType> {
 
     lateinit var lightings: Set<LightingEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         lightings = buildSet {
-            store.index(2).group(31).files().forEach {
+            store.index(2).group(31)?.files()?.forEach {
                 add(read(it.data.toByteBuffer(), LightingEntryType(it.id)))
             }
         }

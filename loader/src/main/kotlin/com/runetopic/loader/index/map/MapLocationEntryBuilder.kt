@@ -16,17 +16,15 @@ internal class MapLocationEntryBuilder : IEntryBuilder<MapLocationEntryType> {
 
     lateinit var mapTypes: Set<MapLocationEntryType>
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun build(store: Js5Store) {
         mapTypes = buildSet {
-            store.index(5).use {
-                (0..Short.MAX_VALUE).forEach { regionId ->
-                    val regionX: Int = regionId shr 8
-                    val regionY: Int = regionId and 0xFF
-                    it.group("l${regionX}_${regionY}").data.let { data ->
-                        if (data.isEmpty()) return@forEach
-                        add(read(data.toByteBuffer(), MapLocationEntryType(regionId, regionX, regionY)))
-                    }
+            val index = store.index(5)
+            (0..Short.MAX_VALUE).forEach { regionId ->
+                val regionX: Int = regionId shr 8
+                val regionY: Int = regionId and 0xFF
+                index.group("l${regionX}_${regionY}")?.data?.let { data ->
+                    if (data.isEmpty()) return@forEach
+                    add(read(data.toByteBuffer(), MapLocationEntryType(regionId, regionX, regionY)))
                 }
             }
         }

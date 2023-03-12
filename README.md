@@ -24,8 +24,7 @@ A cache library written in Kotlin.
 # Implementation
 Just use cache if you do not require any of the revision specific loaders.
 ```groovy
-cache = { module = "com.runetopic.cache:cache", version.ref "1.4.19-SNAPSHOT" }
-loader = { module = "com.runetopic.cache:loader", version.ref "647.6.4-SNAPSHOT" }
+cache = { module = "com.runetopic.cache:cache", version.ref "2.0.0-SNAPSHOT" }
 ```
 
 ```groovy
